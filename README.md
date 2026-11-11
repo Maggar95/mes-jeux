@@ -24,14 +24,14 @@ Site de petits jeux avec classements, jouable sans compte.
 
 Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`, `player`, `score`, `details`, `created_at`). Chaque partie jouée ajoute une ligne au classement ; la page `classement.html` permet aussi de n'afficher que le meilleur score de chaque joueur.
 
-## Classes
-
-Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : BTS MCO JV1, 1STMG1, TSTMG1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
-
 | Jeu | Score sur 100 |
 | --- | --- |
 | Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale |
 | Direction Saint-Gratien | fin perdue : 0 · fin gagnante : 50 à 95 selon la surprise rapportée · « liste complète » : 100 · fin cachée : 75 |
+
+## Classes
+
+Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : BTS MCO JV1, 1STMG1, TSTMG1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
 
 ## Ajouter un jeu
 
