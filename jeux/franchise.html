@@ -297,7 +297,7 @@ tr.me td { background: var(--good-bg); font-weight: 700; }
       ],
       rule: { ref: "Art. 1114 du Code civil", text: "L'offre comprend les éléments essentiels du contrat envisagé et exprime la volonté de son auteur d'être lié en cas d'acceptation. À défaut, il y a seulement invitation à entrer en négociation." } },
     { id: "p2e", tag: "Formation du contrat",
-      ctx: ["Le 20 mars, vous répondez à l'enseigne : « J'accepte votre offre du 10 mars. »"],
+      ctx: ["Forno Express vous a envoyé le 10 mars une offre ferme : contrat de dix ans, droit d'entrée de 25 000 €, redevance de 6,5 %. Le 20 mars, vous répondez à l'enseigne : « J'accepte votre offre du 10 mars. »"],
       q: "À quel moment le contrat est-il formé ?",
       opts: [
         { t: "À la remise du DIP", ok: false, cost: 3, fb: "Le DIP informe, il ne forme pas le contrat. Coût de la confusion : 3 k€." },
@@ -635,16 +635,18 @@ var P5 = [
     steps = []; totalAnswers = 0; var funDeck = shuffle(FUN);
     YEARS.forEach(function (y, yi) {
       steps.push({ kind: "year", yi: yi });
+      var ys = [];   /* étapes de l'année : mélangées, mais l'année reste à sa place */
       y.plan.forEach(function (p) {
-        if (p.fun) { steps.push({ kind: "choice", yi: yi, sc: funDeck.pop() }); }
+        if (p.fun) { ys.push({ kind: "choice", yi: yi, sc: funDeck.pop() }); }
         else if (p.pool) {
-          shuffle(p.pool).slice(0, p.draw).forEach(function (sc) { steps.push({ kind: "choice", yi: yi, sc: sc }); totalAnswers++; });
+          shuffle(p.pool).slice(0, p.draw).forEach(function (sc) { ys.push({ kind: "choice", yi: yi, sc: sc }); totalAnswers++; });
         } else {
           var sc = p.sort;
-          steps.push({ kind: "sort", yi: yi, sc: sc, items: shuffle(sc.items).slice(0, SORT_SIZE) });
+          ys.push({ kind: "sort", yi: yi, sc: sc, items: shuffle(sc.items).slice(0, SORT_SIZE) });
           totalAnswers += SORT_SIZE;
         }
       });
+      shuffle(ys).forEach(function (st) { steps.push(st); });
       steps.push({ kind: "event", yi: yi, ev: yi < YEARS.length - 1 ? EVENTS[Math.floor(Math.random() * EVENTS.length)] : null });
     });
     steps.push({ kind: "end" });
