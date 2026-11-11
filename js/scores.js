@@ -8,7 +8,9 @@
   function ready() { return !!(cfg.supabaseUrl && cfg.supabaseKey); }
   function endpoint() { return cfg.supabaseUrl.replace(/\/+$/, "") + "/rest/v1/scores"; }
   function headers(extra) {
-    var h = { apikey: cfg.supabaseKey, Authorization: "Bearer " + cfg.supabaseKey };
+    var h = { apikey: cfg.supabaseKey };
+    /* Les anciennes clés « anon » sont des jetons JWT ; les nouvelles clés « sb_publishable_ » ne s'envoient que dans apikey */
+    if (cfg.supabaseKey.indexOf("sb_") !== 0) h.Authorization = "Bearer " + cfg.supabaseKey;
     for (var k in extra) h[k] = extra[k];
     return h;
   }
