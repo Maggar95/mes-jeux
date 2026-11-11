@@ -91,6 +91,12 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .qr figcaption { margin-top: 8px; font: 600 15px/22px var(--f-body); color: var(--ink); }
 .qr .small { font-weight: 400; display: block; line-height: 22px; }
 
+/* Page « Les codes » (Perso) */
+.codes-lock[hidden], .codes-list[hidden] { display: none; }
+.codes { margin: 0 0 28px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 18px; align-items: baseline; }
+.codes dt { font-weight: 600; overflow-wrap: anywhere; border-bottom: 1px solid var(--rule); padding: 4px 0; }
+.codes dd { margin: 0; font: 800 22px/28px var(--f-display); letter-spacing: .08em; border-bottom: 1px solid var(--rule); padding: 4px 0; color: var(--ink); text-align: right; }
+
 /* Classement complet */
 .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0; }
 .tab {

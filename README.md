@@ -12,6 +12,7 @@ Site de petits jeux avec classements, jouable sans compte.
 - `js/endings.js` : classement par fins découvertes (Saint-Gratien)
 - `js/scores.js` : enregistrement et lecture des scores
 - `js/qrcode.js` : petite bibliothèque libre (MIT, « qrcode-generator ») qui dessine les QR codes ; rien à régler
+- `js/codes.js` : la liste des codes de la page « Les codes » (rubrique Perso), **chiffrée** ; rien n'y est lisible sans le code à 6 chiffres
 - `js/config.js` : adresse et clé publique de la base Supabase
 - `css/site.css` : style de l'accueil et du classement
 
@@ -25,6 +26,15 @@ Chaque jeu affiche son QR code dans son menu déroulant de l'accueil. Il est cal
 - Un jeu peut avoir son **propre code** (champ `codeHash`). La page du jeu le demande avant de s'ouvrir.
 - Les codes ne sont jamais écrits en clair dans le dépôt : on garde leur empreinte (SHA-256). C'est une barrière douce, qui guide les élèves mais ne protège pas contre quelqu'un de très motivé.
 - Pour changer un code, il suffit de recalculer l'empreinte : `sha256("mesjeux:" + code en minuscules)`.
+
+## Page « Les codes » (Perso)
+
+Dans la rubrique Perso, un menu déroulant « Les codes » est fermé par un code à 6 chiffres. Il affiche les codes des jeux et celui de la rubrique Perso.
+
+- La liste est chiffrée dans `js/codes.js` (AES-GCM, clé tirée du code à 6 chiffres avec PBKDF2, 1 million de tours). Ni les codes ni le code à 6 chiffres ne sont écrits en clair dans le dépôt.
+- Le code saisi n'est jamais enregistré dans le navigateur : il faut le retaper à chaque visite.
+- C'est une barrière douce : six chiffres font un million de combinaisons, qu'une personne très motivée, équipée d'un bon ordinateur et ayant téléchargé `js/codes.js`, pourrait toutes essayer. Elle suffit pour des élèves, pas pour un secret important.
+- Pour ajouter ou changer un code, il faut redonner à Claude les codes et le code à 6 chiffres : il régénère `js/codes.js`.
 
 ## Scores
 

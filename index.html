@@ -19,6 +19,7 @@
 </main>
 
 <script src="js/qrcode.js"></script>
+<script src="js/codes.js"></script>
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
@@ -74,6 +75,53 @@
     } catch (e) { return ""; }
   }
 
+  /* Page « Les codes » (rubrique Perso) : menu déroulant fermé par un code à 6 chiffres.
+     La liste est chiffrée dans js/codes.js ; elle n'est déchiffrée que dans la mémoire de la page,
+     le code saisi n'est jamais enregistré (il faut le retaper à chaque visite). */
+  function b64(s) { return Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0); }); }
+  function decryptCodes(pass) {
+    var C = window.MESJEUX_CODES;
+    if (!C || !(window.crypto && crypto.subtle)) return Promise.reject(new Error("indisponible"));
+    return crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]).then(function (base) {
+      return crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(C.salt), iterations: C.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    }).then(function (key) {
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(C.iv) }, key, b64(C.data));
+    }).then(function (buf) { return JSON.parse(new TextDecoder().decode(buf)); });
+  }
+
+  function codesBlock() {
+    var d = document.createElement("details");
+    d.className = "game";
+    d.innerHTML =
+      '<summary class="tag" style="--bg:#7a1f1f;--fg:#ffffff">Les codes</summary>' +
+      '<div class="game-body"><div class="codes-lock">' +
+      '<p class="blurb">Cette page est protégée. Entre le code à 6 chiffres.</p>' +
+      '<form class="codeform"><input inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" aria-label="Code de la page des codes">' +
+      '<button class="btn" type="submit">Voir les codes</button></form><p class="err" role="alert"></p></div>' +
+      '<div class="codes-list" hidden></div></div>';
+    var form = d.querySelector("form"), input = d.querySelector("input"), err = d.querySelector(".err");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!/^\d{6}$/.test(input.value)) { err.textContent = "Le code fait 6 chiffres."; return; }
+      err.textContent = "Vérification…";
+      decryptCodes(input.value).then(function (data) {
+        var list = d.querySelector(".codes-list");
+        list.innerHTML = '<p class="blurb">Les codes d’accès des jeux. Les majuscules n’ont pas d’importance.</p><dl class="codes">' +
+          data.items.map(function (it) { return "<dt>" + esc(it.t) + "</dt><dd>" + esc(it.c) + "</dd>"; }).join("") + "</dl>" +
+          '<button class="btn ghost" type="button">Masquer</button>';
+        list.querySelector("button").addEventListener("click", function () {
+          list.hidden = true; list.innerHTML = ""; input.value = ""; err.textContent = "";
+          d.querySelector(".codes-lock").hidden = false;
+        });
+        d.querySelector(".codes-lock").hidden = true; list.hidden = false;
+        input.value = "";
+      }, function () {
+        err.textContent = "Code incorrect. Réessaie."; input.select();
+      });
+    });
+    return d;
+  }
+
   function lockBlock(s) {
     var box = document.createElement("div");
     box.className = "lock";
@@ -119,6 +167,7 @@
       var list = Access.games.filter(function (g) { return g.section === s.id; });
       if (!list.length) { var p = document.createElement("p"); p.className = "soon"; p.textContent = "Bientôt des jeux ici."; wrap.appendChild(p); return; }
       list.forEach(function (g) { wrap.appendChild(gameBlock(g)); toLoad.push(g); });
+      if (s.id === "perso" && window.MESJEUX_CODES) wrap.appendChild(codesBlock());
     });
     if (!MesJeux.ready()) {
       toLoad.forEach(function (g) { podium(g, '<li><span class="empty">Les classements ne sont pas encore branchés.</span></li>'); });
