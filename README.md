@@ -9,6 +9,7 @@ Site de petits jeux avec classements, jouable sans compte.
 - `jeux/` : un fichier par jeu
 - `js/games.js` : les rubriques et la liste des jeux (titre, description, couleurs, empreinte du code)
 - `js/access.js` : les codes d'accès
+- `js/endings.js` : classement par fins découvertes (Saint-Gratien)
 - `js/scores.js` : enregistrement et lecture des scores
 - `js/config.js` : adresse et clé publique de la base Supabase
 - `css/site.css` : style de l'accueil et du classement
@@ -27,7 +28,7 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 | Jeu | Score sur 100 |
 | --- | --- |
 | Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale |
-| Direction Saint-Gratien | fin perdue : 0 · fin gagnante : 50 à 95 selon la surprise rapportée · « liste complète » : 100 · fin cachée : 75 |
+| Direction Saint-Gratien | pas de points : classement au nombre de **fins différentes découvertes** (à égalité, le premier arrivé). Un clic sur son prénom affiche ses fins, uniquement depuis l'appareil où il a joué (liste gardée dans son navigateur) |
 
 ## Classes
 

@@ -27,6 +27,7 @@
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
+<script src="js/endings.js"></script>
 <script src="js/access.js"></script>
 <script>
 (function () {
@@ -64,6 +65,9 @@
   document.getElementById("cls").addEventListener("change", function () { cls = this.value; if (cache[current.id]) draw(cache[current.id]); });
 
   function draw(rows) {
+    var endings = current.rank === "endings";
+    document.getElementById("mode").hidden = endings;
+    if (endings) { out.innerHTML = ""; Endings.renderBoard(out, rows, { cls: "board" }); return; }
     if (cls) rows = rows.filter(function (r) { return (r.details || {}).cls === cls; });
     var shown = mode === "best" ? MesJeux.bestPerPlayer(rows) : rows;
     if (!shown.length) { out.innerHTML = '<p class="note">Aucune partie pour l’instant. Lance la première.</p>'; return; }

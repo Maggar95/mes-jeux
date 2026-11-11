@@ -21,6 +21,7 @@
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
+<script src="js/endings.js"></script>
 <script src="js/access.js"></script>
 <script>
 (function () {
@@ -78,10 +79,10 @@
     pending++;
     MesJeux.list(g.id, 1000).then(function (rows) {
       total += rows.length;
-      var top = rows.slice(0, 3);
+      var top = g.rank === "endings" ? Endings.rank(rows).slice(0, 3).map(function (o) { return { player: o.player, score: o.count }; }) : rows.slice(0, 3);
       if (!top.length) { podium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
       podium(g, top.map(function (r, i) {
-        return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + "</span></li>";
+        return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + esc(g.unit || "") + "</span></li>";
       }).join(""));
     }, function () {
       podium(g, '<li><span class="empty">Classement indisponible pour le moment.</span></li>');

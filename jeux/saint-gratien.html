@@ -159,6 +159,7 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 <script src="../js/games.js"></script>
 <script src="../js/scores.js"></script>
 <script>window.MESJEUX_GAME="saint-gratien";</script>
+<script src="../js/endings.js"></script>
 <script src="../js/access.js"></script>
 <script>
 /*DATA_START*/
@@ -1611,7 +1612,19 @@ function maybe(S, dest, p){
 const $ = id => document.getElementById(id);
 function el(tag, cls, txt){ const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
-function foundSet(){ try { return new Set(JSON.parse(store('dsg-ends') || '[]')); } catch (e) { return new Set(); } }
+/* Fins trouvées : gardées par prénom, sur cet appareil (id de la fin -> titre) */
+function foundMap(p){ return (window.Endings && Endings.found(p)) || {}; }
+function foundSet(p){
+  let m = foundMap(p);
+  if (!Object.keys(m).length && p && p === store('dsg-pseudo')){
+    try {   /* reprend l'ancienne liste, enregistrée avant les prénoms */
+      const old = JSON.parse(store('dsg-ends') || '[]'); m = {};
+      old.forEach(id=>{ if (SCENES[id] && SCENES[id].end) m[id] = fill(SCENES[id].h); });
+      if (old.length) store(Endings.key(p), JSON.stringify(m));
+    } catch (e) { m = {}; }
+  }
+  return new Set(Object.keys(m));
+}
 const ENDS = Object.keys(SCENES).filter(k=>SCENES[k].end);
 let S = null, timerId = null;
 
@@ -1634,7 +1647,7 @@ function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== 
 function renderStart(){
   showOnly('start'); clearTimer();
   const root = $('start'); root.textContent = '';
-  const found = foundSet();
+  const found = foundSet(store('dsg-pseudo') || '');
   const box = el('div','wrap');
   box.appendChild(el('div','eyebrow','31 décembre · 20h30'));
   box.appendChild(el('h1',null,'Direction Saint-Gratien'));
@@ -1802,16 +1815,11 @@ function showScene(id, sc){
   box.scrollIntoView({block:'start'});
 }
 
-function endScore(kind, id){
-  if (kind === 'lose') return 0;
-  if (kind === 'hidden') return 75;
-  if (id === 'win_parfait') return 100;
-  const s = S.best ? sc(S, S.best) : 0;
-  return Math.max(50, Math.min(95, Math.round(50 + 10*s)));
-}
-
 function showEnd(id, sc){
-  const found = foundSet(); found.add(id); store('dsg-ends', JSON.stringify([...found]));
+  foundSet(S.pseudo);
+  const map = foundMap(S.pseudo); const isNew = !map[id]; map[id] = fill(sc.h);
+  store(Endings.key(S.pseudo), JSON.stringify(map));
+  const found = new Set(Object.keys(map));
   showOnly('end');
   const root = $('end'); root.textContent = '';
   const card = el('div','endcard');
@@ -1823,8 +1831,8 @@ function showEnd(id, sc){
   card.appendChild(txt);
   const bag = S.bag.map(b=>ITEMS[b].n).join(', ');
   card.appendChild(el('p','sum','Joueur : '+S.pseudo+' · Heure : '+fmt(S.t)+' · Budget restant : '+eur(S.m)+(bag ? ' · Sac : '+bag : '')));
-  const points = endScore(kind, id);
-  card.appendChild(el('p','score','Score : '+points+' / 100'));
+  card.appendChild(el('p','score',found.size+' / '+ENDS.length+' fins'));
+  card.appendChild(el('p','small', isNew ? 'Nouvelle fin découverte !' : 'Fin déjà découverte.'));
   const status = el('p','small','Enregistrement du score…'); status.setAttribute('role','status');
   card.appendChild(status);
   const row = el('div','row');
@@ -1836,13 +1844,13 @@ function showEnd(id, sc){
   const ul = el('ul','found');
   ENDS.filter(k=>found.has(k)).forEach(k=>ul.appendChild(el('li',null,fill(SCENES[k].h))));
   card.appendChild(ul);
-  const boardBox = el('div','endcard'); boardBox.appendChild(el('h2',null,'Classement'));
+  const boardBox = el('div','endcard'); boardBox.appendChild(el('h2',null,'Classement des fins'));
   const boardBody = el('div'); boardBody.appendChild(el('p','small','Chargement…')); boardBox.appendChild(boardBody);
   const full = el('a','small','Voir le classement complet'); full.href = '../classement.html?game=saint-gratien'; boardBox.appendChild(full);
   root.appendChild(card);
   root.appendChild(boardBox);
   window.scrollTo(0,0);
-  recordAndShow(points, id, kind, fill(sc.h), status, boardBody);
+  recordAndShow(found.size, id, kind, fill(sc.h), status, boardBody);
 }
 
 function recordAndShow(points, id, kind, title, status, boardBody){
@@ -1850,23 +1858,12 @@ function recordAndShow(points, id, kind, title, status, boardBody){
     status.textContent = "Le classement n'est pas encore branché : ce score n'est pas enregistré.";
     boardBody.textContent = ''; return;
   }
-  const details = {ending:id, title:title, kind:kind, time:fmt(S.t), money:S.m, bag:S.bag.map(b=>ITEMS[b].n), character:S.player};
+  const details = {ending:id, title:title, kind:kind, time:fmt(S.t), money:S.m, bag:S.bag.map(b=>ITEMS[b].n), character:S.player, total:ENDS.length};
   MesJeux.save('saint-gratien', S.pseudo, points, details).then(res=>{
     status.textContent = res.ok ? 'Score enregistré dans le classement.' : "Le score n'a pas pu être envoyé. Il sera renvoyé à la prochaine ouverture du jeu.";
     return MesJeux.list('saint-gratien', 1000);
   }).then(rows=>{
-    const best = rows.slice(0, 10);
-    boardBody.textContent = '';
-    const table = el('table','lb');
-    const head = el('tr'); ['#','Joueur','Score'].forEach(t=>head.appendChild(el('th',null,t))); table.appendChild(head);
-    best.forEach((r,i)=>{
-      const tr = el('tr', r.player.toLowerCase() === S.pseudo.toLowerCase() ? 'me' : null);
-      tr.appendChild(el('td','rk',String(i+1)));
-      const nm = el('td','nm',r.player);
-      const t = r.details && r.details.title; if (t) nm.appendChild(el('span','sub',t));
-      tr.appendChild(nm); tr.appendChild(el('td','num',String(Math.round(r.score)))); table.appendChild(tr);
-    });
-    boardBody.appendChild(table);
+    Endings.renderBoard(boardBody, rows, {me:S.pseudo, limit:10, cls:'lb'});
   }).catch(()=>{ boardBody.textContent = ''; boardBody.appendChild(el('p','small',"Le classement n'a pas pu être lu pour le moment.")); });
 }
 

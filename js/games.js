@@ -32,8 +32,9 @@ window.MESJEUX_GAMES = [
     title: "Direction Saint-Gratien",
     file: "jeux/saint-gratien.html",
     blurb: "Le 31 au soir, tu pars de Cormeilles avec 20 € pour rejoindre Yann. Rapporte de quoi boire, de quoi manger et une surprise avant minuit.",
-    scoreLabel: "Score",
-    max: 100,
+    rank: "endings",          /* classement par nombre de fins différentes découvertes */
+    scoreLabel: "Fins",
+    unit: " fins",
     bg: "#0d1530", fg: "#ffc629",
     detail: function (r) {
       var d = r.details || {};
