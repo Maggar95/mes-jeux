@@ -78,7 +78,7 @@
     pending++;
     MesJeux.list(g.id, 1000).then(function (rows) {
       total += rows.length;
-      var top = MesJeux.bestPerPlayer(rows).slice(0, 3);
+      var top = rows.slice(0, 3);
       if (!top.length) { podium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
       podium(g, top.map(function (r, i) {
         return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + "</span></li>";

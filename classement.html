@@ -15,8 +15,11 @@
   <h1>Classements</h1>
   <div class="tabs" id="tabs" role="group" aria-label="Jeu"></div>
   <div class="mode" id="mode">
-    <label><input type="radio" name="mode" value="best" checked>Meilleur score de chaque joueur</label>
-    <label><input type="radio" name="mode" value="all">Toutes les parties</label>
+    <label><input type="radio" name="mode" value="all" checked>Toutes les parties</label>
+    <label><input type="radio" name="mode" value="best">Meilleur score de chaque joueur</label>
+  </div>
+  <div class="mode" id="clsbox" hidden>
+    <label>Classe <select id="cls"></select></label>
   </div>
   <div id="out" aria-live="polite"></div>
 </main>
@@ -33,7 +36,7 @@
   var games = window.MESJEUX_GAMES.filter(function (g) { return Access.sectionOpen(Access.section(g.section)); });
   var params = new URLSearchParams(location.search);
   var current = games.filter(function (g) { return g.id === params.get("game"); })[0] || games[0];
-  var mode = "best", cache = {};
+  var mode = "all", cls = "", cache = {};
   var tabs = document.getElementById("tabs"), out = document.getElementById("out");
 
   function drawTabs() {
@@ -42,7 +45,7 @@
       var b = document.createElement("button");
       b.type = "button"; b.className = "tab"; b.textContent = g.title;
       b.setAttribute("aria-pressed", String(g === current));
-      b.onclick = function () { current = g; drawTabs(); load(); };
+      b.onclick = function () { current = g; setClasses(); drawTabs(); load(); };
       tabs.appendChild(b);
     });
   }
@@ -51,7 +54,17 @@
     try { return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }); } catch (e) { return ""; }
   }
 
+  /* Filtre de classe : les classes de la rubrique du jeu affiché */
+  function setClasses() {
+    var s = Access.section(current.section), list = (s && s.classes) || [];
+    var sel = document.getElementById("cls"); cls = "";
+    sel.innerHTML = '<option value="">Toutes les classes</option>' + list.map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("");
+    document.getElementById("clsbox").hidden = !list.length;
+  }
+  document.getElementById("cls").addEventListener("change", function () { cls = this.value; if (cache[current.id]) draw(cache[current.id]); });
+
   function draw(rows) {
+    if (cls) rows = rows.filter(function (r) { return (r.details || {}).cls === cls; });
     var shown = mode === "best" ? MesJeux.bestPerPlayer(rows) : rows;
     if (!shown.length) { out.innerHTML = '<p class="note">Aucune partie pour l’instant. Lance la première.</p>'; return; }
     var h = '<table class="board"><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">' + esc(current.scoreLabel) + "</th></tr></thead><tbody>";
@@ -80,7 +93,7 @@
   document.getElementById("mode").addEventListener("change", function (e) {
     if (e.target && e.target.name === "mode") { mode = e.target.value; if (cache[current.id]) draw(cache[current.id]); }
   });
-  drawTabs(); load();
+  setClasses(); drawTabs(); load();
 })();
 </script>
 </body>

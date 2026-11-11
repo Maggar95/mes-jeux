@@ -93,6 +93,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 }
 .tab[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .mode { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 28px; }
+.mode[hidden] { display: none; }
+.mode select { font: inherit; padding: 4px 8px; border: 2px solid var(--ink); border-radius: 3px; background: var(--card); color: var(--text); }
 .mode label { cursor: pointer; }
 .mode input { accent-color: var(--ink); margin-right: 6px; }
 .board { width: 100%; border-collapse: collapse; background: var(--card); }

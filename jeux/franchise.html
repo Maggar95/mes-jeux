@@ -618,6 +618,16 @@ var P5 = [
   var S = null, steps = [], totalAnswers = 0;
   var $main = document.getElementById("main");
   var boardUnsub = null;
+  var CLASSES = (function () {
+    try { var g = Access.game("franchise"), sec = g && Access.section(g.section); return (sec && sec.classes) || []; } catch (e) { return []; }
+  })();
+  /* « Prénom X. » : prénom + initiale du nom, jamais le nom complet */
+  function cleanName(raw) {
+    var t = String(raw).trim().replace(/\s+/g, " ");
+    var m = t.match(/^(.{2,}?)\s+(\p{L})\.?$/u);
+    if (!m) return null;
+    return m[1].charAt(0).toUpperCase() + m[1].slice(1) + " " + m[2].toUpperCase() + ".";
+  }
 
   function shuffle(a) {
     a = a.slice();
@@ -697,19 +707,20 @@ var P5 = [
     var html = '<section class="card"><span class="tab">Dossier de franchise</span><h1>Le Franchisé</h1>' +
       '<p class="lead">Vous ouvrez un restaurant sous franchise et vous le gérez pendant cinq ans. À chaque étape, des décisions juridiques font bouger votre trésorerie et votre sécurité juridique. Les situations sont tirées au hasard : une partie ne ressemble pas à la précédente.</p>' +
       '<form class="form" id="startForm" novalidate>' +
-      '<div class="field"><label for="nm">Prénom (et initiale du nom)</label><input id="nm" name="nm" maxlength="24" autocomplete="given-name" placeholder="Camille D."></div>' +
-      '<div class="field"><label for="cl">Classe (facultatif)</label><input id="cl" name="cl" maxlength="14" placeholder="BTS1 MCO"></div>' +
+      '<div class="field"><label for="nm">Prénom et initiale du nom</label><input id="nm" name="nm" maxlength="24" autocomplete="given-name" placeholder="Camille D."></div>' +
+      '<div class="field"><label for="cl">Classe</label><select id="cl" name="cl">' + (CLASSES.length === 1 ? "" : '<option value="">Choisir votre classe</option>') + CLASSES.map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("") + '</select></div>' +
       '<p class="err" id="err" role="alert"></p>' +
       '<div class="row"><button class="btn" type="submit" style="margin-top:0">Ouvrir le dossier</button><button class="btn ghost" type="button" id="seeBoard" style="margin-top:0">Voir le classement</button></div></form>' +
-      '<p class="hint">Votre prénom est visible dans le classement.</p></section>';
+      '<p class="hint">Votre prénom et l\'initiale de votre nom sont visibles dans le classement.</p></section>';
     $main.innerHTML = html;
     document.getElementById("nm").value = lsGet("fr_name");
-    document.getElementById("cl").value = lsGet("fr_cls");
+    var savedCls = lsGet("fr_cls"); if (CLASSES.indexOf(savedCls) >= 0) document.getElementById("cl").value = savedCls;
     document.getElementById("startForm").onsubmit = function (e) {
       e.preventDefault();
-      var n = document.getElementById("nm").value.trim().replace(/\s+/g, " ");
-      var c = document.getElementById("cl").value.trim().replace(/\s+/g, " ");
-      if (n.length < 2) { document.getElementById("err").textContent = "Entrez au moins deux lettres pour votre prénom."; return; }
+      var n = cleanName(document.getElementById("nm").value);
+      var c = document.getElementById("cl").value;
+      if (!n) { document.getElementById("err").textContent = "Entrez votre prénom suivi de l'initiale de votre nom, par exemple Camille D. (sans le nom complet)."; return; }
+      if (!c) { document.getElementById("err").textContent = "Choisissez votre classe."; return; }
       lsSet("fr_name", n); lsSet("fr_cls", c);
       newGame(n, c);
       render();
@@ -895,7 +906,9 @@ var P5 = [
   }
 
   /* Enregistrement automatique du résultat, puis classement partagé (Supabase).
-     Si le classement est injoignable, le jeu fonctionne : on affiche le code de résultat. */
+     Chaque partie jouée ajoute une ligne au classement. */
+  var boardRows = [], boardMe = "", boardState = "none", boardClass = "";
+
   function saveAndShowBoard(row) {
     var boardEl = function () { return document.getElementById("board"); };
     var tagsEl = function () { return document.getElementById("tags"); };
@@ -905,44 +918,54 @@ var P5 = [
     };
     if (!(window.MesJeux && MesJeux.ready())) { unavailable("Le classement n'est pas encore branché. Utilisez le code de résultat."); return; }
     if (boardUnsub) { boardUnsub(); boardUnsub = null; }
+    boardClass = row ? (row.cls || "") : lsGet("fr_cls");
+    boardMe = row ? row.name : lsGet("fr_name");
 
     function toRow(r) {
       var d = r.details || {};
-      return { name: r.player, cls: d.cls, score: d.score, final: r.score, good: d.good, total: d.total, cash: d.cash, sec: d.sec, tags: d.tags || [], ts: Date.parse(r.created_at) || 0 };
+      return { name: r.player, cls: d.cls || "", score: d.score, final: r.score, good: d.good, total: d.total, cash: d.cash, sec: d.sec, tags: d.tags || [], ts: Date.parse(r.created_at) || 0 };
     }
-    function refresh(me, state) {
-      return MesJeux.list("franchise", 1000).then(function (rows) {
-        var best = MesJeux.bestPerPlayer(rows).map(toRow);
-        drawBoard(best, me, state);
-        drawTags(best);
-      }, function () { unavailable("Le classement n'a pas pu être lu. Utilisez le code de résultat."); });
+    function refresh() {
+      return MesJeux.list("franchise", 1000).then(function (rows) { boardRows = rows.map(toRow); redraw(); },
+        function () { unavailable("Le classement n'a pas pu être lu. Utilisez le code de résultat."); });
     }
 
     var saveP = Promise.resolve("none");
     if (row) saveP = MesJeux.save("franchise", row.name, row.final, row).then(function (r) { return r.ok ? "saved" : "readonly"; });
     saveP.then(function (state) {
-      var me = row ? row.name : (S ? S.name : "");
-      refresh(me, state).then(function () {
-        var id = setInterval(function () { if (!boardEl()) { clearInterval(id); return; } refresh(me, state); }, 30000);
+      boardState = state;
+      refresh().then(function () {
+        var id = setInterval(function () { if (!boardEl()) { clearInterval(id); return; } refresh(); }, 30000);
         boardUnsub = function () { clearInterval(id); };
       });
     });
   }
+
+  function redraw() {
+    var rows = boardClass ? boardRows.filter(function (r) { return r.cls === boardClass; }) : boardRows;
+    drawBoard(rows, boardMe, boardState);
+    drawTags(rows);
+  }
+
+  function classPicker() {
+    var o = '<option value="">Toutes les classes</option>' + CLASSES.map(function (c) { return '<option' + (c === boardClass ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
+    return '<div class="field" style="max-width:260px;margin:0 0 12px"><label for="bc">Classement de la classe</label><select id="bc">' + o + "</select></div>";
+  }
+  function bindPicker() { var p = document.getElementById("bc"); if (p) p.onchange = function () { boardClass = this.value; redraw(); }; }
 
   function drawBoard(rows, me, state) {
     var el = document.getElementById("board"); if (!el) return;
     rows = rows.slice().sort(function (a, b) { return ((b.final != null ? b.final : b.score) - (a.final != null ? a.final : a.score)) || (b.cash - a.cash) || (a.ts - b.ts); });
     var note = "";
     if (state === "readonly") note = '<p class="hint" style="margin:0 0 10px">Votre résultat n\'a pas pu être enregistré (connexion indisponible). Il sera renvoyé à la prochaine ouverture du jeu. Gardez le code de résultat.</p>';
-    if (state === "kept") note = '<p class="hint" style="margin:0 0 10px">Votre meilleur résultat précédent est conservé.</p>';
-    if (state === "noid") note = '<p class="hint" style="margin:0 0 10px">Compte non reconnu : résultat non enregistré.</p>';
-    if (!rows.length) { el.innerHTML = note + '<p class="hint" style="margin:0">Aucun résultat pour l\'instant. Le premier à finir ouvre le classement.</p>'; return; }
-    var h = note + '<div class="tbl"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Droit</th><th class="num">Trés.</th><th class="num">Note</th></tr></thead><tbody>';
+    if (!rows.length) { el.innerHTML = classPicker() + note + '<p class="hint" style="margin:0">Aucun résultat pour l\'instant. Le premier à finir ouvre le classement.</p>'; bindPicker(); return; }
+    var meTs = Math.max.apply(null, rows.filter(function (r) { return r.name === me; }).map(function (r) { return r.ts; }).concat([0]));
+    var h = classPicker() + note + '<div class="tbl"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Droit</th><th class="num">Trés.</th><th class="num">Note</th></tr></thead><tbody>';
     rows.slice(0, 30).forEach(function (r, i) {
-      h += '<tr class="' + (r.name === me ? "me" : "") + '"><td class="rk">' + (i + 1) + '</td><td><span class="nm">' + esc(r.name || "?") + "</span>" + (r.cls ? ' <span class="cls">' + esc(r.cls) + "</span>" : "") + '</td><td class="num">' + esc(r.good) + "/" + esc(r.total) + ' <span class="cls">(' + esc(r.score) + ' %)</span></td><td class="num">' + esc(r.cash) + " k€</td><td class=\"num\"><b>" + esc(r.final != null ? r.final : r.score) + "</b></td></tr>";
+      h += '<tr class="' + (r.name === me && r.ts === meTs ? "me" : "") + '"><td class="rk">' + (i + 1) + '</td><td><span class="nm">' + esc(r.name || "?") + "</span>" + (r.cls ? ' <span class="cls">' + esc(r.cls) + "</span>" : "") + '</td><td class="num">' + esc(r.good) + "/" + esc(r.total) + ' <span class="cls">(' + esc(r.score) + ' %)</span></td><td class="num">' + esc(r.cash) + " k€</td><td class=\"num\"><b>" + esc(r.final != null ? r.final : r.score) + "</b></td></tr>";
     });
-    h += "</tbody></table></div><p class=\"hint\" style=\"margin:10px 0 0\">" + rows.length + " joueur" + (rows.length > 1 ? "s" : "") + ". Toutes les parties sont enregistrées ; le classement affiche le meilleur résultat de chacun.</p>";
-    el.innerHTML = h;
+    h += "</tbody></table></div><p class=\"hint\" style=\"margin:10px 0 0\">" + rows.length + " partie" + (rows.length > 1 ? "s" : "") + ". Chaque partie jouée est ajoutée au classement.</p>";
+    el.innerHTML = h; bindPicker();
   }
 
   function drawTags(rows) {
@@ -953,7 +976,7 @@ var P5 = [
     if (!arr.length) { el.innerHTML = '<p class="hint" style="margin:0">Pas encore assez de résultats.</p>'; return; }
     var max = arr[0][1], h = "";
     arr.forEach(function (a) { h += '<div class="tag-row"><span>' + esc(a[0]) + '</span><span class="tag-bar" title="' + a[1] + ' erreurs"><i style="width:' + Math.round(100 * a[1] / max) + '%"></i></span></div>'; });
-    el.innerHTML = h + '<p class="hint" style="margin:8px 0 0">Calculé sur les meilleures parties de chaque joueur.</p>';
+    el.innerHTML = h + '<p class="hint" style="margin:8px 0 0">Calculé sur toutes les parties de la classe sélectionnée.</p>';
   }
 
   render();

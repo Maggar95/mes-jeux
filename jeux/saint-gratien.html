@@ -1855,7 +1855,7 @@ function recordAndShow(points, id, kind, title, status, boardBody){
     status.textContent = res.ok ? 'Score enregistré dans le classement.' : "Le score n'a pas pu être envoyé. Il sera renvoyé à la prochaine ouverture du jeu.";
     return MesJeux.list('saint-gratien', 1000);
   }).then(rows=>{
-    const best = MesJeux.bestPerPlayer(rows).slice(0, 10);
+    const best = rows.slice(0, 10);
     boardBody.textContent = '';
     const table = el('table','lb');
     const head = el('tr'); ['#','Joueur','Score'].forEach(t=>head.appendChild(el('th',null,t))); table.appendChild(head);
