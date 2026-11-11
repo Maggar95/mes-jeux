@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes petits jeux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<main class="page">
+  <h1>Mes petits jeux</h1>
+  <p class="lead">Choisis un jeu, entre ton prénom, joue. Ton score est enregistré tout seul à la fin de la partie.</p>
+  <div class="tally" id="tally" aria-live="polite"></div>
+  <div id="games"></div>
+  <p class="note"><a href="classement.html">Voir tous les classements</a></p>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/games.js"></script>
+<script src="js/scores.js"></script>
+<script>
+(function () {
+  "use strict";
+  var games = window.MESJEUX_GAMES, root = document.getElementById("games");
+  var esc = MesJeux.esc;
+
+  /* Une entrée par jeu, remplie après la lecture des scores */
+  games.forEach(function (g) {
+    var sec = document.createElement("section");
+    sec.className = "game";
+    sec.innerHTML =
+      '<h2 class="tag" style="--bg:' + g.bg + ';--fg:' + g.fg + '">' + esc(g.title) + '</h2>' +
+      '<p class="blurb">' + esc(g.blurb) + '</p>' +
+      '<ol class="podium" id="top-' + esc(g.id) + '"><li><span class="empty">Chargement des scores…</span></li></ol>' +
+      '<div class="row"><a class="btn" href="' + esc(g.file) + '">Jouer</a>' +
+      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement complet</a></div>';
+    root.appendChild(sec);
+  });
+
+  function setPodium(g, html) { document.getElementById("top-" + g.id).innerHTML = html; }
+
+  /* Traits de pointage : quatre barres et une barre en travers, par groupe de cinq */
+  function tallyHTML(n) {
+    var shown = Math.min(n, 50), groups = Math.floor(shown / 5), rest = shown % 5, h = "";
+    function svg(bars, crossed) {
+      var w = Math.max(bars, 1) * 10 + 6, s = '<svg viewBox="0 0 ' + w + ' 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">';
+      for (var i = 0; i < bars; i++) s += '<path d="M' + (5 + i * 10) + ' 3v34"/>';
+      if (crossed) s += '<path d="M1 33L' + (w - 1) + ' 7"/>';
+      return s + "</svg>";
+    }
+    for (var i = 0; i < groups; i++) h += svg(4, true);
+    if (rest) h += svg(rest, false);
+    return h + '<span class="count">' + n + " partie" + (n > 1 ? "s" : "") + " jouée" + (n > 1 ? "s" : "") + (n > 50 ? " (50 traits affichés)" : "") + "</span>";
+  }
+
+  if (!MesJeux.ready()) {
+    games.forEach(function (g) { setPodium(g, '<li><span class="empty">Les classements ne sont pas encore branchés.</span></li>'); });
+    return;
+  }
+
+  var total = 0, pending = games.length;
+  games.forEach(function (g) {
+    MesJeux.list(g.id, 1000).then(function (rows) {
+      total += rows.length;
+      var top = MesJeux.bestPerPlayer(rows).slice(0, 3);
+      if (!top.length) { setPodium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
+      setPodium(g, top.map(function (r, i) {
+        return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + "</span></li>";
+      }).join(""));
+    }, function () {
+      setPodium(g, '<li><span class="empty">Classement indisponible pour le moment.</span></li>');
+    }).then(function () {
+      if (--pending === 0 && total > 0) document.getElementById("tally").innerHTML = tallyHTML(total);
+    });
+  });
+})();
+</script>
+</body>
+</html>

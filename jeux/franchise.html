@@ -1,0 +1,958 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Le Franchisé</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap">
+<style>
+/* Concept : un dossier de franchisé qu'on instruit année après année. Papier gris-bleu, encre marine, tampon bleu. */
+:root {
+  --bg: #edf0f5;
+  --surface: #ffffff;
+  --surface-2: #f4f6fa;
+  --ink: #14213d;
+  --muted: #5b6578;
+  --line: #d5dbe5;
+  --accent: #1f4fbf;
+  --accent-ink: #ffffff;
+  --good: #17784a;
+  --good-bg: #e3f3ea;
+  --bad: #b3261e;
+  --bad-bg: #fbe7e5;
+  --cash: #8a5a00;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1626; --surface: #18223a; --surface-2: #1f2b47; --ink: #e8ecf5; --muted: #9aa5bc;
+    --line: #2a3654; --accent: #7ea2ff; --accent-ink: #0f1626; --good: #5cd08f; --good-bg: #12301f;
+    --bad: #ff8a80; --bad-bg: #3a1815; --cash: #f0bf5a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1626; --surface: #18223a; --surface-2: #1f2b47; --ink: #e8ecf5; --muted: #9aa5bc;
+  --line: #2a3654; --accent: #7ea2ff; --accent-ink: #0f1626; --good: #5cd08f; --good-bg: #12301f;
+  --bad: #ff8a80; --bad-bg: #3a1815; --cash: #f0bf5a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 680px; margin: 0 auto; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* En-tête : état du dossier */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--bg); padding: 12px 0 10px; border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.stage-label { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+.meter { min-width: 0; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--muted); font-weight: 500; }
+.meter-val { font-family: var(--font-mono); font-weight: 600; font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.meter-val.cash { color: var(--cash); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; margin-top: 5px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .5s ease; }
+.bar.cash > i { background: var(--cash); }
+.years { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 10px; }
+.yr { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-align: center; padding: 4px 0 3px; border-top: 3px solid var(--line); color: var(--muted); letter-spacing: 0.04em; }
+.yr.done { border-top-color: var(--ink); color: var(--ink); }
+.yr.now { border-top-color: var(--accent); color: var(--accent); }
+
+/* Cartes */
+main { padding-top: 22px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+.card + .card, .card + section, section + .card { margin-top: 16px; }
+.tab { display: inline-block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 4px; padding: 3px 8px; margin-bottom: 14px; transform: rotate(-1deg); }
+h1, h2 { margin: 0; line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3.sec { margin: 0 0 10px; font-size: 13px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.lead { color: var(--muted); margin: 12px 0 0; max-width: 60ch; }
+.ctx { background: var(--surface-2); border-radius: 8px; padding: 14px 16px; margin: 0 0 16px; max-width: 68ch; }
+.ctx p { margin: 0 0 8px; }
+.ctx p:last-child { margin: 0; }
+.q { font-size: 19px; font-weight: 700; line-height: 1.3; margin: 0 0 14px; text-wrap: balance; }
+.opts { display: grid; gap: 10px; }
+.opt { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 12px 14px; transition: border-color .15s, background .15s; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt:disabled { cursor: default; }
+.opt .k { font-family: var(--font-mono); font-weight: 600; width: 26px; height: 26px; border: 1.5px solid var(--line); border-radius: 5px; display: grid; place-items: center; font-size: 13px; color: var(--muted); }
+.opt.right { border-color: var(--good); background: var(--good-bg); }
+.opt.right .k { background: var(--good); border-color: var(--good); color: var(--surface); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt.wrong .k { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+.opt.dim { opacity: .55; }
+
+.fb { margin-top: 18px; border-radius: 8px; padding: 16px; border: 1.5px solid var(--line); background: var(--surface-2); }
+.fb.ok { border-color: var(--good); background: var(--good-bg); }
+.fb.ko { border-color: var(--bad); background: var(--bad-bg); }
+.fb h3 { margin: 0 0 6px; font-size: 16px; }
+.fb.ok h3 { color: var(--good); }
+.fb.ko h3 { color: var(--bad); }
+.fb p { margin: 0 0 10px; max-width: 66ch; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 12px 0; font-size: 15px; }
+.rule .ref { display: inline-block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.chip { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-variant-numeric: tabular-nums; }
+.chip.up { color: var(--good); border-color: var(--good); }
+.chip.down { color: var(--bad); border-color: var(--bad); }
+.btn { display: inline-block; margin-top: 16px; padding: 11px 20px; border-radius: 8px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Formulaire d'ouverture */
+.form { display: grid; gap: 12px; margin-top: 18px; max-width: 420px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.field input, .field select { width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); }
+.err { color: var(--bad); font-size: 14px; min-height: 20px; margin: 0; }
+
+/* Tri */
+.sortcard { background: var(--surface-2); border: 1.5px dashed var(--line); border-radius: 8px; padding: 18px 16px; margin: 0 0 14px; font-size: 18px; font-weight: 500; min-height: 78px; display: flex; align-items: center; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.bucket { border: 1.5px solid var(--line); background: var(--surface); border-radius: 8px; padding: 12px; font-weight: 700; text-align: center; transition: border-color .15s, background .15s; }
+.bucket:hover:not(:disabled) { border-color: var(--accent); }
+.bucket:disabled { cursor: default; }
+.bucket.right { border-color: var(--good); background: var(--good-bg); }
+.bucket.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.bucket.dim { opacity: .55; }
+
+/* Événement */
+.event { border: 1.5px dashed var(--line); border-radius: 8px; padding: 14px 16px; background: var(--surface-2); margin: 16px 0 0; }
+.event b { display: block; font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+
+/* Fin et classement */
+.score { font-family: var(--font-mono); font-size: 44px; font-weight: 600; letter-spacing: -0.02em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+.review { margin-top: 16px; display: grid; gap: 10px; }
+.miss { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; font-size: 15px; }
+.miss b { display: block; margin-bottom: 4px; }
+.miss .good-ans { color: var(--good); }
+.hint { font-size: 13.5px; color: var(--muted); margin-top: 14px; }
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1.5px solid var(--line); }
+td { padding: 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+td.rk, th.rk { width: 36px; font-family: var(--font-mono); }
+td.num, th.num { text-align: right; }
+tr.me td { background: var(--good-bg); font-weight: 700; }
+.nm { font-weight: 500; overflow-wrap: anywhere; }
+.cls { color: var(--muted); font-size: 13px; }
+.tag-row { display: grid; grid-template-columns: 1fr 70px; gap: 10px; align-items: center; margin: 7px 0; font-size: 14.5px; }
+.tag-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.tag-bar > i { display: block; height: 100%; background: var(--bad); }
+.code { font-family: var(--font-mono); font-size: 13px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-wrap: anywhere; user-select: all; }
+@media (max-width: 480px) {
+  h1 { font-size: 27px; } h2 { font-size: 22px; } .card { padding: 16px; } .q { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <p style="margin:12px 0 0;font-size:14px"><a href="../index.html" style="color:var(--accent)">Tous les jeux</a></p>
+  <header class="top">
+    <div class="top-row">
+      <span class="brand">Le Franchisé</span>
+      <span class="stage-label" id="stageLabel">Dossier de candidature</span>
+    </div>
+    <div class="meters">
+      <div class="meter">
+        <div class="meter-head"><span>Trésorerie</span><span class="meter-val cash" id="cashVal">60 k€</span></div>
+        <div class="bar cash"><i id="cashBar" style="width:60%"></i></div>
+      </div>
+      <div class="meter">
+        <div class="meter-head"><span>Sécurité juridique</span><span class="meter-val" id="secVal">50</span></div>
+        <div class="bar"><i id="secBar" style="width:50%"></i></div>
+      </div>
+    </div>
+    <div class="years" id="years" aria-label="Cinq années de franchise"></div>
+  </header>
+  <main id="main" aria-live="polite"></main>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/scores.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ================================================================== */
+  /*  BANQUE DE QUESTIONS                                                */
+  /*  Chaque partie tire au hasard dans son lot : deux parties ne se     */
+  /*  ressemblent pas. Les réponses ne contiennent pas la définition ;   */
+  /*  elle n'apparaît qu'après le choix.                                 */
+  /* ================================================================== */
+  var T3 = ["Liberté contractuelle", "Force obligatoire", "Bonne foi"];
+
+  var P1 = [
+    { id: "p1a", tag: "Contrat d'adhésion",
+      ctx: ["L'enseigne vous remet son contrat : dix ans, droit d'entrée de 25 000 €, redevance de 6,5 % du chiffre d'affaires. Le conseiller précise que tous les franchisés signent le même texte, rédigé par l'enseigne."],
+      q: "De quel type de contrat s'agit-il ?",
+      opts: [
+        { t: "Un contrat de gré à gré", ok: false, cost: 3, fb: "Un contrat de gré à gré a des clauses librement négociées. Ici le texte est le même pour tous : vous perdez trois semaines à batailler pour presque rien." },
+        { t: "Un contrat d'adhésion", ok: true, fb: "Les clauses sont fixées à l'avance par une seule partie et proposées à tous : c'est un contrat d'adhésion. La marge de négociation est faible, la lecture attentive est votre vraie protection." },
+        { t: "Un contrat verbal", ok: false, cost: 4, fb: "Le contrat est écrit, sur dix ans : la forme n'a rien à voir avec le type de contrat. Vous mélangez deux notions, coût 4 k€ de conseils inutiles." }
+      ],
+      rule: { ref: "Art. 1110 du Code civil", text: "Le contrat de gré à gré a des clauses négociées. Le contrat d'adhésion a des clauses fixées à l'avance par une seule des parties." } },
+    { id: "p1b", tag: "Liberté contractuelle",
+      ctx: ["Un second réseau, qui vous avait fait une proposition, menace de vous poursuivre parce que vous préférez Forno Express."],
+      q: "Peut-il vous obliger à signer avec lui ?",
+      opts: [
+        { t: "Oui, puisque vous avez discuté avec lui", ok: false, cost: 4, fb: "Discuter n'engage pas. Vous aviez peur d'un procès qui n'existe pas : 4 k€ de frais d'avocat inutiles." },
+        { t: "Non", ok: true, fb: "Vous êtes libre de contracter ou non, et avec qui : c'est la liberté contractuelle. Des pourparlers ne vous obligent pas à signer." },
+        { t: "Oui, s'il vous a envoyé un mail", ok: false, cost: 3, fb: "Un mail d'un réseau ne vous oblige à rien tant que vous n'avez pas accepté. Vous cédez par crainte : 3 k€." }
+      ],
+      rule: { ref: "Liberté contractuelle", text: "Contracter ou non, avec qui, et le contenu du contrat : chacun en décide librement, dans le respect de la loi." } },
+    { id: "p1c", tag: "Bonne foi",
+      ctx: ["Pendant la négociation, le commercial vante votre zone sans mentionner que deux restaurants voisins ont fermé. Il le savait."],
+      q: "Quel principe cette attitude méconnaît-elle ?",
+      opts: [
+        { t: "La liberté contractuelle", ok: false, cost: 4, fb: "Rien ne vous empêche de choisir : le problème est un manque de loyauté. Mauvais fondement, 4 k€ de frais." },
+        { t: "La force obligatoire", ok: false, cost: 4, fb: "Le contrat n'est pas encore signé : il n'a donc pas de force obligatoire. Vous perdez 4 k€ à plaider sur le mauvais terrain." },
+        { t: "La bonne foi", ok: true, fb: "La bonne foi est exigée dès la négociation. Celui qui détient une information déterminante pour l'autre doit la lui communiquer." }
+      ],
+      rule: { ref: "Art. 1104 du Code civil", text: "Les contrats doivent être négociés, formés et exécutés de bonne foi. Celui qui détient une information déterminante doit la communiquer." } },
+    { id: "p1d", tag: "Force obligatoire",
+      ctx: ["Le contrat est signé. Un an plus tard, l'enseigne annonce qu'elle fait passer seule la redevance de 6,5 % à 8 %."],
+      q: "Quel principe contractuel s'y oppose ?",
+      opts: [
+        { t: "La bonne foi", ok: false, cost: 4, fb: "La bonne foi joue aussi, mais le principe central est autre : le contrat signé s'impose aux deux. Vous plaidez à côté, coût 4 k€." },
+        { t: "La liberté contractuelle", ok: false, cost: 4, fb: "La liberté de contracter s'exerce avant la signature, pas pour changer seul un contrat conclu. Coût : 4 k€." },
+        { t: "La force obligatoire", ok: true, fb: "Le contrat légalement formé tient lieu de loi à ceux qui l'ont conclu : on ne le modifie pas seul." }
+      ],
+      rule: { ref: "Art. 1103 du Code civil", text: "Les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits." } },
+    { id: "p1e", tag: "Forme du contrat",
+      ctx: ["Un fournisseur de farine vous propose un accord oral : 100 sacs par mois à prix fixé. Vous hésitez, car rien n'est écrit."],
+      q: "Un contrat peut-il être valable sans écrit ?",
+      opts: [
+        { t: "Non, jamais", ok: false, cost: 3, fb: "Un écrit n'est exigé que pour certains contrats. Vous perdez un bon fournisseur en refusant : 3 k€." },
+        { t: "Oui, en principe", ok: true, fb: "Le contrat est en principe formé par le seul échange des consentements. Un écrit n'est exigé que pour certains contrats. L'écrit reste utile comme preuve." },
+        { t: "Oui, mais seulement devant notaire", ok: false, cost: 3, fb: "Le notaire n'est exigé que pour des contrats précis, pas pour un accord de fourniture. Frais inutiles : 3 k€." }
+      ],
+      rule: { ref: "Forme du contrat", text: "Le contrat est en principe formé par le seul échange des consentements, même si certains contrats exigent un écrit." } }
+  ];
+
+  var S1 = { id: "s1", ctx: ["Trois principes encadrent tout contrat. Retrouvez celui qui correspond à chaque situation."], buckets: T3,
+    items: [
+      { t: "Vous refusez de signer avec un réseau concurrent.", b: 0, why: "Choisir de contracter ou non, et avec qui : liberté contractuelle." },
+      { t: "Vous demandez la suppression d'une clause avant de signer.", b: 0, why: "Discuter le contenu du contrat relève de la liberté contractuelle." },
+      { t: "L'enseigne doit respecter le prix fixé au contrat pendant dix ans.", b: 1, why: "Le contrat tient lieu de loi : force obligatoire." },
+      { t: "Vous devez payer vos redevances même quand vos ventes baissent.", b: 1, why: "Le contrat s'impose à ceux qui l'ont conclu : force obligatoire." },
+      { t: "Personne ne peut modifier le contrat seul après sa signature.", b: 1, why: "Modifier suppose l'accord des deux parties : force obligatoire." },
+      { t: "L'enseigne vous communique loyalement les comptes de ses restaurants.", b: 2, why: "Loyauté et information dans la relation : bonne foi." },
+      { t: "Pendant dix ans, aucune des parties ne cherche à nuire à l'autre.", b: 2, why: "La bonne foi est exigée de la négociation jusqu'à l'exécution." },
+      { t: "Vous dissimulez volontairement vos difficultés financières à l'enseigne.", b: 2, why: "Dissimuler une information importante est contraire à la bonne foi." }
+    ],
+    rule: { ref: "Les trois principes", text: "Liberté contractuelle : contracter ou non, avec qui, et le contenu. Force obligatoire : le contrat tient lieu de loi. Bonne foi : négociation, formation et exécution." } };
+
+  var P2 = [
+    { id: "p2a", tag: "Pourparlers",
+      ctx: ["Après deux mois de discussions, votre banque vous propose un projet moins risqué. Rien n'est signé avec Forno Express, qui vous a pourtant offert une formation d'essai d'une valeur de 10 k€."],
+      q: "Vous renoncez. Que faites-vous ?",
+      opts: [
+        { t: "Je préviens l'enseigne par écrit, sans rien lui devoir", ok: true, fb: "Pendant les pourparlers chacun reste libre de ne pas conclure, à condition de ne pas rompre brutalement ni de mauvaise foi. Prévenir loyalement suffit : aucune dette." },
+        { t: "Je préviens l'enseigne et je lui rembourse la formation par scrupule : 10 k€", ok: false, cost: 10, fb: "Honnête, mais inutile : rien n'obligeait à payer, la formation offerte ne crée aucune dette. Vous venez de dépenser 10 k€ pour rien." },
+        { t: "Je ne réponds plus à ses appels : je gagne du temps et j'évite les frais d'un courrier d'avocat (+3 k€)", gain: 3, ok: false, back: "Rupture brutale des pourparlers : l'enseigne réclame des dommages-intérêts.", fb: "Vous économisez 3 k€ maintenant, mais couper les ponts sans prévenir est une rupture brutale, donc une faute. L'addition arrivera en fin d'année." }
+      ],
+      rule: { ref: "Les pourparlers", text: "Phase de négociation : chacun reste libre de ne pas conclure, mais ne doit pas rompre brutalement ni de mauvaise foi." } },
+    { id: "p2b", tag: "DIP",
+      ctx: ["L'enseigne vous remet le document d'information précontractuelle (DIP) le 3 mars. Elle souhaite une signature le 11 mars."],
+      q: "Que devez-vous lui répondre ?",
+      opts: [
+        { t: "Le DIP doit être remis au moins 20 jours avant la signature", ok: true, fb: "En franchise, la loi impose la remise du DIP au moins 20 jours avant la signature. Ici il ne reste que 8 jours : la règle n'est pas respectée." },
+        { t: "Le DIP doit être remis au moins 7 jours avant la signature", ok: false, cost: 3, fb: "Le délai légal est de 20 jours, pas de 7. Vous acceptez moins que ce que la loi vous garantit." },
+        { t: "Huit jours suffisent, l'enseigne est un professionnel", ok: false, cost: 7, fb: "Signer dans ces conditions vous prive du temps d'étudier les documents et de consulter un conseil. Coût : 7 k€." }
+      ],
+      rule: { ref: "Art. L330-3 du Code de commerce", text: "En franchise, le DIP est remis au moins 20 jours avant la signature : présentation de l'enseigne, comptes des deux derniers exercices, état du marché local, description du réseau." } },
+    { id: "p2c", tag: "DIP",
+      ctx: ["Vous lisez le DIP que vous remet l'enseigne."],
+      q: "Parmi ces informations, laquelle y figure obligatoirement ?",
+      opts: [
+        { t: "Les comptes personnels du franchisé", ok: false, cost: 3, fb: "Le DIP informe sur l'enseigne, pas sur vous. Vous cherchez au mauvais endroit : 3 k€ de temps perdu." },
+        { t: "Les comptes des deux derniers exercices de l'enseigne", ok: true, fb: "Le DIP présente l'enseigne et ses dirigeants, ses comptes des deux derniers exercices, l'état du marché local et le réseau." },
+        { t: "Le menu du restaurant voisin", ok: false, cost: 3, fb: "Cette information n'a aucun rapport avec le DIP. Coût de l'enquête inutile : 3 k€." }
+      ],
+      rule: { ref: "Art. L330-3 du Code de commerce", text: "Le DIP informe le candidat pour qu'il s'engage en connaissance de cause." } },
+    { id: "p2d", tag: "Offre",
+      ctx: ["Le 10 mars, Forno Express vous envoie un mail : contrat de dix ans, droit d'entrée de 25 000 €, redevance de 6,5 %, proposition valable jusqu'au 25 mars."],
+      q: "Que constitue ce mail ?",
+      opts: [
+        { t: "Une invitation à négocier", ok: false, cost: 4, fb: "Le mail contient les éléments essentiels et un délai : il engage son auteur si vous acceptez. Vous traitez comme une discussion ce qui est une proposition ferme : 4 k€." },
+        { t: "Une offre de contrat", ok: true, fb: "Proposition ferme et précise, qui engage son auteur : c'est une offre. Si vous l'acceptez, le contrat est formé." },
+        { t: "Une acceptation", ok: false, cost: 4, fb: "L'acceptation vient du destinataire de l'offre, ici vous. Ce mail est la proposition elle-même : 4 k€." }
+      ],
+      rule: { ref: "Art. 1114 du Code civil", text: "L'offre comprend les éléments essentiels du contrat envisagé et exprime la volonté de son auteur d'être lié en cas d'acceptation. À défaut, il y a seulement invitation à entrer en négociation." } },
+    { id: "p2e", tag: "Formation du contrat",
+      ctx: ["Le 20 mars, vous répondez à l'enseigne : « J'accepte votre offre du 10 mars. »"],
+      q: "À quel moment le contrat est-il formé ?",
+      opts: [
+        { t: "À la remise du DIP", ok: false, cost: 3, fb: "Le DIP informe, il ne forme pas le contrat. Coût de la confusion : 3 k€." },
+        { t: "Le 20 mars, quand vous acceptez", ok: true, fb: "Le contrat est formé quand l'offre rencontre l'acceptation : c'est la rencontre des volontés." },
+        { t: "Au paiement de la première redevance", ok: false, cost: 3, fb: "Le paiement est une exécution du contrat, pas sa formation. Coût : 3 k€." }
+      ],
+      rule: { ref: "Formation du contrat", text: "Le contrat est formé lorsque l'offre rencontre l'acceptation : c'est la rencontre des volontés." } },
+    { id: "p2f", tag: "Pourparlers",
+      ctx: ["Après trois mois de discussions, l'enseigne rompt brusquement les pourparlers, sans explication, alors que vous aviez engagé des frais d'étude."],
+      q: "Que risque l'enseigne ?",
+      opts: [
+        { t: "Rien", ok: false, cost: 5, fb: "Une rupture brutale ou de mauvaise foi est une faute. Vous renoncez à agir : 5 k€ de frais perdus." },
+        { t: "La nullité du contrat", ok: false, cost: 4, fb: "Aucun contrat n'a été conclu : il n'y a rien à annuler. Mauvais terrain, 4 k€." },
+        { t: "Des dommages-intérêts", ok: true, fb: "Rompre brutalement ou de mauvaise foi des pourparlers engage la responsabilité de son auteur." }
+      ],
+      rule: { ref: "Les pourparlers", text: "Chacun reste libre de ne pas conclure, à condition de ne pas rompre brutalement ni de mauvaise foi." } }
+  ];
+
+  var S2 = { id: "s2", ctx: ["Vous échangez des messages avec l'enseigne. Pour chacun, dites s'il s'agit d'une offre, d'une acceptation ou d'une simple discussion."], buckets: ["Offre", "Acceptation", "Simple discussion"],
+    items: [
+      { t: "« Contrat de franchise, dix ans, droit d'entrée de 25 000 €, redevance de 6,5 %. Proposition ferme, valable jusqu'au 30 mars. »", b: 0, why: "Éléments essentiels précis et délai donné : l'enseigne s'engage si vous acceptez. C'est une offre." },
+      { t: "« Je vais étudier vos chiffres et je vous rappelle. »", b: 2, why: "Aucune volonté d'accepter pour l'instant : simple discussion." },
+      { t: "« J'accepte votre offre de contrat du 20 mars et je la signe. »", b: 1, why: "Volonté claire d'accepter l'offre : c'est l'acceptation. Le contrat est formé." },
+      { t: "« Seriez-vous éventuellement intéressé par une franchise ? »", b: 2, why: "Ce n'est pas une proposition précise qui engage son auteur : une invitation à discuter." },
+      { t: "« Je signe si la redevance passe à 4 %. »", b: 0, why: "Une réponse qui modifie l'offre n'est pas une acceptation : c'est une nouvelle offre (contre-proposition)." },
+      { t: "Visite d'un restaurant pilote avec le directeur du réseau.", b: 2, why: "Étape de pourparlers : personne n'est encore engagé." },
+      { t: "« Je prends le restaurant aux conditions de votre proposition du 10 mars. »", b: 1, why: "Volonté claire d'accepter l'offre telle quelle : acceptation." },
+      { t: "« Nos conditions sont fermes : 10 000 € de moins, signature avant le 15. »", b: 0, why: "Proposition précise qui engage son auteur : offre." }
+    ],
+    rule: { ref: "Offre et acceptation", text: "L'offre est une proposition ferme et précise qui engage son auteur. L'acceptation est la volonté claire de l'accepter. Leur rencontre forme le contrat." } };
+
+  var P3 = [
+    { id: "p3a", tag: "Dol",
+      ctx: ["Le prévisionnel de l'enseigne annonçait 800 000 € de chiffre d'affaires par an. Les restaurants récemment ouverts dans la zone en font moins de la moitié, ce que l'enseigne savait sans vous le dire. Après une année de pertes, vous réagissez."],
+      q: "Que pouvez-vous demander ?",
+      opts: [
+        { t: "Une baisse des redevances", ok: false, cost: 5, fb: "Quand le consentement est vicié, la sanction est la nullité du contrat, pas un rabais. Démarches inutiles : 5 k€." },
+        { t: "L'annulation du contrat", ok: true, fb: "L'enseigne a dissimulé volontairement une information déterminante : c'est un dol, vice du consentement. Il permet de demander la nullité, avec des dommages-intérêts." },
+        { t: "Rien", ok: false, cost: 8, fb: "Vous renoncez à agir alors que l'enseigne savait. Votre consentement n'était pas libre et éclairé : 8 k€ perdus." }
+      ],
+      rule: { ref: "Vices du consentement", text: "Le consentement doit être libre et éclairé. Il est vicié en cas d'erreur, de dol (mensonge, manœuvres, dissimulation volontaire d'une information déterminante) ou de violence." } },
+    { id: "p3b", tag: "Nullité",
+      ctx: ["Le juge prononce l'annulation de votre contrat de franchise."],
+      q: "Quelle est la conséquence de la nullité ?",
+      opts: [
+        { t: "Chacun restitue ce qu'il a reçu", ok: true, fb: "La nullité efface le contrat et oblige à restituer ce qui a été reçu. Le franchisé trompé peut en plus demander des dommages-intérêts." },
+        { t: "Le contrat continue sans les clauses litigieuses", ok: false, cost: 4, fb: "Ce n'est pas la nullité : elle efface le contrat entier. Mauvaise évaluation, 4 k€." },
+        { t: "L'enseigne garde le droit d'entrée", ok: false, cost: 4, fb: "La nullité remet les parties dans l'état d'avant : on restitue. Coût d'une mauvaise lecture : 4 k€." }
+      ],
+      rule: { ref: "La nullité", text: "Un contrat qui ne respecte pas les conditions de validité peut être annulé : la nullité efface le contrat et oblige à restituer ce qui a été reçu." } },
+    { id: "p3c", tag: "Violence",
+      ctx: ["Un autre candidat vous raconte qu'on lui a fait signer son contrat de franchise en le menaçant de ruiner sa réputation."],
+      q: "Quel vice affecte son consentement ?",
+      opts: [
+        { t: "L'erreur", ok: false, cost: 3, fb: "L'erreur est une fausse idée spontanée. Ici il y a une contrainte exercée sur lui : 3 k€ de conseil mal orienté." },
+        { t: "Le dol", ok: false, cost: 3, fb: "Le dol suppose un mensonge, des manœuvres ou une dissimulation. Ici, ce sont des menaces : 3 k€." },
+        { t: "La violence", ok: true, fb: "La contrainte, la menace, est une violence : le consentement n'est pas libre. Le contrat peut être annulé." }
+      ],
+      rule: { ref: "Vices du consentement", text: "Erreur, dol et violence sont les trois vices du consentement." } },
+    { id: "p3d", tag: "Erreur",
+      ctx: ["Vous pensiez louer un local de 120 m² : il n'en fait que 60. L'enseigne n'a rien dit, et ne savait pas que vous vous trompiez."],
+      q: "De quel vice du consentement s'agit-il ?",
+      opts: [
+        { t: "L'erreur", ok: true, fb: "Une fausse idée sur un élément essentiel du contrat : c'est une erreur, qui peut vicier le consentement." },
+        { t: "La violence", ok: false, cost: 3, fb: "Personne ne vous a contraint. Vous confondez avec la menace : 3 k€." },
+        { t: "Le dol", ok: false, cost: 3, fb: "Le dol suppose un mensonge ou une dissimulation volontaire. Ici l'enseigne n'a pas trompé volontairement : 3 k€." }
+      ],
+      rule: { ref: "Vices du consentement", text: "L'erreur est une fausse représentation d'un élément essentiel du contrat." } }
+  ];
+
+  var S3 = { id: "s3", ctx: ["Pour être valable, un contrat suppose trois conditions. Classez chaque situation selon la condition qui fait défaut."], buckets: ["Consentement", "Capacité", "Contenu licite et déterminé"],
+    items: [
+      { t: "Le signataire est un mineur non émancipé.", b: 1, why: "La capacité suppose d'être majeur : un mineur non émancipé ne contracte pas seul." },
+      { t: "Le contrat porte sur la vente d'un produit dont la vente est interdite par la loi.", b: 2, why: "Le contenu doit être licite : ici il est contraire à la loi." },
+      { t: "La signature a été obtenue sous la menace.", b: 0, why: "La menace est une violence : le consentement n'est pas libre." },
+      { t: "Le signataire est placé sous un régime de protection de la loi.", b: 1, why: "La capacité exige de ne pas être protégé par la loi." },
+      { t: "Le candidat croyait signer pour un local de 120 m² alors qu'il en fait 60.", b: 0, why: "Une erreur sur un élément essentiel vicie le consentement." },
+      { t: "Le prix des prestations n'est ni fixé ni déterminable.", b: 2, why: "Le contenu doit être déterminé : sans prix déterminable, il est incertain." },
+      { t: "L'enseigne a menti sur le nombre de restaurants du réseau.", b: 0, why: "Un mensonge est un dol : il vicie le consentement." },
+      { t: "Le contrat a pour objet une activité interdite.", b: 2, why: "Le contenu doit être licite : une activité interdite ne peut pas faire l'objet d'un contrat." }
+    ],
+    rule: { ref: "Trois conditions de validité", text: "Le consentement des parties, leur capacité à contracter, un contenu licite et déterminé." } };
+
+  var S4 = { id: "s4", ctx: ["Vous relisez votre contrat (version simplifiée, fictive). Associez chaque clause à son nom."], buckets: ["Exclusivité", "Non-concurrence", "Clause pénale", "Clause résolutoire"],
+    items: [
+      { t: "Le franchiseur s'interdit d'ouvrir un autre restaurant de l'enseigne dans la zone définie.", b: 0, why: "Un territoire est réservé à une partie : exclusivité territoriale." },
+      { t: "Pendant un an après la fin du contrat, dans un rayon de 5 km, le franchisé ne peut pas exploiter de livraison de pizzas.", b: 1, why: "Elle interdit une activité concurrente : non-concurrence." },
+      { t: "1 000 € de pénalité par mois de retard de paiement des redevances.", b: 2, why: "Montant fixé à l'avance en cas d'inexécution : clause pénale." },
+      { t: "Résiliation de plein droit si le franchisé n'a pas régularisé 30 jours après une mise en demeure.", b: 3, why: "Elle permet de mettre fin au contrat en cas de manquement grave : clause résolutoire." },
+      { t: "L'indemnité due en cas d'inexécution est fixée à l'avance.", b: 2, why: "Fixer à l'avance l'indemnité due : clause pénale." },
+      { t: "Un territoire est réservé au franchisé pendant toute la durée du contrat.", b: 0, why: "Réserver un territoire à une partie : exclusivité." },
+      { t: "Le franchisé ne peut pas exploiter une activité concurrente pendant un an après son départ.", b: 1, why: "Interdire une activité concurrente : non-concurrence." },
+      { t: "Le contrat prend fin automatiquement en cas de manquement grave non régularisé.", b: 3, why: "Mettre fin au contrat en cas de manquement grave : clause résolutoire." }
+    ],
+    rule: { ref: "Les clauses particulières", text: "Exclusivité : réserve un territoire ou une activité. Non-concurrence : interdit une activité concurrente. Clause pénale : fixe à l'avance l'indemnité. Clause résolutoire : permet de mettre fin au contrat en cas de manquement grave." } };
+
+  var P4 = [
+    { id: "p4a", tag: "Non-concurrence",
+      ctx: ["L'article 9 de votre contrat interdit toute activité de livraison de pizzas pendant un an après la fin du contrat, dans un rayon de 5 km. Vous la jugez abusive."],
+      q: "Cette clause de non-concurrence est-elle valable ?",
+      opts: [
+        { t: "Non, elle est interdite", ok: false, cost: 8, fb: "Elle n'est pas interdite en principe. Vous ouvrez trop tôt et on vous réclame 8 k€." },
+        { t: "Oui", ok: true, fb: "Elle est limitée dans le temps et dans l'espace, vise une activité précise, répond à un intérêt légitime (protéger le savoir-faire et le réseau) et reste proportionnée." },
+        { t: "Non, elle dure trop longtemps", ok: false, cost: 6, fb: "Un an dans un rayon de 5 km reste proportionné. Vous contestez à tort : 6 k€ de frais." }
+      ],
+      rule: { ref: "Clause de non-concurrence", text: "Valable si elle est limitée dans le temps et dans l'espace, justifiée par un intérêt légitime et proportionnée." } },
+    { id: "p4b", tag: "Clause pénale",
+      ctx: ["Vous avez payé vos redevances avec trois mois de retard. L'article 11 de votre contrat prévoit 1 000 € de pénalité par mois de retard."],
+      q: "Combien devez-vous ?",
+      opts: [
+        { t: "0 €", ok: false, cost: 3, fb: "L'enseigne n'a pas à prouver son préjudice : le montant est fixé à l'avance. Vous aviez prévu 0 €, il faudra en payer 3 000." },
+        { t: "1 000 €", ok: false, cost: 2, fb: "La pénalité est de 1 000 € par mois de retard : trois mois font 3 000 €. Vous aviez sous-estimé de 2 k€." },
+        { t: "3 000 €", ok: true, fb: "Le montant est fixé à l'avance : l'enseigne n'a pas à prouver son préjudice, la pénalité dissuade les retards et le recouvrement est plus simple." }
+      ],
+      rule: { ref: "Clause pénale", text: "Elle fixe à l'avance le montant de l'indemnité due en cas d'inexécution." } },
+    { id: "p4c", tag: "Déséquilibre significatif",
+      ctx: ["Une clause de votre contrat d'adhésion permet à l'enseigne de modifier seule, à tout moment, le taux des redevances."],
+      q: "Que dit le droit de cette clause ?",
+      opts: [
+        { t: "Elle s'applique", ok: false, cost: 5, fb: "Le droit protège la partie qui n'a pas pu négocier. Vous acceptez une hausse que vous pouviez écarter : 5 k€." },
+        { t: "Elle annule tout le contrat", ok: false, cost: 4, fb: "Seule la clause est concernée, pas tout le contrat. Vous perdez 4 k€ à plaider l'annulation générale." },
+        { t: "Elle est réputée non écrite", ok: true, fb: "Dans un contrat d'adhésion, une clause qui crée un déséquilibre significatif entre les droits et obligations des parties est réputée non écrite : elle n'a aucun effet." }
+      ],
+      rule: { ref: "Contrat d'adhésion", text: "Une clause qui crée un déséquilibre significatif entre les droits et obligations des parties est réputée non écrite. Le DIP, la bonne foi et le juge protègent aussi le franchisé." } },
+    { id: "p4d", tag: "Exclusivité",
+      ctx: ["L'article 7 de votre contrat vous réserve une zone. Pourtant, l'enseigne annonce l'ouverture d'un second restaurant à 800 m du vôtre, dans cette zone."],
+      q: "Quelle est votre position ?",
+      opts: [
+        { t: "Elle peut le faire, c'est son réseau", ok: false, cost: 6, fb: "La clause d'exclusivité l'en empêche : l'enseigne s'est interdit d'ouvrir dans votre zone. Vous renoncez à vos droits : 6 k€." },
+        { t: "Elle ne peut pas le faire", ok: true, fb: "La clause d'exclusivité territoriale lie l'enseigne : l'ouvrir dans la zone serait une inexécution du contrat." },
+        { t: "Elle peut le faire si elle vous prévient", ok: false, cost: 4, fb: "Prévenir ne suffit pas : sans votre accord, elle ne peut pas modifier le contrat. Coût : 4 k€." }
+      ],
+      rule: { ref: "Clause d'exclusivité", text: "La clause d'exclusivité réserve un territoire ou une activité à une partie." } }
+  ];
+
+  P4.push({ id: "p4e", tag: "Bonne foi",
+      ctx: ["En vérifiant vos comptes, vous remarquez que l'enseigne a oublié de vous facturer 8 k€ de redevances sur l'année. Personne ne s'en est aperçu."],
+      q: "Que faites-vous ?",
+      opts: [
+        { t: "Je ne dis rien : c'est son erreur (+8 k€)", gain: 8, ok: false, back: "L'erreur est découverte lors d'un audit : rappel de redevances, majoré, et perte de confiance.", fb: "Le contrat s'exécute de bonne foi, jusqu'au bout. Garder le silence sur une somme due est contraire à la loyauté, et l'enseigne finira par la réclamer." },
+        { t: "Je préviens l'enseigne et je paie les 8 k€", ok: true, pay: 8, fb: "La bonne foi s'impose à l'exécution du contrat. Cela coûte aujourd'hui, mais la confiance de l'enseigne est préservée." },
+        { t: "Je préviens l'enseigne mais je négocie de ne payer que la moitié : 4 k€", ok: false, cost: 4, fb: "La redevance est due en totalité : le contrat tient lieu de loi. Marchander ce qu'on doit déjà n'est pas loyal, et l'enseigne refuse." }
+      ],
+      rule: { ref: "Art. 1104 du Code civil", text: "Les contrats doivent être négociés, formés et exécutés de bonne foi." } });
+
+var P5 = [
+    { id: "p5a", tag: "Force obligatoire",
+      ctx: ["Vos ventes sont faibles. La redevance de 6,5 % vous étrangle. Vous pourriez simplement la faire passer vous-même à 4 % dans vos virements : 12 k€ d'économie sur l'année."],
+      q: "Que faites-vous ?",
+      opts: [
+        { t: "Je vire 4 % et j'économise 12 k€ (+12 k€)", gain: 12, ok: false, back: "L'enseigne réclame la différence, les pénalités de retard et des dommages-intérêts.", fb: "Baisser seul la redevance, c'est inexécuter le contrat : il ne peut être modifié que du consentement mutuel. Vous encaissez 12 k€ aujourd'hui, mais la note sera plus salée." },
+        { t: "Je propose un avenant écrit et je paie un avocat pour le rédiger : 2 k€", ok: true, pay: 2, fb: "Le contrat se modifie par accord des deux parties. Un avenant écrit sécurise la baisse, même s'il faut payer un peu pour l'obtenir." },
+        { t: "Je ne tente rien et je continue à payer 6,5 %", ok: false, cost: 3, fb: "Un avenant est toujours possible : en ne demandant rien, vous renoncez à une chance d'alléger vos charges." }
+      ],
+      rule: { ref: "Art. 1103 et 1193 du Code civil", text: "Les contrats tiennent lieu de loi à ceux qui les ont faits ; ils ne peuvent être modifiés ou révoqués que du consentement mutuel des parties, ou pour les causes que la loi autorise." } },
+    { id: "p5b", tag: "Sanctions de l'inexécution",
+      ctx: ["Vous cessez de verser vos redevances pendant quatre mois. L'enseigne vous envoie une mise en demeure de payer sous 30 jours, sans effet."],
+      q: "Que peut faire l'enseigne ?",
+      opts: [
+        { t: "Constater la résiliation et réclamer les sommes dues et les pénalités", ok: true, fb: "Sans effet de la mise en demeure, la clause résolutoire met fin au contrat de plein droit. L'enseigne peut réclamer paiement, pénalités et dommages-intérêts." },
+        { t: "Rien tant que vous n'avez pas décidé de payer", ok: false, cost: 8, fb: "L'inexécution ouvre des sanctions : exécution forcée, résolution, dommages-intérêts. Vous aviez compté sur le contraire : 8 k€." },
+        { t: "Seulement vous relancer par courrier", ok: false, cost: 6, fb: "La partie lésée dispose de vraies sanctions juridiques. Vous les sous-estimez : 6 k€." }
+      ],
+      rule: { ref: "Inexécution du contrat", text: "La partie lésée peut demander l'exécution forcée, la réduction du prix, la résolution du contrat (clause résolutoire ou mise en demeure) et des dommages-intérêts." } },
+    { id: "p5c", tag: "Mise en demeure",
+      ctx: ["L'enseigne vous adresse une mise en demeure de payer vos redevances sous 30 jours."],
+      q: "À quoi sert une mise en demeure ?",
+      opts: [
+        { t: "À annuler le contrat", ok: false, cost: 3, fb: "Elle n'annule rien. Vous vous êtes trompé de levier : 3 k€." },
+        { t: "À sommer le débiteur d'exécuter dans un délai", ok: true, fb: "La mise en demeure somme le débiteur d'exécuter dans un délai et sert aussi de preuve. Elle prépare la mise en œuvre de la clause résolutoire." },
+        { t: "À fixer une pénalité", ok: false, cost: 3, fb: "La pénalité vient de la clause pénale, pas de la mise en demeure. Coût : 3 k€." }
+      ],
+      rule: { ref: "Mise en demeure", text: "Elle somme le débiteur d'exécuter dans un délai et sert de preuve." } },
+    { id: "p5d", tag: "Clause résolutoire",
+      ctx: ["L'article 12 de votre contrat prévoit la résiliation de plein droit si le franchisé n'a pas régularisé sa situation 30 jours après une mise en demeure. Vous n'avez pas régularisé."],
+      q: "Que permet cette clause à l'enseigne ?",
+      opts: [
+        { t: "De réduire le prix des prestations", ok: false, cost: 4, fb: "Ce n'est pas l'objet de la clause. Coût de la confusion : 4 k€." },
+        { t: "De mettre fin au contrat de plein droit", ok: true, fb: "La clause résolutoire permet de mettre fin au contrat en cas de manquement grave non régularisé." },
+        { t: "De modifier la durée du contrat", ok: false, cost: 4, fb: "Elle met fin au contrat, elle ne modifie pas sa durée : 4 k€." }
+      ],
+      rule: { ref: "Clause résolutoire", text: "Elle permet de mettre fin au contrat en cas de manquement grave." } }
+  ];
+
+  var P6 = [
+    { id: "p6a", tag: "Effet relatif",
+      ctx: ["Vous aviez signé un bail commercial avec le propriétaire de votre local. L'enseigne met fin au contrat de franchise, et le propriétaire vous réclame les loyers."],
+      q: "L'enseigne doit-elle payer ces loyers à votre place ?",
+      opts: [
+        { t: "Oui, elle est responsable de votre situation", ok: false, cost: 8, fb: "L'enseigne n'est pas partie au bail : vous perdez 8 k€ en poursuivant une réclamation vouée à l'échec." },
+        { t: "Oui, elle est partie à tous vos contrats", ok: false, cost: 8, fb: "Elle n'est partie qu'au contrat de franchise. Le bail est un autre contrat, conclu avec le propriétaire : 8 k€." },
+        { t: "Non", ok: true, fb: "Un contrat n'a d'effet qu'entre ses parties. Le bail lie le propriétaire et vous, pas l'enseigne." }
+      ],
+      rule: { ref: "Effet relatif du contrat", text: "Le contrat n'a d'effet qu'entre les parties : il ne peut pas, en principe, créer d'obligations pour des tiers." } },
+    { id: "p6b", tag: "Force obligatoire",
+      ctx: ["Vous voulez quitter le réseau avant la fin des dix ans. L'enseigne refuse. Une idée circule : arrêter de payer les redevances jusqu'à ce qu'elle vous laisse partir (+15 k€ économisés)."],
+      q: "Que faites-vous ?",
+      opts: [
+        { t: "J'arrête de payer pour la forcer à négocier (+15 k€)", gain: 15, ok: false, back: "Mise en demeure, clause résolutoire, pénalités et dommages-intérêts.", fb: "Cesser de payer est une inexécution : l'enseigne dispose de la mise en demeure, de la clause résolutoire et des pénalités. Vous gardez 15 k€ un temps, pas pour longtemps." },
+        { t: "Je négocie une résiliation amiable, quitte à indemniser l'enseigne : 6 k€", ok: true, pay: 6, fb: "Le contrat ne peut être révoqué que du consentement mutuel des parties, ou pour les causes que la loi autorise. Une sortie amiable est la voie sûre, même si elle coûte." },
+        { t: "Je demande simplement l'annulation du contrat", ok: false, cost: 4, fb: "Sans vice du consentement ni condition de validité manquante, il n'y a rien à annuler. Frais d'avocat : 4 k€." }
+      ],
+      rule: { ref: "Art. 1193 du Code civil", text: "Les contrats ne peuvent être modifiés ou révoqués que du consentement mutuel des parties, ou pour les causes que la loi autorise." } },
+    { id: "p6c", tag: "Bonne foi",
+      ctx: ["Depuis un an, l'enseigne cesse volontairement toute l'assistance prévue au contrat, pour vous pousser à partir."],
+      q: "Quel principe méconnaît-elle ?",
+      opts: [
+        { t: "La liberté contractuelle", ok: false, cost: 4, fb: "Rien dans cette situation ne touche à la liberté de choisir. Coût de l'erreur de fondement : 4 k€." },
+        { t: "La bonne foi", ok: true, fb: "La bonne foi est exigée aussi dans l'exécution du contrat : l'enseigne ne peut pas se désengager en cachette pour vous nuire." },
+        { t: "L'effet relatif", ok: false, cost: 4, fb: "L'effet relatif concerne les tiers au contrat, pas l'exécution entre parties. Coût : 4 k€." }
+      ],
+      rule: { ref: "Art. 1104 du Code civil", text: "Les contrats doivent être négociés, formés et exécutés de bonne foi." } },
+    { id: "p6d", tag: "Ordre public",
+      ctx: ["L'enseigne vous propose, pour renouveler le contrat, une clause qui vous interdirait toute activité de restauration en France pendant dix ans."],
+      q: "Les parties peuvent-elles fixer librement le contenu de leur contrat ?",
+      opts: [
+        { t: "Oui, sans aucune limite", ok: false, cost: 5, fb: "La liberté de fixer le contenu s'exerce dans le respect de la loi et de l'ordre public. Vous auriez signé une clause disproportionnée : 5 k€." },
+        { t: "Oui, dans le respect de l'ordre public", ok: true, fb: "Les parties fixent librement le contenu du contrat, dans le respect de l'ordre public. Une clause disproportionnée n'est pas valable." },
+        { t: "Non, c'est toujours le juge qui décide", ok: false, cost: 4, fb: "Le juge intervient en cas de litige, il ne rédige pas vos contrats. Coût : 4 k€." }
+      ],
+      rule: { ref: "Contenu du contrat", text: "Les parties fixent librement le contenu du contrat, dans le respect de l'ordre public." } }
+  ];
+
+
+  /* Scènes « pour le fun » : hors cours, non notées */
+  var FUN = [
+    { id: "f1", fun: true, ctx: ["Un client commande douze pizzas pour sa fête d'anniversaire, déguisé en dinosaure."], q: "Votre réaction ?",
+      opts: [
+        { t: "Je livre moi-même, déguisé en dinosaure aussi", c: 0, fb: "Vous arrivez en costume sous les applaudissements. Quelqu'un filme.", later: { p: 0.6, t: "La vidéo devient virale : les commandes explosent.", c: 7 } },
+        { t: "Je lui offre une pizza dessert", c: -1, fb: "Le client est ravi.", later: { t: "Il revient chaque mois avec ses amis.", c: 3 } },
+        { t: "Je fais payer un supplément « costume »", c: 3, fb: "Il rit et paie.", later: { p: 0.5, t: "Il le raconte en ligne : mauvais avis, « supplément absurde ».", c: -4 } } ] },
+    { id: "f2", fun: true, ctx: ["Le chat du voisin s'est installé dans votre cuisine et dort sur un sac de farine."], q: "Que faites-vous ?",
+      opts: [
+        { t: "Je le nomme mascotte officielle du restaurant", c: 0, fb: "Les clients adorent.", later: { p: 0.7, t: "Une inspection d'hygiène tombe sur le chat en salle : amende.", c: -5 } },
+        { t: "Je le remets dehors", c: 0, fb: "Il revient demain.", later: { t: "Vous gardez la cuisine propre : aucun souci à l'inspection.", c: 2 } },
+        { t: "Je jette le sac de farine, par précaution", c: -2, fb: "Un sac perdu, une cuisine propre.", later: { t: "Une dégustation surprise arrive : vos pizzas sont jugées irréprochables.", c: 3 } } ] },
+    { id: "f3", fun: true, ctx: ["Un influenceur local vient goûter vos pizzas, sans prévenir."], q: "Vous le reconnaissez à la porte. Que faites-vous ?",
+      opts: [
+        { t: "Je lui sers la pizza du chef comme à tout le monde", c: 0, fb: "Il goûte, sans traitement de faveur.", later: { p: 0.8, t: "Sa critique honnête et élogieuse attire une nouvelle clientèle.", c: 5 } },
+        { t: "Je lui offre tout le menu", c: -3, fb: "Il est enchanté.", later: { p: 0.5, t: "Il poste une vidéo sponsorisée un peu trop flatteuse : on vous soupçonne d'acheter les avis, les clients se méfient.", c: -5 } },
+        { t: "Je fais semblant de ne pas le connaître", c: 0, fb: "Il apprécie l'authenticité.", later: { t: "Il revient avec trois amis.", c: 2 } } ] },
+    { id: "f4", fun: true, ctx: ["Votre four fait un bruit bizarre. Un livreur affirme qu'il s'agit d'un fantôme."], q: "Vous décidez de…",
+      opts: [
+        { t: "Appeler un exorciste (pour rire)", c: -2, fb: "Le prêtre repart avec une pizza.", later: { p: 0.5, t: "L'anecdote fait sourire la presse locale : un article gratuit.", c: 4 } },
+        { t: "Appeler le technicien", c: -1, fb: "Un roulement à billes. Aucun fantôme.", later: { t: "Le four est révisé : plus aucune panne cette année.", c: 3 } },
+        { t: "Ne rien faire et en faire un argument marketing", c: 1, fb: "« La pizza hantée » devient la spécialité du mois.", later: { p: 0.7, t: "Le four lâche en plein service : réparation en urgence.", c: -6 } } ] },
+    { id: "f5", fun: true, ctx: ["Votre équipe vous défie à un concours de lancer de pâte. Le perdant fait la plonge."], q: "Vous relevez le défi ?",
+      opts: [
+        { t: "Oui, de bon cœur", c: 0, fb: "Vous vous lancez.", later: { p: 0.5, t: "Vous glissez et vous vous foulez le poignet : une semaine d'arrêt, un remplaçant à payer.", c: -4 } },
+        { t: "Oui, mais j'arbitre", c: 0, fb: "Vous gardez l'ambiance sans risque.", later: { t: "L'équipe est soudée : turnover en baisse, moins de recrutements.", c: 3 } },
+        { t: "Je décline poliment", c: 0, fb: "Le concours a lieu sans vous.", later: { p: 0.5, t: "Un cuisinier démissionne, vexé : recrutement en urgence.", c: -3 } } ] },
+    { id: "f6", fun: true, ctx: ["Un touriste japonais est ravi et veut photographier vos pizzas pour son blog."], q: "Votre réponse ?",
+      opts: [
+        { t: "Je pose avec lui sur la photo", c: 0, fb: "Photo souvenir réussie.", later: { p: 0.7, t: "Son blog compte des milliers de lecteurs : des clients étrangers affluent.", c: 5 } },
+        { t: "Je lui demande de goûter d'abord", c: 1, fb: "Il adore.", later: { t: "Il revient avec un groupe de touristes.", c: 3 } },
+        { t: "Je refuse : secret de fabrication", c: 0, fb: "Il hausse les épaules.", later: { t: "Rien ne change.", c: 0 } } ] },
+    { id: "f7", fun: true, ctx: ["Le soir de Noël, une grande tablée arrive à 22 h 59, juste avant la fermeture."], q: "Vous acceptez ?",
+      opts: [
+        { t: "Oui, bien sûr, c'est Noël", c: 3, fb: "L'équipe est de bonne humeur.", later: { p: 0.5, t: "Un cuisinier fatigué fait une erreur de cuisson : un client malade, geste commercial.", c: -4 } },
+        { t: "Oui, mais uniquement à emporter", c: 1, fb: "Un compromis.", later: { t: "Ils reviennent commander toute l'année.", c: 3 } },
+        { t: "Non : l'horaire, c'est l'horaire", c: 0, fb: "La bande repart déçue.", later: { p: 0.6, t: "Ils laissent un avis très négatif.", c: -4 } } ] },
+    { id: "f8", fun: true, ctx: ["En cuisine, vous découvrez que le stock de mozzarella a été remplacé par un énorme fromage de chèvre."], q: "Vous improvisez ?",
+      opts: [
+        { t: "Je lance la « pizza chèvre-miel » du jour", c: 2, fb: "Elle plaît.", later: { p: 0.6, t: "Elle fait un tabac et entre à la carte.", c: 5 } },
+        { t: "Je rachète de la mozzarella en urgence", c: -2, fb: "Service sauvé.", later: { t: "Votre fournisseur vous remercie par une remise.", c: 2 } },
+        { t: "Je ferme pour la soirée", c: -3, fb: "Soirée perdue.", later: { p: 0.5, t: "Des clients mécontents partent chez le concurrent.", c: -3 } } ] }
+  ];
+
+  /* Calendrier : 5 années de franchise */
+  var YEARS = [
+    { title: "Du dossier à la signature", intro: function (n) { return "Vous êtes " + n + ", ancien responsable de salle. Vous voulez ouvrir une pizzeria de livraison sous l'enseigne Forno Express (enseigne fictive). Trésorerie de départ : 60 k€. Avant de signer, il faut comprendre le contrat et la façon dont il se forme."; },
+      plan: [{ pool: P1, draw: 2 }, { sort: S1 }, { pool: P2, draw: 3 }, { fun: 1 }, { sort: S2 }] },
+    { title: "La validité du contrat", intro: function () { return "Le restaurant a ouvert. Au bout d'un an, les comptes sont mauvais et vous revenez sur les conditions de la signature."; },
+      plan: [{ pool: P3, draw: 2 }, { fun: 1 }, { sort: S3 }] },
+    { title: "Les clauses du contrat", intro: function () { return "L'activité se stabilise. Vous relisez les clauses de votre contrat de franchise : plusieurs vont peser sur la suite."; },
+      plan: [{ sort: S4 }, { pool: P4, draw: 3 }, { fun: 1 }] },
+    { title: "Quand ça se tend", intro: function () { return "Les ventes restent décevantes et les relations avec l'enseigne se tendent. Chacun a des engagements à tenir."; },
+      plan: [{ pool: P5, draw: 3 }, { fun: 1 }] },
+    { title: "La fin du contrat", intro: function () { return "Le bout du chemin approche. Il reste à solder les comptes et à savoir ce que le contrat permet encore, ou interdit."; },
+      plan: [{ pool: P6, draw: 3 }, { fun: 1 }] }
+  ];
+
+  /* Aléas de fin d'année */
+  var EVENTS = [
+    { t: "Un article de la presse locale vante votre pizzeria.", c: 4 },
+    { t: "Une entreprise voisine vous confie un contrat de plateaux-repas pour l'année.", c: 6 },
+    { t: "Une aide locale au commerce de proximité vous est versée.", c: 5 },
+    { t: "Un été exceptionnel : record de commandes.", c: 3 },
+    { t: "Un concurrent ouvre en face de votre restaurant.", c: -5 },
+    { t: "Votre four principal tombe en panne en plein service.", c: -6 },
+    { t: "Une grève des transports retarde les livraisons.", c: -3 },
+    { t: "Le prix de la mozzarella flambe.", c: -4 },
+    { t: "Un livreur démissionne : recrutement en urgence.", c: -3 },
+    { t: "Un contrôle d'hygiène impose des travaux de mise en conformité.", c: -4 }
+  ];
+
+  /* Fins : droit (D) x argent (A). D : hi >= 75 %, mid 50-74 %, lo < 50 %.  A : broke <= 0, tight 1-24, ok 25-59, rich >= 60 k€ */
+  var ENDINGS = {
+    "hi/rich": { title: "Franchisé de référence", text: ["Vous avez lu les clauses, exigé le DIP à temps et défendu vos droits sans sortir du contrat. Chaque fois que le droit vous demandait de payer pour être honnête, vous l'avez fait, et votre caisse a tenu.", "L'enseigne vous cite en exemple et vous propose d'ouvrir un deuxième restaurant."] },
+    "hi/ok": { title: "Franchisé solide", text: ["Vos connaissances juridiques ont protégé votre contrat. Les imprévus et quelques choix honnêtes mais coûteux ont rogné vos marges, sans jamais vous mettre en danger.", "Vous finissez les cinq ans avec un restaurant sain. Avec un peu plus de réserves, vous auriez pu viser le sommet."] },
+    "hi/tight": { title: "Bon juriste, trésorerie sous tension", text: ["Vous connaissez le droit des contrats, et cela se voit : peu d'erreurs de règle. Mais la sécurité juridique ne remplit pas une caisse, et les imprévus ont pesé lourd.", "Vous êtes encore debout, de justesse. Pensez à ce qu'un bon contrat protège, et à ce qu'il ne protège pas : votre trésorerie."] },
+    "hi/broke": { title: "Faillite honorable", text: ["Vous maîtrisiez le cours, mais l'argent est parti plus vite que la sécurité juridique n'a pu vous protéger. Les choix honnêtes ont un prix, et les imprévus n'ont pas aidé.", "Le tribunal de commerce note que vous n'avez commis aucune faute grave. Vous repartirez avec une solide réputation, mais pas avec votre pizzeria."] },
+    "mid/rich": { title: "Franchisé qui a eu de la chance", text: ["Votre trésorerie est confortable, mais votre maîtrise du droit est incomplète. Quelques règles vous ont échappé et ne vous ont pas coûté cher cette fois-ci.", "La chance finit par tourner : reprenez les notions de la fiche ci-dessous avant de signer un vrai contrat."] },
+    "mid/ok": { title: "Franchisé qui tient", text: ["Votre restaurant fonctionne. Quelques erreurs ont coûté cher, mais vous maîtrisez l'essentiel du droit des contrats.", "Vous avez fini le contrat sans drame. Il reste quelques notions à consolider pour passer au niveau supérieur."] },
+    "mid/tight": { title: "Franchisé sur le fil", text: ["Entre des règles mal maîtrisées et des imprévus mal absorbés, vous terminez avec peu de marge. Un seul incident de plus, et c'était la fin.", "Relisez la fiche ci-dessous : les erreurs qui reviennent sont les plus coûteuses."] },
+    "mid/broke": { title: "Dépôt de bilan", text: ["Des règles de droit mal connues, des imprévus mal encaissés : la trésorerie n'a pas suivi. Aucune erreur isolée ne vous a coulé, mais leur accumulation a suffi.", "Reprenez les notions de la fiche, puis retentez votre chance."] },
+    "lo/rich": { title: "Chanceux mais imprudent", text: ["Vous avez beaucoup d'argent mais peu de connaissances. Vous avez sans doute cédé à des tentations qui ont rapporté, ou profité d'événements favorables.", "Dans la vraie vie, un contrat mal compris coûte souvent plus tard. Reprenez le cours : la chance ne remplace pas la règle."] },
+    "lo/ok": { title: "Franchisé fragile", text: ["Votre restaurant tourne, mais sur de mauvaises bases juridiques : trop de règles vous ont échappé. Vous êtes passé entre les gouttes.", "Avant de signer quoi que ce soit, relisez la fiche ci-dessous avec attention."] },
+    "lo/tight": { title: "Franchisé en difficulté", text: ["Vous avez survécu, mais plusieurs règles du chapitre vous ont échappé, et la trésorerie en porte les traces.", "Relisez la fiche ci-dessous avant de rejouer : elle contient exactement ce qui vous a manqué."] },
+    "lo/broke": { title: "Dépôt de bilan", text: ["Trop de décisions prises sans connaître la règle de droit, et la caisse est vide.", "Reprenez le chapitre, puis retentez votre chance : la partie est courte et les situations changent à chaque fois."] }
+  };
+
+  /* ================================================================== */
+  /*  MOTEUR                                                             */
+  /* ================================================================== */
+  var LETTERS = ["A", "B", "C", "D"];
+  var START_CASH = 60, START_SEC = 50, SORT_SIZE = 6;
+  var S = null, steps = [], totalAnswers = 0;
+  var $main = document.getElementById("main");
+  var boardUnsub = null;
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function scrollTop() { try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) { window.scrollTo(0, 0); } }
+  function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* stockage indisponible */ } }
+
+  /* Tirage d'une partie : lots tirés au hasard, ordre des cartes mélangé */
+  function buildRun() {
+    steps = []; totalAnswers = 0; var funDeck = shuffle(FUN);
+    YEARS.forEach(function (y, yi) {
+      steps.push({ kind: "year", yi: yi });
+      y.plan.forEach(function (p) {
+        if (p.fun) { steps.push({ kind: "choice", yi: yi, sc: funDeck.pop() }); }
+        else if (p.pool) {
+          shuffle(p.pool).slice(0, p.draw).forEach(function (sc) { steps.push({ kind: "choice", yi: yi, sc: sc }); totalAnswers++; });
+        } else {
+          var sc = p.sort;
+          steps.push({ kind: "sort", yi: yi, sc: sc, items: shuffle(sc.items).slice(0, SORT_SIZE) });
+          totalAnswers += SORT_SIZE;
+        }
+      });
+      steps.push({ kind: "event", yi: yi, ev: yi < YEARS.length - 1 ? EVENTS[Math.floor(Math.random() * EVENTS.length)] : null });
+    });
+    steps.push({ kind: "end" });
+  }
+
+  function newGame(name, cls) {
+    S = { name: name, cls: cls, i: 0, cash: START_CASH, sec: START_SEC, good: 0, total: 0, misses: [], pending: [], st: { err: 0, pay: 0, honest: 0, tempt: 0, tcount: 0, back: 0, ev: 0, fun: 0 }, t0: Date.now() };
+    buildRun();
+  }
+
+  function renderHeader(yi, label) {
+    document.getElementById("cashVal").textContent = Math.round(S ? S.cash : START_CASH) + " k€";
+    document.getElementById("cashBar").style.width = clamp(S ? S.cash : START_CASH, 0, 100) + "%";
+    document.getElementById("secVal").textContent = Math.round(S ? S.sec : START_SEC);
+    document.getElementById("secBar").style.width = clamp(S ? S.sec : START_SEC, 0, 100) + "%";
+    var html = "";
+    for (var k = 0; k < 5; k++) html += '<div class="yr ' + (yi < 0 ? "" : (k < yi ? "done" : (k === yi ? "now" : ""))) + '">An ' + (k + 1) + "</div>";
+    if (yi === 5) html = html.replace(/yr "/g, 'yr done"');
+    document.getElementById("years").innerHTML = html;
+    document.getElementById("stageLabel").textContent = label || "Dossier de candidature";
+  }
+  function yearLabel(yi) { return "Année " + (yi + 1) + " · " + YEARS[yi].title; }
+
+  function ruleBox(r) { return '<div class="rule"><span class="ref">' + esc(r.ref) + '</span><div>' + esc(r.text) + '</div></div>'; }
+  function ctxBox(arr) { return '<div class="ctx">' + arr.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>"; }
+  function chips(ds, dc) {
+    var out = "";
+    if (ds) out += '<span class="chip ' + (ds > 0 ? "up" : "down") + '">Sécurité ' + (ds > 0 ? "+" : "−") + Math.abs(ds) + "</span>";
+    if (dc) out += '<span class="chip ' + (dc > 0 ? "up" : "down") + '">Trésorerie ' + (dc > 0 ? "+" : "−") + Math.abs(dc) + " k€</span>";
+    return out ? '<div class="chips">' + out + "</div>" : "";
+  }
+  function next() { S.i++; render(); }
+
+  function render() {
+    scrollTop();
+    if (!S) return renderStart();
+    var st = steps[S.i];
+    if (st.kind === "year") return renderYear(st);
+    if (st.kind === "choice") return renderChoice(st);
+    if (st.kind === "sort") return renderSort(st);
+    if (st.kind === "event") return renderEvent(st);
+    return renderEnd();
+  }
+
+  /* ---------- Ouverture : prénom ---------- */
+  function renderStart() {
+    renderHeader(-1, "Dossier de candidature");
+    var html = '<section class="card"><span class="tab">Dossier de franchise</span><h1>Le Franchisé</h1>' +
+      '<p class="lead">Vous ouvrez un restaurant sous franchise et vous le gérez pendant cinq ans. À chaque étape, des décisions juridiques font bouger votre trésorerie et votre sécurité juridique. Les situations sont tirées au hasard : une partie ne ressemble pas à la précédente.</p>' +
+      '<form class="form" id="startForm" novalidate>' +
+      '<div class="field"><label for="nm">Prénom (et initiale du nom)</label><input id="nm" name="nm" maxlength="24" autocomplete="given-name" placeholder="Camille D."></div>' +
+      '<div class="field"><label for="cl">Classe (facultatif)</label><input id="cl" name="cl" maxlength="14" placeholder="BTS1 MCO"></div>' +
+      '<p class="err" id="err" role="alert"></p>' +
+      '<div class="row"><button class="btn" type="submit" style="margin-top:0">Ouvrir le dossier</button><button class="btn ghost" type="button" id="seeBoard" style="margin-top:0">Voir le classement</button></div></form>' +
+      '<p class="hint">Votre prénom est visible dans le classement.</p></section>';
+    $main.innerHTML = html;
+    document.getElementById("nm").value = lsGet("fr_name");
+    document.getElementById("cl").value = lsGet("fr_cls");
+    document.getElementById("startForm").onsubmit = function (e) {
+      e.preventDefault();
+      var n = document.getElementById("nm").value.trim().replace(/\s+/g, " ");
+      var c = document.getElementById("cl").value.trim().replace(/\s+/g, " ");
+      if (n.length < 2) { document.getElementById("err").textContent = "Entrez au moins deux lettres pour votre prénom."; return; }
+      lsSet("fr_name", n); lsSet("fr_cls", c);
+      newGame(n, c);
+      render();
+    };
+    document.getElementById("seeBoard").onclick = function () { renderBoardOnly(); };
+  }
+
+  /* ---------- Début d'année ---------- */
+  function renderYear(st) {
+    var y = YEARS[st.yi];
+    renderHeader(st.yi, yearLabel(st.yi));
+    var html = '<section class="card"><span class="tab">Année ' + (st.yi + 1) + ' sur 5</span><h2>' + esc(y.title) + '</h2><p class="lead">' + esc(y.intro(S.name)) + '</p><button class="btn" id="go">' + (st.yi === 0 ? "Commencer" : "Continuer") + "</button></section>";
+    $main.innerHTML = html;
+    document.getElementById("go").onclick = next;
+  }
+
+  /* ---------- Choix ---------- */
+  function renderChoice(st) {
+    var sc = st.sc;
+    renderHeader(st.yi, yearLabel(st.yi));
+    var opts = shuffle(sc.opts);
+    var html = '<section class="card"><span class="tab">' + (sc.fun ? "Hors cours" : "Dossier") + " · Année " + (st.yi + 1) + "</span>" + ctxBox(sc.ctx) + '<p class="q">' + esc(sc.q) + '</p><div class="opts">';
+    opts.forEach(function (o, k) { html += '<button class="opt" data-k="' + k + '"><span class="k">' + LETTERS[k] + "</span><span>" + esc(o.t) + "</span></button>"; });
+    html += '</div><div id="fb"></div></section>';
+    $main.innerHTML = html;
+    var btns = $main.querySelectorAll(".opt");
+    btns.forEach(function (b) {
+      b.onclick = function () {
+        var o = opts[+b.getAttribute("data-k")], ds, dc;
+        if (sc.fun) { ds = 0; dc = o.c || 0; S.st.fun += dc; if (o.later && Math.random() < (o.later.p || 1)) S.pending.push({ t: o.later.t, c: o.later.c, k: "Conséquence de votre choix" }); }
+        else {
+          S.total++;
+          if (o.ok) { S.good++; ds = 6; dc = -(o.pay || 0); S.st.pay += (o.pay || 0); if (o.pay) S.st.honest++; }
+          else {
+            ds = -10; dc = o.gain ? o.gain : -(o.cost || 4);
+            if (o.gain) { S.st.tempt += o.gain; S.st.tcount++; } else S.st.err += (o.cost || 4);
+            if (o.gain) S.pending.push({ t: o.back, c: -Math.round(o.gain * 1.5) });
+            S.misses.push({ yi: st.yi, label: sc.q, ctx: sc.ctx[0], good: sc.opts.filter(function (x) { return x.ok; })[0].t, rule: sc.rule, tag: sc.tag });
+          }
+        }
+        S.sec = clamp(S.sec + ds, 0, 100); S.cash += dc;
+        btns.forEach(function (x, kk) { x.disabled = true; if (sc.fun) { if (x === b) x.classList.add("right"); else x.classList.add("dim"); } else if (opts[kk].ok) x.classList.add("right"); else if (x === b) x.classList.add("wrong"); else x.classList.add("dim"); });
+        renderHeader(st.yi, yearLabel(st.yi));
+        var fb = document.getElementById("fb");
+        fb.innerHTML = '<div class="fb ' + (sc.fun ? "" : (o.ok ? "ok" : "ko")) + '" role="status"><h3>' + (sc.fun ? "Juste pour le fun" : (o.ok ? "Bien vu" : "Mauvaise piste")) + "</h3><p>" + esc(o.fb) + "</p>" + (sc.fun ? '<p class="hint" style="margin:0">Votre choix aura peut-être des suites au bilan de fin d\'année.</p>' : ruleBox(sc.rule)) + chips(ds, dc) + '<button class="btn" id="nx">Continuer</button></div>';
+        document.getElementById("nx").onclick = next;
+        fb.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      };
+    });
+  }
+
+  /* ---------- Tri ---------- */
+  function renderSort(st) {
+    var sc = st.sc, items = st.items, idx = 0, right = 0;
+    renderHeader(st.yi, yearLabel(st.yi));
+    function show() {
+      var it = items[idx];
+      var html = '<section class="card"><span class="tab">Tri · Année ' + (st.yi + 1) + "</span>" + ctxBox(sc.ctx) +
+        '<p class="count">Carte ' + (idx + 1) + " sur " + items.length + '</p><div class="sortcard">' + esc(it.t) + '</div><div class="buckets">';
+      sc.buckets.forEach(function (b, k) { html += '<button class="bucket" data-k="' + k + '">' + esc(b) + "</button>"; });
+      html += '</div><div id="fb"></div></section>';
+      $main.innerHTML = html;
+      var btns = $main.querySelectorAll(".bucket");
+      btns.forEach(function (b) {
+        b.onclick = function () {
+          var k = +b.getAttribute("data-k"), ok = k === it.b, ds, dc = 0;
+          S.total++;
+          if (ok) { S.good++; right++; ds = 2; }
+          else { ds = -3; dc = -1; S.st.err += 1; S.misses.push({ yi: st.yi, label: it.t, ctx: "", good: sc.buckets[it.b], rule: { ref: sc.rule.ref, text: it.why }, tag: sc.buckets[it.b] }); }
+          S.sec = clamp(S.sec + ds, 0, 100); S.cash += dc;
+          btns.forEach(function (x, kk) { x.disabled = true; if (kk === it.b) x.classList.add("right"); else if (x === b) x.classList.add("wrong"); else x.classList.add("dim"); });
+          renderHeader(st.yi, yearLabel(st.yi));
+          var last = idx === items.length - 1;
+          var fb = document.getElementById("fb");
+          var extra = last ? "<p><b>Tri terminé : " + right + " sur " + items.length + ".</b></p>" + ruleBox(sc.rule) : "";
+          fb.innerHTML = '<div class="fb ' + (ok ? "ok" : "ko") + '" role="status"><h3>' + (ok ? "Bien classé" : "Mauvaise case") + "</h3><p>" + esc(it.why) + "</p>" + extra + chips(ds, dc) + '<button class="btn" id="nx">' + (last ? "Continuer" : "Carte suivante") + "</button></div>";
+          document.getElementById("nx").onclick = function () { if (last) next(); else { idx++; show(); } };
+          fb.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        };
+      });
+    }
+    show();
+  }
+
+  /* ---------- Aléa de fin d'année ---------- */
+  function renderEvent(st) {
+    var back = S.pending.splice(0), bc = 0;
+    if (st.ev) { S.cash += st.ev.c; S.st.ev += st.ev.c; }
+    back.forEach(function (p) { bc += p.c; S.cash += p.c; if (p.k) S.st.fun += p.c; else S.st.back += p.c; });
+    var last = st.yi === YEARS.length - 1;
+    renderHeader(st.yi + 1, last ? "Bilan final" : "Fin de l'année " + (st.yi + 1));
+    var html = '<section class="card"><span class="tab">Bilan de l\'année ' + (st.yi + 1) + "</span><h2>" + (last ? "Bilan de la cinquième année" : "Fin de l'année " + (st.yi + 1)) + '</h2><p class="lead">Trésorerie : ' + Math.round(S.cash) + ' k€. Sécurité juridique : ' + Math.round(S.sec) + '.</p>';
+    if (st.ev) html += '<div class="event"><b>Imprévu</b>' + esc(st.ev.t) + "</div>" + chips(0, st.ev.c);
+    back.forEach(function (p) { html += '<div class="event"><b>' + esc(p.k || "Retour de bâton") + '</b>' + esc(p.t) + "</div>" + chips(0, p.c); });
+    html += '<button class="btn" id="go">' + (last ? "Voir le résultat" : "Année suivante") + "</button></section>";
+    $main.innerHTML = html;
+    document.getElementById("go").onclick = next;
+  }
+
+  /* ---------- Fin, classement ---------- */
+  function pctScore() { return Math.round(100 * S.good / S.total); }
+  function finalScore() { return Math.round(0.7 * pctScore() + 0.3 * 100 * clamp(S.cash, 0, 80) / 80); }
+  function endingFor() {
+    var p = pctScore();
+    var d = p >= 75 ? "hi" : (p >= 50 ? "mid" : "lo");
+    var a = S.cash <= 0 ? "broke" : (S.cash < 25 ? "tight" : (S.cash < 60 ? "ok" : "rich"));
+    return ENDINGS[d + "/" + a];
+  }
+  function kfmt(v) { v = Math.round(v); return (v > 0 ? "+" : (v < 0 ? "−" : "")) + Math.abs(v) + " k€"; }
+  function bilanHTML(pct) {
+    var st = S.st, tags = {}, h = "";
+    S.misses.forEach(function (m) { tags[m.tag] = (tags[m.tag] || 0) + 1; });
+    var weak = Object.keys(tags).sort(function (a, b) { return tags[b] - tags[a]; }).slice(0, 3);
+    var lines = [
+      ["Trésorerie de départ", START_CASH],
+      ["Erreurs de droit (frais, sanctions)", -st.err],
+      ["Choix honnêtes mais coûteux", -st.pay],
+      ["Gains des tentations", st.tempt],
+      ["Retours de bâton", st.back],
+      ["Imprévus de fin d'année", st.ev],
+      ["Scènes hors cours et leurs suites", st.fun]
+    ];
+    h += '<section class="card"><h3 class="sec">Bilan financier</h3><div class="tbl"><table><tbody>';
+    lines.forEach(function (l, k) { h += "<tr><td>" + esc(l[0]) + '</td><td class="num">' + (k === 0 ? Math.round(l[1]) + " k€" : kfmt(l[1])) + "</td></tr>"; });
+    h += '<tr><td><b>Trésorerie finale</b></td><td class="num"><b>' + Math.round(S.cash) + " k€</b></td></tr></tbody></table></div>";
+    var p1 = "";
+    if (st.tcount) p1 += "Vous avez cédé à " + st.tcount + " tentation" + (st.tcount > 1 ? "s" : "") + " : " + kfmt(st.tempt) + " au départ, puis " + kfmt(st.back) + " de retours de bâton. Le droit rattrape toujours ceux qui trichent avec le contrat. ";
+    else p1 += "Vous n'avez cédé à aucune tentation : vos gains sont plus faibles, mais votre contrat est resté propre. ";
+    if (st.honest) p1 += "Vous avez payé " + st.pay + " k€ pour rester honnête ou prudent : c'est le prix de la sécurité juridique. ";
+    if (st.err > 10) p1 += "Vos erreurs de règle vous ont coûté " + st.err + " k€ : c'est la plus grosse fuite de votre caisse. ";
+    if (st.ev < -8) p1 += "Les imprévus ont pesé " + kfmt(st.ev) + " : il aurait fallu des réserves plus solides.";
+    else if (st.ev > 8) p1 += "Les imprévus vous ont plutôt aidé (" + kfmt(st.ev) + ") : une partie de votre réussite tient à la chance.";
+    h += '<p style="margin:12px 0 0">' + esc(p1) + "</p></section>";
+    h += '<section class="card"><h3 class="sec">Bilan juridique</h3><p style="margin:0 0 10px">' + esc(S.good + " bonnes réponses sur " + S.total + " (" + pct + " %), sécurité juridique " + Math.round(S.sec) + " sur 100.") + "</p>";
+    if (!weak.length) h += '<p style="margin:0">Aucune erreur de règle : vous maîtrisez les notions de ce chapitre. Rejouez pour tomber sur d\'autres situations.</p>';
+    else h += '<p style="margin:0">Notions à revoir en priorité : <b>' + weak.map(esc).join(", ") + "</b>. Retrouvez le détail dans la fiche en bas de page.</p>";
+    return h + "</section>";
+  }
+
+  function renderEnd() {
+    renderHeader(5, "Dossier clôturé");
+    var end = endingFor(), pct = pctScore(), final = finalScore();
+    var code = "FRANCHISE | " + S.name + (S.cls ? " | " + S.cls : "") + " | " + S.good + "/" + S.total + " | " + Math.round(S.cash) + " k€ | note " + finalScore() + " | " + new Date().toLocaleDateString("fr-FR");
+    var html = '<section class="card"><span class="tab">Fin du dossier</span><h2>' + esc(end.title) + '</h2><div class="score">' + final + ' / 100</div>' + end.text.map(function (t) { return '<p class="lead">' + esc(t) + "</p>"; }).join("") +
+      '<p class="hint" style="margin-top:12px">' + esc(S.name) + " · " + pct + " % de bonnes réponses (70 % de la note) · trésorerie finale <b>" + Math.round(S.cash) + " k€</b> (30 % de la note, plafonnée à 80 k€)</p>" +
+      '<div class="row"><button class="btn" id="again">Rejouer</button></div></section>';
+    html += bilanHTML(pct);
+    html += '<section class="card"><h3 class="sec">Classement</h3><div id="board"><p class="hint" style="margin:0">Chargement du classement…</p></div></section>';
+    html += '<section class="card"><h3 class="sec">Notions les plus ratées</h3><div id="tags"><p class="hint" style="margin:0">Chargement…</p></div></section>';
+    html += '<section class="card"><h3 class="sec">Votre code de résultat</h3><p class="hint" style="margin:0 0 10px">À garder si le classement est indisponible.</p><div class="code" id="code">' + esc(code) + '</div><div class="row"><button class="btn ghost" id="copy" style="margin-top:12px">Copier le code</button></div></section>';
+    html += '<section class="review" aria-label="Fiche à revoir"><div class="card"><h3 class="sec">Fiche à revoir (' + S.misses.length + ")</h3>";
+    if (!S.misses.length) html += '<p style="margin:0">Aucune erreur. Rejouez pour tomber sur d\'autres situations.</p>';
+    else {
+      var lastY = -1;
+      S.misses.slice().sort(function (a, b) { return a.yi - b.yi; }).forEach(function (m) {
+        if (m.yi !== lastY) { html += '<h3 class="sec" style="margin-top:14px">' + esc(yearLabel(m.yi)) + "</h3>"; lastY = m.yi; }
+        html += '<div class="miss" style="margin-bottom:8px"><b>' + esc(m.label) + '</b><span class="good-ans">Bonne réponse : ' + esc(m.good) + "</span><br><span>" + esc(m.rule.ref) + " : " + esc(m.rule.text) + "</span></div>";
+      });
+    }
+    html += "</div></section>";
+    $main.innerHTML = html;
+    document.getElementById("again").onclick = function () { if (boardUnsub) { boardUnsub(); boardUnsub = null; } S = null; render(); };
+    document.getElementById("copy").onclick = function () {
+      var el = document.getElementById("code"), btn = this;
+      function sel() { try { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) { /* sélection indisponible */ } }
+      var done = function () { btn.textContent = "Code copié"; };
+      try { navigator.clipboard.writeText(code).then(done, sel); } catch (e) { sel(); }
+    };
+    saveAndShowBoard({
+      name: S.name, cls: S.cls, score: pct, final: final, good: S.good, total: S.total, cash: Math.round(S.cash), sec: Math.round(S.sec),
+      ending: end.title, ts: Date.now(), secs: Math.round((Date.now() - S.t0) / 1000),
+      tags: S.misses.map(function (m) { return m.tag; })
+    });
+  }
+
+  function renderBoardOnly() {
+    renderHeader(-1, "Classement");
+    $main.innerHTML = '<section class="card"><h3 class="sec">Classement</h3><div id="board"><p class="hint" style="margin:0">Chargement du classement…</p></div></section>' +
+      '<section class="card"><h3 class="sec">Notions les plus ratées</h3><div id="tags"><p class="hint" style="margin:0">Chargement…</p></div></section>' +
+      '<div class="row"><button class="btn ghost" id="back">Retour</button></div>';
+    document.getElementById("back").onclick = function () { if (boardUnsub) { boardUnsub(); boardUnsub = null; } render(); };
+    saveAndShowBoard(null);
+  }
+
+  /* Enregistrement automatique du résultat, puis classement partagé (Supabase).
+     Si le classement est injoignable, le jeu fonctionne : on affiche le code de résultat. */
+  function saveAndShowBoard(row) {
+    var boardEl = function () { return document.getElementById("board"); };
+    var tagsEl = function () { return document.getElementById("tags"); };
+    var unavailable = function (msg) {
+      if (boardEl()) boardEl().innerHTML = '<p class="hint" style="margin:0">' + esc(msg) + "</p>";
+      if (tagsEl()) tagsEl().innerHTML = '<p class="hint" style="margin:0">Disponible avec le classement.</p>';
+    };
+    if (!(window.MesJeux && MesJeux.ready())) { unavailable("Le classement n'est pas encore branché. Utilisez le code de résultat."); return; }
+    if (boardUnsub) { boardUnsub(); boardUnsub = null; }
+
+    function toRow(r) {
+      var d = r.details || {};
+      return { name: r.player, cls: d.cls, score: d.score, final: r.score, good: d.good, total: d.total, cash: d.cash, sec: d.sec, tags: d.tags || [], ts: Date.parse(r.created_at) || 0 };
+    }
+    function refresh(me, state) {
+      return MesJeux.list("franchise", 1000).then(function (rows) {
+        var best = MesJeux.bestPerPlayer(rows).map(toRow);
+        drawBoard(best, me, state);
+        drawTags(best);
+      }, function () { unavailable("Le classement n'a pas pu être lu. Utilisez le code de résultat."); });
+    }
+
+    var saveP = Promise.resolve("none");
+    if (row) saveP = MesJeux.save("franchise", row.name, row.final, row).then(function (r) { return r.ok ? "saved" : "readonly"; });
+    saveP.then(function (state) {
+      var me = row ? row.name : (S ? S.name : "");
+      refresh(me, state).then(function () {
+        var id = setInterval(function () { if (!boardEl()) { clearInterval(id); return; } refresh(me, state); }, 30000);
+        boardUnsub = function () { clearInterval(id); };
+      });
+    });
+  }
+
+  function drawBoard(rows, me, state) {
+    var el = document.getElementById("board"); if (!el) return;
+    rows = rows.slice().sort(function (a, b) { return ((b.final != null ? b.final : b.score) - (a.final != null ? a.final : a.score)) || (b.cash - a.cash) || (a.ts - b.ts); });
+    var note = "";
+    if (state === "readonly") note = '<p class="hint" style="margin:0 0 10px">Votre résultat n\'a pas pu être enregistré (connexion indisponible). Il sera renvoyé à la prochaine ouverture du jeu. Gardez le code de résultat.</p>';
+    if (state === "kept") note = '<p class="hint" style="margin:0 0 10px">Votre meilleur résultat précédent est conservé.</p>';
+    if (state === "noid") note = '<p class="hint" style="margin:0 0 10px">Compte non reconnu : résultat non enregistré.</p>';
+    if (!rows.length) { el.innerHTML = note + '<p class="hint" style="margin:0">Aucun résultat pour l\'instant. Le premier à finir ouvre le classement.</p>'; return; }
+    var h = note + '<div class="tbl"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Droit</th><th class="num">Trés.</th><th class="num">Note</th></tr></thead><tbody>';
+    rows.slice(0, 30).forEach(function (r, i) {
+      h += '<tr class="' + (r.name === me ? "me" : "") + '"><td class="rk">' + (i + 1) + '</td><td><span class="nm">' + esc(r.name || "?") + "</span>" + (r.cls ? ' <span class="cls">' + esc(r.cls) + "</span>" : "") + '</td><td class="num">' + esc(r.good) + "/" + esc(r.total) + ' <span class="cls">(' + esc(r.score) + ' %)</span></td><td class="num">' + esc(r.cash) + " k€</td><td class=\"num\"><b>" + esc(r.final != null ? r.final : r.score) + "</b></td></tr>";
+    });
+    h += "</tbody></table></div><p class=\"hint\" style=\"margin:10px 0 0\">" + rows.length + " joueur" + (rows.length > 1 ? "s" : "") + ". Toutes les parties sont enregistrées ; le classement affiche le meilleur résultat de chacun.</p>";
+    el.innerHTML = h;
+  }
+
+  function drawTags(rows) {
+    var el = document.getElementById("tags"); if (!el) return;
+    var count = {};
+    rows.forEach(function (r) { (r.tags || []).forEach(function (t) { count[t] = (count[t] || 0) + 1; }); });
+    var arr = Object.keys(count).map(function (k) { return [k, count[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 6);
+    if (!arr.length) { el.innerHTML = '<p class="hint" style="margin:0">Pas encore assez de résultats.</p>'; return; }
+    var max = arr[0][1], h = "";
+    arr.forEach(function (a) { h += '<div class="tag-row"><span>' + esc(a[0]) + '</span><span class="tag-bar" title="' + a[1] + ' erreurs"><i style="width:' + Math.round(100 * a[1] / max) + '%"></i></span></div>'; });
+    el.innerHTML = h + '<p class="hint" style="margin:8px 0 0">Calculé sur les meilleures parties de chaque joueur.</p>';
+  }
+
+  render();
+})();
+</script>
+
+</body></html>

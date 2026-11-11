@@ -1,0 +1,1873 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Direction Saint-Gratien</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Concept : panneau de gare de nuit. Un tableau d'horloge en haut, une ligne à trois arrêts, une carte de scène avec des choix en boutons larges. */
+:root {
+  color-scheme: dark;
+  --bg: #0d1530;
+  --panel: #162250;
+  --panel2: #1e2d63;
+  --fg: #f1f4fc;
+  --muted: #a3aed6;
+  --line: #2e3d77;
+  --accent: #ffc629;
+  --accent-fg: #1b1400;
+  --accent-ink: #ffc629;
+  --good: #46d39a;
+  --bad: #ff7a7a;
+  --focus: #7fb2ff;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #edf0f8; --panel: #ffffff; --panel2: #f1f4fb; --fg: #101a3b; --muted: #56618a;
+    --line: #cfd6ea; --accent-ink: #8a5b00; --good: #0c7a53; --bad: #b83232; --focus: #1b5fd6;
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #edf0f8; --panel: #ffffff; --panel2: #f1f4fb; --fg: #101a3b; --muted: #56618a;
+  --line: #cfd6ea; --accent-ink: #8a5b00; --good: #0c7a53; --bad: #b83232; --focus: #1b5fd6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.5;
+  padding-block: 18px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.wrap > * { min-width: 0; }
+h1, h2 { font-family: var(--font-display); font-weight: 700; text-wrap: balance; margin: 0; line-height: 1.02; }
+h1 { font-size: clamp(44px, 12vw, 68px); text-transform: uppercase; letter-spacing: .01em; }
+h2 { font-size: clamp(30px, 8vw, 40px); }
+.lead { color: var(--muted); margin: 0; max-width: 60ch; }
+.eyebrow { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .12em; font-size: 15px; font-weight: 600; color: var(--accent-ink); }
+button { font: inherit; }
+button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Départ */
+.who-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+.who-btn {
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 11px 10px; cursor: pointer; text-align: center; min-height: 46px;
+}
+.who-btn:hover { border-color: var(--accent); }
+.who-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
+.btn {
+  background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 10px; padding: 14px 18px;
+  font-weight: 600; cursor: pointer; min-height: 50px;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.row > .btn { flex: 1 1 180px; }
+.small { font-size: 14px; color: var(--muted); margin: 0; }
+
+/* Tableau de bord */
+.board {
+  display: grid; grid-template-columns: auto 1fr 1.4fr; gap: 14px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+}
+.clock { font-family: var(--font-display); font-weight: 700; font-size: 46px; line-height: 1; color: var(--accent-ink); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.clock small { display: block; margin-top: 5px; font: 500 12px/1.2 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.stat .k { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stat .v { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .board { grid-template-columns: auto 1fr; } .bagbox { grid-column: 1 / -1; } }
+.line { display: flex; list-style: none; margin: 0; padding: 0 0 2px; position: relative; }
+.line::before { content: ""; position: absolute; left: 16%; right: 16%; top: 8px; height: 3px; background: var(--line); }
+.line li { position: relative; flex: 1; text-align: center; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.line li::before { content: ""; display: block; width: 17px; height: 17px; border-radius: 50%; background: var(--bg); border: 3px solid var(--line); margin: 0 auto 6px; position: relative; }
+.line li[aria-current="step"] { color: var(--fg); font-weight: 600; }
+.line li[aria-current="step"]::before { background: var(--accent); border-color: var(--accent); }
+
+.need { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.need li { font-size: 13px; border: 1px dashed var(--line); border-radius: 999px; padding: 3px 11px; color: var(--muted); }
+.need li.ok { border-style: solid; border-color: var(--good); color: var(--good); }
+
+/* Scène */
+.scene, .endcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.place { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .08em; font-size: 16px; font-weight: 600; color: var(--accent-ink); }
+.with { font-family: var(--font-body); text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 8px; }
+.note { margin: 0; font-style: italic; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 10px; }
+.txt p { margin: 0 0 .8em; max-width: 64ch; }
+.txt p:last-child { margin-bottom: 0; }
+.choices { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.choice {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
+  text-align: left; color: var(--fg); background: var(--panel2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px 14px; cursor: pointer; min-height: 50px;
+}
+.choice:hover:not([disabled]) { border-color: var(--accent); }
+.choice[disabled] { opacity: .6; cursor: not-allowed; }
+.choice .lab { min-width: 0; overflow-wrap: anywhere; }
+.cost { flex: none; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.timer { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.timer i { display: block; height: 100%; background: var(--accent); transform-origin: left; animation: shrink linear forwards; }
+@keyframes shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* Fins */
+.badge { align-self: flex-start; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; border-radius: 999px; padding: 4px 10px; border: 1px solid currentColor; }
+.badge.win { color: var(--good); } .badge.lose { color: var(--bad); } .badge.hidden { color: var(--accent-ink); }
+.sum { font-size: 14px; color: var(--muted); margin: 0; }
+.found { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.score { font: 700 clamp(34px,10vw,48px)/1 var(--font-display); color: var(--accent-ink); margin: 0; font-variant-numeric: tabular-nums; }
+.pseudo { display: grid; gap: 6px; }
+.pseudo label { font-size: 14px; color: var(--muted); }
+.pseudo input { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-height: 48px; width: 100%; }
+.lb { width: 100%; border-collapse: collapse; font-size: 15px; }
+.lb th { text-align: left; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.lb td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+.lb .rk { width: 32px; font-weight: 600; color: var(--muted); }
+.lb .num { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lb .nm { overflow-wrap: anywhere; }
+.lb .sub { display: block; font-size: 13px; color: var(--muted); }
+.lb tr.me td { background: var(--panel2); }
+.found li { font-size: 13px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <p class="small" style="margin:0"><a href="../index.html" style="color:var(--accent-ink)">Tous les jeux</a></p>
+  <section id="start" hidden></section>
+  <section id="game" hidden>
+    <div class="wrap">
+      <div class="board">
+        <div class="clock"><span id="clock">20:00</span><small id="left"></small></div>
+        <div class="stat"><span class="k">Budget</span><span class="v" id="money">20 €</span></div>
+        <div class="stat bagbox"><span class="k">Dans ton sac</span><span class="v" id="bag">rien</span></div>
+      </div>
+      <ul class="need" id="need" aria-label="Ce que Yann attend">
+        <li data-k="b" data-label="À boire">À boire</li><li data-k="m" data-label="À manger">À manger</li><li data-k="s" data-label="Une surprise">Une surprise</li>
+      </ul>
+      <ol class="line" id="line">
+        <li data-z="c">Cormeilles</li><li data-z="f">Franconville</li><li data-z="s">Saint-Gratien</li>
+      </ol>
+      <div class="scene" id="scene" aria-live="polite"></div>
+    </div>
+  </section>
+  <section id="end" hidden></section>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/scores.js"></script>
+<script>
+/*DATA_START*/
+const END_T = 240;
+const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
+function pad(n){ return String(n).padStart(2,'0'); }
+function clockParts(t){ const n = 20*60+t; return [Math.floor(n/60)%24, n%60]; }
+function fmt(t){ const p = clockParts(t); return p[0]+'h'+pad(p[1]); }
+function fmtc(t){ const p = clockParts(t); return pad(p[0])+':'+pad(p[1]); }
+function leftTxt(t){ const r = END_T - t; if (r <= 0) return 'minuit passé'; const h = Math.floor(r/60), m = r%60; return h ? h+' h '+pad(m) : m+' min'; }
+function eur(n){ n = Math.round(n*100)/100; return (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.',','))+' €'; }
+function Y(S){ return S.player === 'yann' ? 'Maël' : 'Yann'; }
+const pay = n => S => S.m + 0.001 < n ? "Pas assez d'argent" : null;
+const B = (l,to,o) => Object.assign({l:l,to:to}, o || {});
+const rnd = p => Math.random() < p;
+const buy = (key,n) => S => (S.stock && S.stock[key] === false) ? 'En rupture' : pay(n)(S);
+const AVAIL = {cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, buche:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
+const lab = (t,k) => t + (AVAIL[k] < 0.2 ? " · presque toujours en rupture" : AVAIL[k] < 0.7 ? " · souvent en rupture" : "");
+function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AVAIL[k]); }); return o; }
+
+const ITEMS = {
+  plat_eva: {k:'m', n:"Plat d'Eva sous cellophane", s:2, h:"Le plat d'Eva", w:"Le plat d'Eva, sous cellophane, passe de main en main. {Y} n'a presque rien avalé de la journée : le plat est vide à 23h50 et tout le monde remercie Eva à distance."},
+  jeu_societe: {k:'s', n:"Jeu de société d'Eva", s:2, h:"Une partie avant minuit", w:"Le jeu de société d'Eva. {Y} ouvre la boîte, lit les règles à voix haute, puis demande qui veut faire les équipes. À minuit, il y a quatre parties en cours sur la table, des cartes sous le canapé, et personne ne s'est mis d'accord sur le score."},
+  the_cindy: {k:'b', n:"Thé glacé de Singapour", s:2.5, h:"Le thé qui vient de loin", w:"Un thé glacé de Singapour, aux fleurs, dans une bouteille que {Y} ne sait pas ouvrir. Il lit l'étiquette en entier, fait semblant de comprendre, puis le verse dans les verres. À minuit, tout le monde demande où il l'a trouvé. « J'ai mes sources. »"},
+  biscuits_cindy: {k:'m', n:"Biscuits au kaya de Cindy", s:2.5, h:"Les biscuits de Singapour", w:"Des biscuits au kaya, emballés un par un, rapportés de Singapour par quelqu'un qui n'est pas censé y être. {Y} en mange un, puis trois, puis refuse de partager. « Ça, c'est Cindy, évidemment. » À minuit, la boîte est vide."},
+  biscuits_perimes: {k:'m', n:"Biscuits au kaya de Cindy", s:-2, h:"Périmés depuis 2023", w:"{Y} ouvre l'emballage, lit la date : « 2023. » Il regarde les biscuits, puis toi, puis il pense à Cindy. « Elle m'a eu à distance. » Quelqu'un ouvre une fenêtre. Tu entends le compte à rebours depuis le palier."},
+  durian: {k:'s', n:"Souvenir de Singapour (peut-être)", s:-3, kill:true, h:"Un durian dans le salon", w:"{Y} déballe le papier. L'odeur arrive avant la compréhension. Un durian entier, un vrai, rapporté de Singapour dans une valise qui ne sentira plus jamais la même chose. Quelqu'un ouvre toutes les fenêtres. Un voisin appelle la mairie. Tu es le dernier à comprendre, et le premier dehors."},
+  objets_trouves: {k:'s', n:"Objets trouvés du lycée", s:1.5, h:"Les objets trouvés", w:"Un sac d'objets trouvés du lycée : une calculatrice, trois clés USB, un gant sans partenaire. {Y} les étale sur la table basse et tout le monde essaie de deviner à qui ils appartiennent. À minuit, une clé USB contient une carte mentale sur Napoléon."},
+  livre_mael: {k:'s', n:"Livre annoté de Maël", s:2, h:"Un livre annoté", w:"Un livre de poche annoté au stylo rouge, avec trois « faux ! » en marge. {Y} le feuillette, tombe sur une note, rit, puis lit un passage à voix haute. À minuit, tout le monde débat de la page 42, et personne n'est d'accord, ce qui est exactement ce que voulait celui qui te l'a donné."},
+  vin_epicerie: {k:'b', n:"Cuvée du Patron (épicerie)", s:-2, h:"Notes de carton mouillé", w:"{Y} reçoit la Cuvée du Patron. Il la sent, la fait tourner, la sent encore. « Carton mouillé, notes de capsule, finale de désinfectant. » Il referme la porte avec un respect infini. Dégustation terminée, soirée aussi. Tu entends le compte à rebours à travers le bois."},
+  chips_bacon: {k:'m', n:"Chips ondulées bacon Leader Price", s:1.5, h:"Les ondulées bacon", w:"Un paquet de chips ondulées bacon, marque Leader Price. {Y} lit l'emballage en silence, ouvre le paquet, goûte, ferme les yeux. « Ça, c'est une chips qui a un caractère. » Il en distribue à toute la pièce, et ne s'arrête qu'au fond du sachet."},
+  chips_nature: {k:'m', n:"Chips nature", s:-3, kill:true, h:"Nature", w:"{Y} prend le paquet, lit « nature », et le repose très doucement sur la table. Il ne dit rien. Il te regarde. Puis ses yeux changent. Il se lève, renverse la table d'un seul geste, et hurle ton prénom d'une voix que personne ne lui connaissait. Les verres explosent, les invités fuient, quelqu'un crie « Pas la tête ! ». Il y a du rouge sur le mur, sur le tapis, sur les chips nature, et tu comprends, un peu tard, que ce rouge est le tien. La dernière chose que tu vois est le plafond. Tu es mort. Dans le groupe WhatsApp, un emoji chips, et le silence."},
+  chips: {k:'m', n:"Chips goût barbecue", s:1, h:"Les chips sauvent l'apéro", w:"Un paquet de chips. {Y} a l'estomac dans les talons : tout disparaît en dix secondes. Ce n'est pas glorieux, mais c'est efficace, et tu entres."},
+  ruby: {k:'b', n:"Ruby de Katia", s:1, h:"Une Ruby à minuit", w:"Une Ruby tiède, offerte par Katia. « Il est midi quelque part », annonce {Y} en la décapsulant. Il boit au goulot, sans honte, et tu entres."},
+  vinho: {k:'b', n:"Vinho verde d'Alexandra", s:3, h:"Le Portugal à la rescousse", w:"{Y} examine l'étiquette, hausse un sourcil de sommelier : « Un vinho verde. Alexandra l'a rapporté, j'imagine. » Il le goûte, hoche la tête, le pose à la place d'honneur. Tu as la bonne bouteille, la meilleure fin."},
+  pasteis: {k:'m', n:"Pastéis de nata d'Alexandra", s:2, h:"Un goût de Portugal", w:"La boîte de pastéis de nata d'Alexandra fait le tour de la pièce. Il en reste deux à minuit, ce qui est un exploit, et tout le monde te regarde avec amour."},
+  gateau_pdf: {k:'m', n:"Dessert de Part de Folie", s:2, h:"Une part de folie", w:"Le dessert de Part de Folie sort de sa boîte. « Ça a l'air indécent », dit {Y}. Il coupe des parts pour toute la pièce, avec la précision d'un chirurgien."},
+  enveloppe: {k:'s', n:"Enveloppe de Virgile", s:2, h:"À ouvrir à minuit", w:"L'enveloppe cachetée de Virgile : « À ouvrir à minuit. » À minuit pile, elle explose en confettis sur toute la pièce. Personne n'ose demander ce qu'il y avait d'autre. Virgile ne pourrait de toute façon pas en parler."},
+  chien: {k:'s', n:"Le chien de Micka", s:2.5, h:"Le chien moche est invité", w:"Tu arrives avec le chien moche de Micka. {Y} ouvre la porte, regarde le chien, le chien regarde {Y}. « C'est quoi, ça ? » À minuit, le chien est la mascotte officielle de la soirée. Micka t'appelle déjà pour savoir où est son chien."},
+  recu: {k:'s', n:"Reçu « Quentin Morel Capital »", s:-2, h:"Rendement prévisionnel : 12 %", w:"Tu tends un reçu « Quentin Morel Capital, rendement prévisionnel 12 % ». {Y} le lit en entier, très sérieux : « Je ne peux pas accepter un cadeau d'une telle opacité. » Il referme la porte avec courtoisie. Le compte à rebours commence sans toi."},
+  cremant: {k:'b', n:"Crémant d'Audrey", s:3, h:"La bouteille qu'on cherchait", w:"{Y} retourne la bouteille, lève un sourcil : « Audrey a choisi, non ? Il y a du goût. » Il l'ouvre aussitôt. À minuit, tout le monde trinque avec ta bouteille. Tu as la meilleure fin."},
+  lego: {k:'s', n:"Set Lego Star Wars de Moizlard", s:2, h:"Le Lego fait des envieux", w:"Le set Lego Star Wars de Moizlard. {Y} le tient comme un dossier médical : « On a perdu Moizlard ? » À minuit, le set est à moitié monté sur la table basse, et Moizlard réclame la garde alternée."},
+  vintage: {k:'s', n:"Veste de sport vintage de Marco", s:2, h:"Une veste années 90", w:"Une veste de sport années 90, sortie du sac de Marco. {Y} l'enfile par-dessus sa chemise, se regarde dans la vitre du four, et ne la quitte plus de la soirée. Au moment de partir, il demande où tu l'as trouvée."},
+  lorient: {k:'s', n:"Maillot vintage du FC Lorient", s:3.5, h:"Le maillot du FC Lorient", w:"Un maillot vintage du FC Lorient, orange et noir, plié comme une relique. {Y} le déplie en silence. Il le reconnaît, change de couleur, l'enfile par-dessus son pull. À minuit, il chante, tout seul, devant tous les invités. Quelqu'un lui demande s'il a déjà vu un match. « Trois, dit-il. Mais ils étaient mémorables. »"},
+  poesie: {k:'s', n:"Recueil de poésie de Gabie", s:2, h:"Une dose de littérature", w:"Le recueil de poésie de Gabie. {Y} le feuillette en souriant : « Ça va me tenir pendant ma prochaine garde. » À minuit, il en lit un poème à voix haute, avec le sérieux d'un bloc opératoire."},
+  cremant_cf: {k:'b', n:"Crémant du Carrefour City", s:2, h:"Le crémant de dernière minute", w:"{Y} lit l'étiquette, goûte en silence : « C'est correct. Honnête. » Pour un achat de dernière minute au Carrefour City, c'est presque un compliment."},
+  rouge_cf: {k:'b', n:"Rouge du Carrefour City", s:1.5, h:"On en a bu pire", w:"Un rouge du Carrefour City. {Y} le regarde, hausse les épaules : « On en a bu pire. » Il le range à droite des bouteilles sérieuses. Mais tu es dans la soirée."},
+  cidre: {k:'b', n:"Cidre brut de la dame", s:2, h:"Un peu de campagne", w:"Le cidre brut d'une dame croisée dans la rue. {Y} hésite, le goûte, rit : « Ça, c'est une vraie histoire. » Il le sert en premier, dans de grands verres à vin, parce qu'il a décidé que c'était chic."},
+  quiche: {k:'m', n:"Quiche de Marielle", s:2, h:"La quiche de Marielle", w:"La quiche de Marielle, encore tiède malgré le trajet. {Y} en reprend trois fois avant minuit. Marielle sera citée à la fin de toutes les phrases jusqu'à l'aube."},
+  buche: {k:'m', n:"Mini-bûche", s:2, h:"La bûche de dernière minute", w:"Une mini-bûche, un peu écrasée par le voyage. {Y} la trouve « parfaite pour un 31 » et la coupe en dix parts minuscules, avec une précision chirurgicale."},
+  confettis: {k:'s', n:"Confettis des ados du city-stade", s:1.5, h:"Une pluie de confettis", w:"Un sac de confettis offert par des ados du city-stade. À minuit, {Y} en balance une poignée sur la pièce et tout le monde en retrouvera dans ses chaussures jusqu'en mars."},
+  blanc_epi: {k:'b', n:"Blanc sec de l'épicier", s:3, h:"Le blanc de l'épicier", w:"Un blanc sec de la cave de l'épicier, frais comme une promesse. {Y} lit l'étiquette, le goûte, ferme les yeux. « C'est exactement ce qu'il me fallait. Tu l'as trouvé où ? » Tu réponds : « Dans une épicerie pas chère. » Il te regarde avec un respect nouveau."},
+  saucisson: {k:'m', n:"Saucisson de l'épicier", s:2, h:"Du saucisson pour tout le monde", w:"Le saucisson de l'épicier, tranché sur la table avec un couteau que {Y} manie comme un bistouri. En dix minutes, il ne reste que la ficelle."},
+  chevre: {k:'m', n:"Fromage de chèvre affiné", s:2.5, h:"Le chèvre qui fait taire la table", w:"Un fromage de chèvre affiné, acheté chez l'épicier. {Y} le renifle, le coupe, en mange la moitié debout. « Voilà, quelqu'un qui pense à manger ! »"},
+  miel: {k:'s', n:"Pot de miel de l'épicier", s:2, h:"Un pot de miel", w:"Un pot de miel, étiquette écrite à la main. {Y} le regarde avec une tendresse suspecte : « J'ai mal à la gorge depuis trois gardes. » Il en prend une cuillère, et c'est le début d'un grand bonheur."},
+  bonbons: {k:'s', n:"Bonbons d'enfance en vrac", s:1.5, h:"Les bonbons de l'enfance", w:"Un sachet de bonbons d'enfance, achetés en vrac chez l'épicier. À minuit, la table est couverte de papiers colorés et tout le monde se dispute les rouges."},
+  rose_brique: {k:'b', n:"Rosé en brique", s:0.5, h:"Le rosé en brique", w:"Un rosé en brique. {Y} le regarde longuement, avec la douleur d'un connaisseur. « Au moins… il est frais. » Il le range derrière les autres, et le ressort quand plus personne ne regarde."},
+  bieres: {k:'b', n:"Pack de bières", s:1, h:"Une vie après le vin", w:"Un pack de bières. {Y} sourit : « Il y a une vie après le vin. » Les bières disparaissent avant minuit, et personne ne se plaint."},
+  cacahuetes: {k:'m', n:"Cacahuètes", s:1, h:"Le classique des classiques", w:"Un paquet de cacahuètes. {Y} en jette trois dans sa bouche et hoche la tête : « Le classique. » Tu entres, sans gloire."},
+  sushis: {k:'m', n:"Plateau de sushis", s:2, h:"Les sushis du 31", w:"Un plateau de sushis du Carrefour City. {Y} le regarde, ému : « Tu m'as vu sortir de garde, toi. » Le plateau est vide à 23h40."},
+  fleurs: {k:'s', n:"Bouquet presque fané", s:1, h:"Un bouquet très naturel", w:"Un bouquet presque fané du Carrefour City. {Y} le met dans un vase en expliquant que c'est « très naturel ». Il oubliera de le jeter jusqu'en février."},
+  cotillons: {k:'s', n:"Pack de cotillons", s:1.5, h:"Les cotillons", w:"Un pack de cotillons. À minuit, tout le monde porte une couronne en carton et un sifflet, et {Y} souffle dans le sien avec le sérieux d'un chef d'orchestre."},
+  boule_neige: {k:'s', n:"Boule à neige", s:1.5, h:"La boule à neige", w:"Une boule à neige du Carrefour City. {Y} la secoue longuement, la pose à côté du vin, et en fait la mascotte de la soirée."},
+  tarte: {k:'m', n:"Tarte aux cacas de Gabie et Arthur", s:2, h:"La tarte aux cacas", w:"La tarte aux cacas de Gabie et d'Arthur, signée au glaçage. {Y} la regarde longtemps, très longtemps. « C'est du chocolat ? » Il goûte. « C'est du chocolat. » Il rit, il en reprend. À minuit, il demande la recette, que personne ne veut donner."},
+  fromage_mt: {k:'m', n:"Fromage de montagne, paquet kraft", s:2, h:"Le fromage tombé d'une moto", w:"Un fromage de montagne emballé dans du papier kraft, sur lequel est écrit au feutre : « Pour Yann. A. ». {Y} le renifle, ferme les yeux. « D'où ça vient ? » Tu dis la vérité : d'une moto sans phare. Il hoche la tête, il comprend, il ne pose pas d'autre question."},
+  souvenir_cindy: {k:'s', n:"Souvenir de Singapour (peut-être)", s:2.5, h:"Un souvenir qui ne vient peut-être pas de Singapour", w:"Un petit objet lourd, enveloppé dans une page de magazine en chinois. {Y} le déballe. « C'est de Cindy, non ? » Tu dis oui. « Elle est où, en ce moment ? » Personne ne sait. Il le pose au milieu de la table, et jusqu'à minuit chacun lui prête une origine différente."},
+  mystere: {k:'b', n:"Bouteille sans étiquette de l'épicier", s:0, h:"", w:""}
+};
+
+const SCENES = {
+ /* ---------- Chez Eva ---------- */
+ eva: {p:"Chez Eva · Cormeilles", who:'eva', alt:'eva_self',
+  text:S=>S.player==='yann' ? "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : un rappel que tu t'es programmé toi-même il y a trois semaines. « NOUVEL AN CE SOIR CHEZ MOI. Rentre avant minuit. Ils sont tous invités. » Un second message, de Maël : « J'ai ta clé de secours, je m'installe. Ce soir, c'est moi qui te juge sur ce que tu rapportes. »\n\nSaint-Gratien est à 7 ou 8 km, et minuit ne se décalera pas pour toi." : "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : Yann. « Rappel : si tu n'apportes rien qui me plaise, tu ne rentres pas. Pas de cadeau, pas de soirée. Je plaisante à moitié. »\n\nSaint-Gratien est à 7 ou 8 km, et minuit ne se décalera pas pour toi.",
+  c:[
+   B("Parler à Eva, qui arbitre la partie en cours", 'eva_cuisine', {t:5}),
+   B("Faire le tour du before", 'eva_salon', {t:10}),
+   B("Jouer une partie de société", 'eva_jeux', {t:60}),
+   B("Sortir tout de suite", 'rue', {t:5}),
+   B("Se reposer un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }})
+  ]},
+ eva_self: {p:"Chez toi · Cormeilles",
+  text:"20h. C'est ton before, ta cuisine, et ta table croule sous les jeux. Ton téléphone vibre : Yann. « Si tu n'apportes rien qui me plaise, tu ne rentres pas. » Tu as déjà un reste de plat sous cellophane dans les mains, par réflexe.",
+  c:[
+   B("Sortir avec le plat", 'rue', {t:5, item:'plat_eva'}),
+   B("Rejouer une partie de société, puis emporter le jeu", 'eva_self', {t:60, item:'jeu_societe', note:"Tu as perdu à ton propre jeu, devant tes propres invités. Tu emportes la boîte quand même."}),
+   B("Se reposer un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }})
+  ]},
+ eva_repos: {p:"Le canapé · Cormeilles",
+  text:S=>{ const L = [
+    "Tu t'enfonces dans le canapé, « cinq minutes ». Eva passe, te borde d'un coussin et demande si tu veux une revanche plus tard.",
+    "Quelqu'un te met un plaid sur les genoux. La musique baisse d'un cran. Tu fermes les yeux, pour réfléchir.",
+    "Le plateau de tapas a disparu. Un film passe à la télé sans le son. Tu n'as pas vraiment vu l'heure passer.",
+    "On te remplit un verre d'eau. Eva murmure à quelqu'un que tu dors. Tu ne dors pas. Tu te reposes.",
+    "Les conversations deviennent des murmures. Quelqu'un ronfle gentiment dans un fauteuil. Tu te dis que tu partiras après la prochaine chanson.",
+    "La prochaine chanson est passée. Puis celle d'après. Dehors, la nuit avance sans toi."];
+    return L[Math.min((S.rest||1)-1, L.length-1)]; },
+  c:[
+   B("Se reposer encore un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }}),
+   B("Se lever, pour de vrai", S=>S.player==='eva'?'eva_self':'eva', {t:5})
+  ]},
+ eva_cuisine: {p:"Chez Eva · Cormeilles", who:'eva',
+  text:"Eva est au milieu du salon, un sablier dans une main, un livret de règles dans l'autre, en plein arbitrage. « Non, la carte ne se joue pas comme ça. Oui, je suis sûre. Je l'ai lu hier. » Elle te voit, t'attrape par la manche : « Tu pars ? Déjà ? Attends. » Elle fouille un buffet et te glisse un plat sous cellophane. « Prends ça pour la route, je n'aime pas que les gens repartent les mains vides. »",
+  c:[
+   B("Accepter le plat sous cellophane", 'eva', {t:5, item:'plat_eva', note:"Eva t'embrasse sur les deux joues : « Tu me dis si Yann aime, et tu reviens perdre contre moi. »"}),
+   B(S=>S.player==='yann'?"Lui demander ce qu'il faut rapporter":"Lui demander ce que Yann aime", 'eva_yann', {t:5}),
+   B("Accepter une manche de plus, Eva insiste", 'eva_trop', {t:25}),
+   B("Retourner dans le salon", 'eva', {t:5})
+  ]},
+ eva_yann: {p:"Chez Eva · Cormeilles", who:'eva',
+  text:S=>S.player==='yann' ? "Eva réfléchit en s'essuyant les mains. « Maël ? C'est lui qui te juge ce soir. Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive le premier quelque part. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »" : "Eva réfléchit en s'essuyant les mains. « Yann ? Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive de garde. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »",
+  c:[B("Merci Eva", 'eva', {t:5})]},
+ eva_jeux: {p:"La table de jeux · Cormeilles", who:'eva',
+  text:"Quelqu'un sort un jeu, puis un deuxième, puis les cartes. Il y a toujours une partie de plus, des règles qu'on relit à voix haute et un pion qui a disparu sous le canapé. Au bout de la troisième manche, Eva te met une boîte dans les mains : « Emporte-la, elle ne sert qu'à Noël de toute façon. »",
+  c:[
+   B("Prendre le jeu et retourner au before", 'eva', {t:0, item:'jeu_societe'}),
+   B("Laisser le jeu et retourner au before", 'eva', {t:0})
+  ]},
+ eva_salon: {p:"Le before · Cormeilles",
+  text:"Dans le salon, il reste quelques amis qui rient, un plateau de tapas à moitié vide et une enceinte qui crache de la musique. On te glisse des tuyaux sans que tu demandes : « Alexandra est rentrée du Portugal avec des sacs. » « JC et Gabie parlent d'une doro party, mais personne ne sait où. » « Audrey cache un crémant que Quentin ne doit pas trouver. » « Virgile vend sa Mazda, Katia veut qu'il s'en sépare. » « Moizlard a une voiture énorme et une cheville foulée. »",
+  c:[B("Retourner voir Eva", 'eva', {t:5})]},
+ eva_trop: {p:"Chez Eva · Cormeilles", who:'eva',
+  text:"Quatrième manche. Eva dit « la dernière » pour la troisième fois, en redistribuant les cartes avec un sourire de championne. Elle est tellement enthousiaste qu'on se sent mal de refuser.",
+  c:[
+   B("Accepter la revanche, par politesse", 'fin_eva', {t:60}),
+   B("Te lever pour de vrai, avant qu'elle ne revienne", 'eva', {t:10})
+  ]},
+ fin_riche: {end:'lose', h:"Trop riche pour la fête",
+  text:"Tu regardes ton portefeuille : {m}. Plus que ce que Yann attend de toi, plus que ce que tu espérais. Tu te dis que tu peux bien t'offrir une soirée, une vraie, sans serviette en papier ni chips nature. Tu entres dans le premier restaurant ouvert, tu commandes des fruits de mer « pour le principe ». À minuit, tu portes un toast avec le serveur et un couple d'inconnus. Ton téléphone vibre : « T'es où ? » Tu réponds : « Au chaud. » C'est vrai, et tu n'as aucun regret.\n\nSaint-Gratien compte à rebours sans toi, mais tu es en bonne compagnie, et ta note est déjà payée."},
+ fin_eva_nuit: {end:'lose', h:"Le before qui ne finit jamais",
+  text:S=>"Tu t'es dit « je me repose cinq minutes », et tu l'as dit toute la soirée. À minuit, tu es toujours dans le salon "+(S.player==='eva'?"de chez toi":"d'Eva")+", un verre à la main, au milieu des boîtes de jeux ouvertes. Dehors, Saint-Gratien compte à rebours sans toi. Ici, on compte aussi, plus fort et plus faux, devant une partie que personne n'a finie.\n\nTon téléphone vibre : Yann. « T'es où ? » Tu réponds : « Chez Eva. » Il répond : « Évidemment. » Il y a pire comme façon de passer le 31."},
+ fin_eva: {end:'lose', h:"Une dernière manche",
+  text:"Tu as dit oui à une dernière revanche, puis à la suivante. À minuit, tu es toujours à la table d'Eva, un plaid sur les épaules, à perdre avec dignité. Elle te laisse les règles « pour t'entraîner ». Impossible de lui en vouloir."},
+
+ /* ---------- Cormeilles ---------- */
+ rue: {p:"Cormeilles-en-Parisis",
+  text:S=>S.player==='yann'
+   ? "Il est {time}. Un chat traverse la rue, une fenêtre éclairée brille au loin, et plus personne ne te dit rien.\n\nCormeilles est à toi : où passes-tu avant de rentrer chez toi, à Saint-Gratien ? Maël juge ce soir : quelque chose à boire, quelque chose à manger, et une surprise."
+   : "Il est {time}. La nuit sent la cheminée et la rue est presque vide.\n\nCormeilles est à toi : où passes-tu avant de filer à Saint-Gratien ? Yann attend quelque chose à boire, quelque chose à manger, et une surprise.",
+  c:[
+   B("L'épicerie pas chère", S=>maybe(S,'epicerie'), {t:10}),
+   B("La boulangerie du coin", S=>maybe(S,'boulangerie'), {t:10}),
+   B("Part de Folie", S=>maybe(S,'partdefolie'), {t:10, who:'alexandra'}),
+   B("Les hauteurs, chez Virgile", S=>maybe(S,'virgile'), {t:20, who:['virgile','katia']}),
+   B("Les deux portes côte à côte, chez les parents d'Arthur et de Micka", S=>maybe(S,'parents'), {t:15}),
+   B("Quentin et Audrey, qui descendent du train", S=>maybe(S,'chez_quentin'), {t:10, who:['audrey','quentinm']}),
+   B("La gare", S=>maybe(S,'gare'), {t:15}),
+   B("Le lycée", S=>maybe(S,'lycee'), {t:15, who:'marco'}),
+   B("Le city-stade", S=>maybe(S,'citystade'), {t:10}),
+   B("Le hangar d'Antonin, rentré hier de la montagne", S=>maybe(S,'antonin_garage'), {t:15, who:'antonin'}),
+   B("La porte de Cindy, partie à Singapour", S=>maybe(S,'cindy_porte'), {t:10, who:'cindy'}),
+   B("Appeler un ami", 'appel', {t:0}),
+   B("Chercher un petit boulot de dernière minute", 'boulot', {t:5}),
+   B(S=>S.player==='yann'?"Rentrer chez toi, à Saint-Gratien":"Partir pour Saint-Gratien", 'transport', {t:0})
+  ]},
+
+ /* événements au hasard */
+ ev_dame: {p:"En chemin · une dame",
+  text:"Une dame âgée peine avec deux sacs de courses, au milieu du trottoir, à 22h. Elle te regarde sans demander.",
+  c:[
+   B("L'aider à porter ses sacs jusqu'à chez elle", S=>S.next, {t:15, item:'cidre', note:"Elle te remercie longuement, te fait entrer dans sa cuisine et te donne une bouteille de cidre brut « pour la soirée »."}),
+   B("Passer ton chemin", S=>S.next, {t:0})
+  ]},
+ ev_livreur: {p:"En chemin · un livreur",
+  text:"Un livreur en trottinette électrique freine devant toi. « T'es perdu ? Je vais dans ton coin. »",
+  c:[
+   B("Monter derrière lui, c'est limite légal", S=>S.next, {t:0, note:"Il t'a déposé un peu plus loin en roulant sur tous les trottoirs. Tu as gagné cinq minutes et perdu un peu de dignité."}),
+   B("Décliner poliment", S=>S.next, {t:0})
+  ]},
+ ev_ados: {p:"En chemin · des ados",
+  text:"Des ados jouent au ballon sous un lampadaire. Le ballon est coincé sur un toit. « Monsieur ! Vous pouvez nous aider ? »",
+  c:[
+   B("Grimper chercher le ballon", S=>S.next, {t:15, item:'confettis', note:"Tu as récupéré le ballon sous les applaudissements. Ils te donnent un sac de confettis, « pour le Nouvel An »."}),
+   B("Leur dire de faire la courte échelle", S=>S.next, {t:5}),
+   B("Passer discrètement", S=>S.next, {t:0})
+  ]},
+ ev_arnaque: {p:"En chemin · un chauffeur très arrangeant",
+  text:"Une berline sans plaque s'arrête à ta hauteur. « Saint-Gratien ? 15 €, je te dépose, c'est la nuit magique ! »",
+  c:[
+   B("Monter, 15 € c'est le prix", S=>S.pass ? 'saintgratien' : 'fin_arnaque', {t:20, m:-15, lock:pay(15), fx:S=>{ S.pass = rnd(0.5); }, note:"Le chauffeur est très bavard, et chante faux."}),
+   B("Refuser en souriant", S=>S.next, {t:0})
+  ]},
+ fin_arnaque: {end:'lose', h:"Le chauffeur sans plaque",
+  text:"Le chauffeur n'est jamais allé à Saint-Gratien. À minuit, vous êtes sur un parking inconnu, il chante, tu as perdu 15 € et le sens de l'orientation. Yann te prépare un message vocal très gentil."},
+ ev_fetards: {p:"En chemin · des pingouins",
+  text:"Un groupe de gens déguisés en pingouins chante au milieu de la rue. L'un d'eux te prend par le bras : « Toi, tu viens ! »",
+  c:[
+   B("Chanter avec eux", S=>S.next, {t:20, flag:'chapeau', note:"Ils te donnent un chapeau de pingouin. Tu vas le garder toute la soirée, par politesse."}),
+   B("Te dégager et filer", S=>S.next, {t:5})
+  ]},
+ ev_meteo: {p:"En chemin · la pluie",
+  text:"Il se met à pleuvoir, d'un coup, très fort, comme si quelqu'un avait renversé un seau sur Cormeilles.",
+  c:[
+   B("Courir sous la pluie", S=>S.next, {t:5, flag:'pluie'}),
+   B("Attendre sous un abri", S=>S.next, {t:15})
+  ]},
+ ev_tiktok: {p:"En chemin · un tiktokeur",
+  text:"Un type filme un TikTok devant toi, trépied, ring light, tout. « Bouge pas, tu es parfait pour le fond de ma vidéo ! »",
+  c:[
+   B("Faire un pas de danse", S=>S.next, {t:10, flag:'tiktok', note:"Tu as dansé. Tu apparais dans la vidéo. Elle fera 14 vues."}),
+   B("Contourner la caméra", S=>S.next, {t:0})
+  ]},
+ ev_tarte: {p:"En chemin · une tarte",
+  text:S=>S.player==='gabie'
+   ? "Tu aperçois Arthur au loin, un plat à tarte posé en équilibre sur les deux mains, qui avance à petits pas très concentrés. Il te voit, et son visage s'illumine."
+   : S.player==='arthur'
+   ? "Tu aperçois Gabie au loin, un plat à tarte posé en équilibre sur les deux mains, qui avance à petits pas très concentrés. Elle te voit, et son visage s'illumine."
+   : "Tu aperçois Arthur et Gabie qui avancent à petits pas très concentrés, un plat à tarte posé en équilibre entre eux deux. Ils te voient et s'arrêtent net.",
+  c:[
+   B("Demander ce que c'est", 'ev_tarte2', {t:5}),
+   B("Faire comme si tu n'avais rien vu", S=>S.next, {t:0})
+  ]},
+ ev_tarte2: {p:"En chemin · la tarte",
+  text:S=>S.player==='gabie'
+   ? "« C'est la tarte aux cacas ! dit Arthur, très sérieux. On a travaillé dessus toute la journée. » Tu es co-autrice de l'œuvre. Tu soulèves le torchon d'un geste de propriétaire."
+   : S.player==='arthur'
+   ? "« C'est la tarte aux cacas ! dit Gabie, très sérieuse. On a travaillé dessus toute la journée. » Tu es co-auteur de l'œuvre. Tu soulèves le torchon d'un geste de propriétaire."
+   : "« C'est la tarte aux cacas, dit Arthur, très sérieux. On y travaille depuis ce matin. » Gabie : « C'est une pièce de patrimoine. Ne touche pas, goûte seulement. »",
+  c:[
+   B("Goûter, par curiosité", S=>S.next, {t:10, note:"C'est du chocolat. Probablement. Gabie note ton expression avec la rigueur d'une critique littéraire."}),
+   B("Emporter la tarte pour Yann", S=>S.next, {t:15, item:'tarte'}),
+   B("Passer ton chemin, en fermant les yeux", S=>S.next, {t:0})
+  ]},
+ ev_moto: {p:"En chemin · un bruit de moteur",
+  text:"Une moto sans phare passe en trombe, ralentit à ta hauteur. Le motard ne retire pas son casque. Il te lance un paquet, lève un pouce, disparaît dans le virage. Tu n'as pas vu son visage, mais le paquet sent la montagne.",
+  c:[
+   B("Ouvrir le paquet", S=>S.next, {t:5, item:'fromage_mt', note:"Un fromage de montagne, papier kraft, un mot au feutre. Tu ne sais pas qui c'était. Tu sais seulement qui ça pouvait être."}),
+   B("Le laisser sur le trottoir", S=>S.next, {t:0})
+  ]},
+ ev_cindy: {p:"En chemin · une voiture noire",
+  text:"Une voiture noire s'arrête à ta hauteur, la vitre descend. Cindy, valise à roulettes couverte d'étiquettes d'aéroport sur la banquette. « Je suis à Singapour jusqu'à jeudi, donc tu ne m'as pas vue. » Elle te tend un petit objet enveloppé. « Pour Yann. Ne demande pas. » La vitre remonte, la voiture repart.",
+  c:[
+   B("Prendre le souvenir", S=>S.next, {t:5, item:'souvenir_cindy', note:"Tu regardes la voiture s'éloigner. Tu n'as jamais vu de voiture noire repartir aussi vite sans bruit."}),
+   B("Lui demander comment elle fait", S=>S.next, {t:5, note:"Elle sourit sans répondre, et la vitre est déjà remontée."})
+  ]},
+ ev_yann: {p:"En chemin · au téléphone",
+  text:S=>S.player==='yann'
+   ? "Ton téléphone sonne : Maël. « T'es où ? J'ai déjà goûté trois de tes bouteilles pour vérifier la cave. Dis-moi que tu rapportes quelque chose de bon. »"
+   : "Ton téléphone sonne : Yann. « T'es où ? Je prépare le vin, j'ai déjà goûté trois bouteilles pour vérifier. Dis-moi que tu amènes quelque chose de bon. »",
+  c:[
+   B("Lui dire que tu as tout prévu", S=>S.next, {t:5, note:"« J'ai envie de blanc sec bien frais, hein. Et un truc à manger, j'ai pas dîné. »"}),
+   B("Dire que tu arrives, point", S=>S.next, {t:0})
+  ]},
+ ev_boulangere: {p:"En chemin · une boulangère",
+  text:"Une boulangère sort sa poubelle devant la boutique, un tablier plein de farine. « Vous cherchez quelque chose pour un réveillon ? J'ai des mini-bûches, mais je ferme. »",
+  c:[
+   B("Acheter une mini-bûche", S=>S.next, {t:5, m:-6, item:'buche', lock:pay(6)}),
+   B("La remercier et filer", S=>S.next, {t:0})
+  ]},
+
+ /* ---------- Petits boulots ---------- */
+ boulot: {p:"Un petit boulot de dernière minute · Cormeilles",
+  text:"Il est {time}. Un 31 au soir, tout le monde a besoin d'une paire de bras, et d'une paire de bras bon marché. Tu as {m} en poche. Où proposes-tu tes services ?",
+  c:[
+   B("Aider la boulangère à ranger avant la fermeture", 'job_boulangere', {t:30, m:8, flag:'j_boul', need:S=>!S.flags.j_boul}),
+   B("Distribuer des flyers pour la soirée d'un bar", 'job_flyers', {t:40, m:10, flag:'j_fly', need:S=>!S.flags.j_fly}),
+   B("Garder les enfants des voisins, une heure", S=>S.pass?'job_enfants_ok':'job_enfants_ko', {t:60, flag:'j_enf', need:S=>!S.flags.j_enf, fx:S=>{ S.pass = rnd(0.65); if (S.pass) S.m += 15; }}),
+   B("Chanter Mariah Carey devant la gare", S=>S.pass?'job_chant_ok':'job_chant_ko', {t:30, flag:'j_chant', need:S=>!S.flags.j_chant, fx:S=>{ S.pass = rnd(0.5); S.m += S.pass ? 12 : 1; }}),
+   B("Retourner dans la rue", 'rue', {t:5})
+  ]},
+ job_boulangere: {p:"La boulangerie du coin · l'arrière-boutique",
+  text:"La boulangère te met un tablier trop grand dans les mains. Tu ranges des plaques, tu portes des sacs de farine, tu empiles des cagettes. Elle te glisse 8 € dans la poche, plus un pain au chocolat qu'elle jure ne pas avoir vu.",
+  c:[B("Remercier et retourner voir", 'boulot', {t:5})]},
+ job_flyers: {p:"Devant un bar · Cormeilles",
+  text:"Tu distribues des flyers « Réveillon à prix cassé » dans le froid. La moitié finit par terre, un quart dans la poche d'un passant qui te dit « Merci monsieur ! », l'autre quart dans ton propre sac. Le patron te donne 10 € en bougonnant.",
+  c:[B("Empocher et partir", 'boulot', {t:5})]},
+ job_enfants_ok: {p:"Chez les voisins · le salon",
+  text:"Deux enfants, un jeu de société, trois règles inventées en direct. À la fin, ils veulent te garder pour toujours. Les parents rentrent, ravis, et te tendent 15 € en disant que c'est pour « la tranquillité ».",
+  c:[B("Partir avant qu'ils changent d'avis", 'boulot', {t:5})]},
+ job_enfants_ko: {p:"Chez les voisins · le salon",
+  text:"Les enfants ont vite compris que tu étais nouveau. Un tournevis, un pot de peinture lavable et un hamster en liberté plus tard, les parents rentrent. Ils ne te payent pas, mais ne te dénoncent pas non plus.",
+  c:[B("Rentrer sans un mot", 'boulot', {t:5})]},
+ job_chant_ok: {p:"Devant la gare · Cormeilles",
+  text:"Tu entonnes « All I Want for Christmas Is You ». Un homme s'arrête, applaudit, et laisse un billet. Puis une dame, puis un groupe de fêtards qui fait chœur. Tu récoltes 12 €, une standing ovation et une extinction de voix.",
+  c:[B("Saluer et partir", 'boulot', {t:5})]},
+ job_chant_ko: {p:"Devant la gare · Cormeilles",
+  text:"Tu chantes devant la gare. Un pigeon te regarde, un contrôleur te regarde, et une dame traverse la rue pour ne pas t'entendre. Tu récoltes 1 €, que tu soupçonnes d'être une erreur.",
+  c:[B("Ramasser le euro et partir", 'boulot', {t:5})]},
+
+ /* ---------- Épicerie ---------- */
+ epicerie: {p:"L'épicerie pas chère · Cormeilles",
+  text:"Néon blafard et un épicier qui t'accueille d'un « Bonsoir, tout est à moitié prix, sauf ce qui est bon. » Une cave au fond, un rayon frais, un bazar d'objets qui ne ressemblent à rien. Tu as {m} en poche.",
+  c:[
+   B("Le rayon vins et la cave", 'epi_vin', {t:5}),
+   B("Le rayon frais et snacks", 'epi_snack', {t:5}),
+   B("Le bazar du fond", 'epi_bazar', {t:5}),
+   B("Discuter avec l'épicier", 'epi_epicier', {t:5}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ epi_vin: {p:"L'épicerie pas chère · le rayon vin",
+  text:"Deux étagères. La « Cuvée du Patron » à 3,49 €. Dans une caisse en bois, au fond, quelques bouteilles de blanc sec « de la cave du patron ». Et, tout en bas, dans un carton sans nom, une bouteille sans étiquette. Une écriture au feutre : « Spécial. »",
+  c:[
+   B("Prendre le blanc sec de la cave (9 €)", 'epicerie', {t:5, m:-9, item:'blanc_epi', lock:pay(9), note:"L'épicier te le tend avec une solennité exagérée : « Vous direz à votre ami qu'il vient de chez moi. »"}),
+   B("Prendre la Cuvée du Patron (3,49 €)", 'epicerie', {t:5, m:-3.49, item:'vin_epicerie', lock:pay(3.49), note:"L'épicier hoche la tête avec une gravité excessive."}),
+   B("Prendre la bouteille sans étiquette (6 €)", 'epicerie', {t:5, m:-6, item:'mystere', lock:pay(6), fx:S=>{ S.mys = rnd(0.5); }, note:"Personne ne sait ce que c'est. Surtout pas toi."}),
+   B("Retourner voir l'épicier", 'epicerie', {t:5})
+  ]},
+ epi_snack: {p:"L'épicerie pas chère · le rayon frais",
+  text:"Un saucisson accroché à un clou, un fromage de chèvre sous cloche, et des chips « au goût de chips » (nature, donc), vendues avec fierté. Rien de tout ça n'est au Carrefour City.",
+  c:[
+   B("Le saucisson de l'épicier (7 €)", 'epicerie', {t:5, m:-7, item:'saucisson', lock:pay(7)}),
+   B("Le fromage de chèvre affiné (6 €)", 'epicerie', {t:5, m:-6, item:'chevre', lock:pay(6)}),
+   B("Des chips nature (1 €)", 'epicerie', {t:5, m:-1, item:'chips_nature', lock:pay(1)}),
+   B("Retourner voir l'épicier", 'epicerie', {t:5})
+  ]},
+ epi_bazar: {p:"L'épicerie pas chère · le bazar",
+  text:"Au fond, des étagères où se mélangent bougies, pots de miel, clés à molette et bocaux de bonbons en vrac. Une pancarte écrite à la main : « Cadeaux possibles ».",
+  c:[
+   B("Un pot de miel (5 €)", 'epicerie', {t:5, m:-5, item:'miel', lock:pay(5)}),
+   B("Des bonbons d'enfance en vrac (3 €)", 'epicerie', {t:5, m:-3, item:'bonbons', lock:pay(3)}),
+   B("Retourner voir l'épicier", 'epicerie', {t:5})
+  ]},
+ epi_epicier: {p:"L'épicerie pas chère · l'épicier",
+  text:"L'épicier s'appuie sur son comptoir comme sur un bar. Il parle lentement, de tout : de son frère, du prix des tomates, des clients du 31 qui achètent « toujours la même chose, sauf ce soir ».",
+  c:[
+   B("Lui demander ce qu'il a que Carrefour n'a pas", 'epicerie', {t:5, note:"« Le blanc sec de ma cave, le saucisson de mon cousin, le chèvre de ma sœur, et des bonbons que personne ne fabrique plus. Chez Carrefour, vous aurez du cellophane. »"}),
+   B("Négocier la bouteille sans étiquette à 3 €", 'epicerie', {t:10, fx:S=>{ S.pass = rnd(0.5); if (S.pass && S.m >= 3 && S.bag.length < 3) { S.m -= 3; S.mys = rnd(0.5); if (S.bag.indexOf('mystere') < 0) S.bag.push('mystere'); } }, note:"Il a regardé la bouteille, puis toi, puis la bouteille. Si le marché a été conclu, elle est dans ton sac. Sinon, il garde les 3 € de ta dignité."}),
+   B("Lui demander s'il connaît Yann", 'epicerie', {t:5, note:"« Le chirurgien ? Il achète du blanc sec bien frais, et il corrige mes étiquettes. » L'épicier soupire : « Je vous le dis gratuitement. »"}),
+   B("Écouter son histoire de tomates", 'epicerie', {t:15, note:"Tu en sais maintenant beaucoup sur les tomates. Rien d'utile pour Yann."}),
+   B("Retourner dans le magasin", 'epicerie', {t:5})
+  ]},
+
+ boulangerie: {p:"La boulangerie du coin · Cormeilles",
+  text:S=>S.t >= 120
+   ? "Le rideau est baissé, mais on voit de la lumière à l'arrière. La boulangère finit de ranger. Tu peux frapper à la vitre."
+   : "La dernière fournée du 31 : pains au chocolat, galettes, une pile de mini-bûches en vitrine. La boulangère, farine jusqu'aux coudes, te regarde par-dessus son comptoir.",
+  c:[
+   B("Acheter une mini-bûche (6 €)", 'rue', {t:5, m:-6, item:'buche', lock:pay(6), need:S=>S.t<120}),
+   B("Demander un conseil pour un cadeau", 'boulanger_conseil', {t:5, need:S=>S.t<120}),
+   B("Frapper à la vitre", S=>S.pass?'boulangerie_ouvre':'boulangerie_non', {t:5, need:S=>S.t>=120, fx:S=>{ S.pass = rnd(0.45); }}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ boulanger_conseil: {p:"La boulangerie du coin",
+  text:"« Pour un copain chirurgien ? Quelque chose de fait maison. Les gens sont toujours plus touchés qu'on s'imagine. Et pas de gâteau trop sucré, ils gardent un estomac fragile après les gardes. »",
+  c:[B("Acheter une mini-bûche (6 €)", 'rue', {t:5, m:-6, item:'buche', lock:pay(6)}), B("Ressortir", 'rue', {t:5})]},
+ boulangerie_ouvre: {p:"La boulangerie du coin",
+  text:"La boulangère ouvre en soupirant. « Cinq minutes. Pas plus. Et ne dites à personne que j'ai fait ça. »",
+  c:[B("Acheter une mini-bûche (6 €)", 'rue', {t:5, m:-6, item:'buche', lock:pay(6)})]},
+ boulangerie_non: {p:"La boulangerie du coin",
+  text:"La boulangère te fait signe, derrière la vitre, que non. Elle mime « bonne année » avec les mains. Tu es resté devant la vitrine un peu trop longtemps.",
+  c:[B("Repartir", 'rue', {t:5})]},
+
+ /* ---------- Part de Folie ---------- */
+ partdefolie: {p:"Part de Folie · Cormeilles",
+  text:"Le restaurant est plein, un serveur te hèle : « Table pour combien ? Ah non, Alexandra vous cherche. » Au fond, une tente roulée en boule trône sur une chaise, à côté de trois sacs.",
+  c:[
+   B("Aller voir Alexandra", 'alex', {t:5}),
+   B("Les pizzas à volonté", 'pdf_pizzas', {t:10}),
+   B("Commander un dessert à emporter (8 €)", 'rue', {t:10, m:-8, item:'gateau_pdf', lock:pay(8)}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ pdf_pizzas: {p:"Part de Folie · pizzas à volonté",
+  text:"Une pancarte sur le comptoir : « Pizzas à volonté, 31 décembre ». Le pizzaïolo enfourne sans s'arrêter. Au menu : reine, chèvre-miel, quatre fromages, et, en dernier, écrit à la craie : « pizza aux carottes râpées ».",
+  c:[
+   B("Une reine, classique", 'pdf_pizzas', {t:15, note:"Correcte, chaude, parfaitement honnête."}),
+   B("Une chèvre-miel", 'pdf_pizzas', {t:15, note:"Tu as une pensée pour l'épicier."}),
+   B("La pizza aux carottes râpées", 'fin_carottes', {t:15}),
+   B("Retourner dans le restaurant", 'partdefolie', {t:5})
+  ]},
+ fin_carottes: {end:'lose', h:"Pizza aux carottes râpées",
+  text:"Tu mords dans la pizza aux carottes râpées. Une chaleur étrange te monte au visage, puis tu comprends : les carottes, tiédies sur la pâte, ont le goût de l'erreur. Tu fais un pas, deux pas, et tu tombes devant le comptoir. Le pizzaïolo se penche sur toi : « Ah. Encore un. » Sur ta pierre tombale, il sera écrit : « Il a pris la pizza aux carottes. » Yann ne le saura jamais."},
+ alex: {p:"Part de Folie · Cormeilles", who:'alexandra',
+  text:"Alexandra est à genoux sur la banquette, les bras plongés jusqu'aux épaules dans un sac. « Ah, tu tombes bien ! Tu n'as pas vu mes clés ? Ni mon téléphone ? Je suis rentrée du Portugal avant-hier, je suis encore dans un autre fuseau. » Elle déplie une carte de festivals sur la table, avec des flèches au feutre. « Cet été, on fait tout. Tout ! J'ai déjà la tente. » Elle pointe la boule sur la chaise.",
+  c:[
+   B("L'aider à retrouver ses clés", 'alex_cles', {t:5, fx:S=>{ S.kb = 1+Math.floor(Math.random()*3); S.tries = 0; }}),
+   B("Écouter son plan de festival", 'alex_festival', {t:15}),
+   B("Retourner au restaurant", 'partdefolie', {t:5})
+  ]},
+ alex_cles: {p:"Part de Folie · les sacs d'Alexandra", who:'alexandra',
+  text:"Trois sacs : le vert, le bleu rayé, et celui qui a l'air d'avoir fait le Portugal à pied. Alexandra : « Elles sont forcément dans un des trois, sauf si elles sont dans ma veste. »",
+  c:[
+   B("Fouiller le sac vert", S=>S.kb===1?'alex_trouve':'alex_cles', {t:5, fx:S=>{ S.tries++; if (S.tries >= 2) S.kb = 99; }, note:"Des chaussettes dépareillées, trois flyers de festival, un harmonica."}),
+   B("Fouiller le sac bleu rayé", S=>S.kb===2?'alex_trouve':'alex_cles', {t:5, fx:S=>{ S.tries++; if (S.tries >= 2) S.kb = 99; }, note:"Un bonnet, une carte du Portugal, deux paires de lunettes de soleil."}),
+   B("Fouiller le gros sac du Portugal", S=>S.kb===3?'alex_trouve':'alex_cles', {t:5, fx:S=>{ S.tries++; if (S.tries >= 2) S.kb = 99; }, note:"Un pull à trois manches et un citron."}),
+   B("Lui montrer qu'elles sont dans sa main", 'alex_trouve', {t:5})
+  ]},
+ alex_trouve: {p:"Part de Folie · Alexandra", who:'alexandra',
+  text:"Les clés étaient dans sa main depuis le début. Alexandra éclate de rire et te serre dans ses bras. « Tu es mon héros ! Prends ça, c'est pour Yann. » Elle sort de ses sacs une bouteille de vinho verde et une boîte de pastéis de nata.",
+  c:[B("Merci Alexandra", 'partdefolie', {t:5, items:['vinho','pasteis']})]},
+ alex_festival: {p:"Part de Folie · le festival", who:'alexandra',
+  text:"« Le plan : on part en juillet, on dort sous la tente, on mange des frites, on voit trois concerts par jour. » Elle dessine la carte sur une serviette, avec une légende. « Et avant, la doro party : JC m'a dit que Gabie y serait aussi. » Elle perd le fil, le reprend. « Tu en es ? Tu en es ? »",
+  c:[
+   B("Dire oui pour lui faire plaisir", 'alex_billets', {t:15}),
+   B("Lui dire que tu verras en juillet", 'alex', {t:5}),
+   B("Changer de sujet", 'alex', {t:5})
+  ]},
+ alex_billets: {p:"Part de Folie · les billets", who:'alexandra',
+  text:"« Parfait, je te réserve deux billets. » Elle sort son téléphone, qu'elle avait finalement dans sa poche, et réserve. Elle t'écrit le code de confirmation. Elle ne te lâche plus.",
+  c:[
+   B("Lui dire que tu dois partir chez Yann", 'alex', {t:10}),
+   B("Rester pour finir de réserver l'hôtel", 'fin_festival', {t:30})
+  ]},
+ fin_festival: {end:'lose', h:"Deux billets pour juillet",
+  text:"Tu as tellement écouté son plan que tu as réservé deux billets pour un festival en juillet, avec une tente et un hôtel. Il est 00h12. Alexandra a retrouvé son téléphone. Yann, lui, est déjà totalement torché."},
+
+ /* ---------- Virgile ---------- */
+ virgile: {p:"Les hauteurs · chez Virgile", who:'virgile',
+  text:"La montée t'a coupé les jambes. Virgile ouvre en tee-shirt, un ordinateur portable sous le bras. Il referme l'écran d'un geste sec, mais pas assez vite pour que tu ne voies pas une fenêtre de terminal. « Je ne peux pas t'en parler. C'est lié à l'armée. » Tu n'as encore rien demandé.\n\nDerrière lui, Katia ouvre une Ruby : « Viril, c'est qui ? »",
+  c:[
+   B("Lui demander la Mazda pour te dépanner", 'mazda_q', {t:5}),
+   B("Lui demander son métier", 'virgile_job', {t:5}),
+   B("Lui demander l'heure", 'virgile_heure', {t:5}),
+   B("Accepter la Ruby de Katia", 'katia', {t:5}),
+   B("Redescendre", 'rue', {t:10})
+  ]},
+ virgile_job: {p:"Les hauteurs · chez Virgile", who:'virgile',
+  text:S=>"« C'est un jeu vidéo ? » « Je ne peux pas t'en parler. » « Une appli ? » « Je ne peux pas t'en parler. » « Un logiciel qui lit dans les pensées ? » Il hésite une seconde. « Je ne peux pas t'en parler. » Tu as maintenant la certitude que c'est un logiciel. Virgile aussi, mais il ne le dit pas.",
+  c:[
+   B("Continuer à deviner", 'virgile_job', {t:5, note:"« Quelque chose avec des drones ? » Il a refermé son ordinateur sans un mot. Ça veut peut-être dire oui."}),
+   B("Lui proposer un deal : plus de questions contre la Mazda", 'mazda_q', {t:5}),
+   B("Arrêter là", 'virgile', {t:5})
+  ]},
+ virgile_heure: {p:"Les hauteurs · chez Virgile", who:'virgile',
+  text:"« Je ne peux pas t'en parler. » Il répète quand tu précises que c'est juste l'heure. Katia lui arrache le téléphone : « Il est {time}, Viril. »\n\nIl te glisse une enveloppe cachetée : « À ouvrir à minuit. Ne me demande rien. »",
+  c:[
+   B("Prendre l'enveloppe", 'virgile', {t:5, item:'enveloppe'}),
+   B("La lui rendre, ça fait peur", 'virgile', {t:5})
+  ]},
+ katia: {p:"Les hauteurs · chez Virgile", who:'katia',
+  text:"Katia te tend une Ruby déjà ouverte. « Pour moi, c'est toujours midi, mon chou. Et si JC parle de sa doro party, je veux en être. » Elle lève un doigt. « On fait une chèvre ? C'est ma quinzième de la soirée. » Elle te regarde droit dans les yeux, et refuser ne semble pas une option.",
+  c:[
+   B("Trinquer, une seule", 'katia_deal', {t:10, item:'ruby'}),
+   B("Jouer à la chèvre avec elle", 'fin_katia', {t:30}),
+   B("Refuser poliment", 'virgile', {t:5})
+  ]},
+ katia_deal: {p:"Les hauteurs · chez Virgile", who:'katia',
+  text:"Katia aime les gens qui trinquent. « Tu veux les clés de la Mazda ? Elles sont au congélateur, avec les glaçons. Viril ne regarde jamais là. » Elle rit. « Prends-les, il ne les cherchera pas avant minuit. »",
+  c:[
+   B("Prendre les clés dans le congélateur", 'virgile', {t:5, flag:'cles', note:"Les clés sont glacées. Katia applaudit."}),
+   B("Les laisser, c'est trop risqué", 'virgile', {t:5})
+  ]},
+ fin_katia: {end:'lose', h:"Une dernière, trois fois",
+  text:"Tu as dit « une dernière » trois fois. À minuit, tu es plié en deux dans un coin du jardin de Virgile, un verre d'eau dans une main et ta dignité dans l'autre. Katia, elle, entame sa dix-septième chèvre. Tu n'es plus en état d'aller chez Yann."},
+ mazda_q: {p:"Les hauteurs · la Mazda", who:'virgile',
+  text:S=>"Virgile regarde sa Mazda comme un ancien combattant. Katia veut qu'il la vende pour une voiture « plus sérieuse ».\n\n"+(S.flags.cles
+   ? "Tu as les clés. Virgile les voit dans ta main : « Je ne peux pas t'en parler. » Il soupire et monte. « Dernier trajet. »"
+   : "« Les clés ? Je ne peux pas t'en parler. » Il fouille ses poches, son bureau, le sac de sport. Il ne les trouve pas."),
+  c:[
+   B("Monter avec Virgile et Katia", 'mazda_depart', {t:10, need:S=>S.flags.cles}),
+   B("Chercher les clés avec Katia", 'katia', {t:5, need:S=>!S.flags.cles}),
+   B("Refuser, trop d'émotions", 'virgile', {t:5})
+  ]},
+ mazda_depart: {p:"En route · la Mazda", who:'virgile',
+  text:"Virgile démarre sans un mot. Katia, à l'arrière, ouvre une autre Ruby. Le compteur dit « réserve » depuis le début. « Je ne peux pas t'en parler », dit Virgile en regardant le voyant.",
+  c:[
+   B("Passer à la station-service", 'station', {t:10}),
+   B("Rouler jusqu'au bout", 'mazda_panne', {t:5, fx:S=>{ S.pass = rnd(0.5); }, to:S=>S.pass?'mazda_arrivee':'mazda_panne'})
+  ]},
+ station: {p:"Station-service · Cormeilles", who:'virgile',
+  text:"Un pompiste fatigué, en gilet fluo, te regarde derrière sa vitre. « Vous voulez quoi ? Carburant, café ou philosophie ? » Virgile ne dit rien. Katia dort à moitié.",
+  c:[
+   B("Faire le plein (10 €)", 'mazda_arrivee', {t:10, m:-10, lock:pay(10)}),
+   B("Demander au pompiste de faire crédit", 'station_credit', {t:5}),
+   B("Prendre juste un café et repartir", 'mazda_arrivee', {t:5, fx:S=>{ S.pass = rnd(0.5); }, to:S=>S.pass?'mazda_arrivee':'mazda_panne'})
+  ]},
+ station_credit: {p:"Station-service · Cormeilles", who:'virgile',
+  text:"Le pompiste hoche la tête. « Je ne fais pas crédit. Mais je vois que vous êtes entre amis. Allez, c'est cadeau. » Il remplit à moitié. Virgile le regarde comme on regarde un héros.",
+  c:[B("Merci, vraiment", 'mazda_arrivee', {t:5})]},
+ mazda_panne: {p:"En route · la Mazda", who:'virgile',
+  text:"La Mazda tousse, hoquette, ralentit, et s'arrête au milieu d'une route sans lampadaire. « Je ne peux pas t'en parler », murmure Virgile. Katia sort une Ruby de son sac, elle en avait gardé une. Ça ne règle pas la panne, mais ça l'améliore.",
+  c:[
+   B("Pousser la voiture jusqu'à la station", 'station', {t:25, flag:'essouffle'}),
+   B("Attendre qu'un automobiliste s'arrête", 'mazda_arrivee', {t:35})
+  ]},
+ mazda_arrivee: {p:"En route · la Mazda", who:'virgile',
+  text:"La Mazda file dans la nuit. Katia chante en espagnol, Virgile garde les deux mains sur le volant comme s'il disait adieu. À un feu, son téléphone sonne : « Je ne peux pas répondre. C'est… » Il coupe.",
+  c:[B("Arriver à Saint-Gratien", S=>maybe(S,'saintgratien',0.3), {t:20, note:"Virgile t'a dit : « Si je te dis que ça fait cinq mois que je cherche une Mazda aussi bien… je ne peux pas t'en parler. » Il n'a rien d'autre à dire."})]},
+
+ /* ---------- Parents d'Arthur et de Micka ---------- */
+ parents: {p:"Deux portes côte à côte · Cormeilles",
+  text:"À gauche, Marielle et Fabien, les parents d'Arthur. À droite, les parents de Micka. Une seule fenêtre est allumée, et tu ne sais plus laquelle.",
+  c:[
+   B("Sonner chez Marielle et Fabien", 'marielle', {t:5}),
+   B("Sonner chez les parents de Micka", 'micka', {t:5}),
+   B("Retourner dans la rue", 'rue', {t:5})
+  ]},
+ marielle: {p:"Chez Marielle et Fabien · Cormeilles",
+  text:S=>(S.player==='arthur'
+   ? "Ta mère ouvre avant le deuxième coup de sonnette : « Tu manges un morceau ? » Ton père est dans le salon, devant l'étagère."
+   : "Marielle ouvre avant le deuxième coup de sonnette : « Tu manges un morceau ? » Fabien est dans le salon, devant l'étagère. Arthur est là, en famille pour le réveillon.")
+   +"\n\nAu milieu des cadres, la photo du cross du collège : coupe de mouton, un peu bouboule, des lunettes, l'air d'un garçon qui n'a jamais couru de sa vie. Aujourd'hui, il fait du crossfit.",
+  c:[
+   B("Demander où est Arthur", 'arthur', {t:5}),
+   B("Commenter la photo à voix haute", 'arthur_photo', {t:5}),
+   B("Suivre Marielle à la cuisine", 'marielle_cuisine', {t:5}),
+   B("Écouter Fabien parler du cross", 'fabien', {t:5}),
+   B("Remercier et ressortir", 'parents', {t:5})
+  ]},
+ marielle_cuisine: {p:"Chez Marielle et Fabien · la cuisine",
+  text:"Une quiche sort du four. Marielle te regarde avec une tendresse alarmante. « Tu manges un morceau, et je t'en mets pour Yann. C'est un garçon qui travaille trop. »",
+  c:[
+   B("Manger une part et emporter la quiche", 'marielle', {t:20, item:'quiche'}),
+   B("Juste emporter la quiche", 'marielle', {t:5, item:'quiche', note:"Marielle a insisté pour que tu manges aussi. Tu as dit non avec toute la fermeté d'un homme qui n'est pas capable de dire non."}),
+   B("Retourner dans le salon", 'marielle', {t:5})
+  ]},
+ fabien: {p:"Chez Marielle et Fabien · le salon",
+  text:"Fabien commence à raconter le cross du collège, avec la météo, la boue, les chaussures et le classement. « Il y avait un vent de face dans la montée. Je me rappelle parfaitement. » Il se rappelle surtout trop.",
+  c:[
+   B("Écouter jusqu'au bout", 'marielle', {t:25}),
+   B("Lui dire que tu dois partir", 'marielle', {t:5})
+  ]},
+ arthur: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"Arthur enchaîne des squats sautés entre le canapé et la table basse, en se regardant dans la vitre du four, le torse un peu plus bombé à chaque rebond.\n\nSon téléphone vibre sur la table : « Carole 💘 ». Il le retourne face contre le bois, avec un sourire d'adolescent.\n\n« Un coup de main pour Saint-Gratien ? Facile : on y va en courant. » Il a déjà décidé.",
+  c:[
+   B("Accepter de courir avec lui", 'arthur_burpees', {t:5}),
+   B("Lui parler de la photo du cross", 'arthur_photo', {t:5}),
+   B("Refuser", 'marielle', {t:5})
+  ]},
+ arthur_burpees: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"« D'abord dix burpees. Règle de la maison. » Marielle compte à voix haute depuis la cuisine. Fabien filme.",
+  c:[
+   B("Faire les dix burpees", 'arthur_burpees_ok', {t:15}),
+   B("Négocier à cinq", 'arthur_burpees_ok', {t:10, fx:S=>{ S.pass = rnd(0.5); }, to:S=>S.pass?'arthur_burpees_ok':'arthur_burpees_plus'}),
+   B("Renoncer", 'marielle', {t:5})
+  ]},
+ arthur_burpees_plus: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"« Cinq ? Négociation refusée. Quinze. » Arthur en fait aussi, pour que ce soit « équitable ». Marielle compte en riant. Fabien filme toujours.",
+  c:[B("Faire les quinze burpees", 'arthur_burpees_ok', {t:20, flag:'essouffle'})]},
+ arthur_burpees_ok: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"« Parfait. Je me change. » Arthur disparaît dans sa chambre. Il revient, quinze minutes plus tard, en tenue de course technique, avec une gourde et une montre qui bipe. Il y a une raison pour laquelle c'est lui qui est très beau.",
+  c:[B("Partir avec lui", 'course_a1', {t:15})]},
+ arthur_photo: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"Tu parles de la photo. Arthur se fige. « Cette photo n'existe pas. » Il enchaîne dix burpees de pure gêne, très propres, très rapides.",
+  c:[
+   B("Lui dire que le changement est impressionnant, c'est vrai", 'course_a1', {t:10, note:"Arthur, touché, annule les burpees. Il te tape sur l'épaule avec la force d'un homme qui fait du crossfit."}),
+   B("Insister : coupe de mouton, lunettes, tout", 'fin_burpees', {t:10})
+  ]},
+ course_a1: {p:"En route avec Arthur · la première côte", who:'arthur',
+  text:"Arthur court comme on respire. Toi, tu respires un peu moins. À la première côte, il t'explique le « rythme cible ». Tu n'as plus assez d'air pour répondre.",
+  c:[
+   B("Tenir le rythme", S=>maybe(S,'course_a2',0.5), {t:20}),
+   B("Ralentir et marcher un peu", S=>maybe(S,'course_a2',0.5), {t:30, flag:'essouffle'})
+  ]},
+ course_a2: {p:"En route avec Arthur · le milieu du trajet", who:'arthur',
+  text:"Arthur se regarde dans la vitrine d'un magasin, sans ralentir. « Encore deux kilomètres. » Il l'a déjà dit quatre fois. À droite, une rue plus courte mais pleine de cailloux.",
+  c:[
+   B("Suivre Arthur sur la route principale", 'course_a3', {t:20}),
+   B("Prendre le raccourci aux cailloux", 'course_a3', {t:10, flag:'essouffle'})
+  ]},
+ course_a3: {p:"En route avec Arthur · la dernière ligne droite", who:'arthur',
+  text:"La dernière ligne droite. Arthur s'étire sans s'arrêter. Tu vois des lumières, des guirlandes, des gens qui rient à une fenêtre. Saint-Gratien.",
+  c:[B("Arriver, le souffle court", 'saintgratien', {t:15, flag:'essouffle'})]},
+ fin_burpees: {end:'lose', h:"Cinquante burpees",
+  text:"Cinquante burpees, offerts par Arthur, sous le regard de Marielle, de Fabien et du cadre. À minuit, tu es au sol entre le canapé et la table basse, et le cadre te regarde. Il a gagné."},
+ micka: {p:"Chez les parents de Micka · Cormeilles", who:'micka',
+  text:S=>S.flags.chien_pris
+   ? (S.bag.indexOf('chien')>=0
+      ? "Micka est sur le perron, les mains vides, et regarde le chien dans tes bras comme un père regarde un enfant parti en colo. « Il a mangé ? Il a fait pipi ? Il aime pas le gravier. » Le chien éternue, comme pour confirmer."
+      : "Micka est sur le perron, les mains vides. « Où est le chien ? » Tu ne sais pas quoi répondre. « Je lui fais confiance », dit-il, pas du tout rassuré.")
+   : "Micka sort sur le perron avec une sorte de petit chien qui tire la langue de travers et te regarde comme on regarde un huissier. « Il fait sa promenade du soir, dit Micka. Aurélie a décrété que c'était mon tour. » Le chien éternue, très fort, sur ta chaussure.",
+  c:[
+   B("« Il est trop mignon ! »", 'micka_ok', {t:5, need:S=>!S.flags.chien_pris}),
+   B("« Il ressemble à quoi, exactement ? »", 'micka_quoi', {t:5, need:S=>!S.flags.chien_pris}),
+   B("« Il est franchement moche »", 'fin_chien', {t:5, need:S=>!S.flags.chien_pris}),
+   B("« Tout va bien, je le ramène avant minuit »", 'parents', {t:5, need:S=>!!S.flags.chien_pris}),
+   B("Laisser Micka tranquille", 'parents', {t:5, need:S=>!S.flags.chien_pris})
+  ]},
+ micka_quoi: {p:"Chez les parents de Micka · Cormeilles", who:'micka',
+  text:"Micka réfléchit sérieusement. « À un chien. Mais en plus… expressif. » Le chien te fixe, comme s'il suivait la conversation et prenait ton nom en note.",
+  c:[B("Lui dire qu'il est trop mignon, quand même", 'micka_ok', {t:5}), B("Changer de sujet", 'micka', {t:5})]},
+ micka_ok: {p:"Chez les parents de Micka · Cormeilles", who:'micka',
+  text:"« Ne mens pas, dit Micka, sans se vexer. Je sais bien qu'il n'est pas mignon. » Il regarde le chien avec une tendresse sans illusion. « Mais il est à moi. » Le chien éternue à nouveau. « Il a besoin de sortir. Tu l'emmènes chez Yann ? »",
+  c:[
+   B("Emmener le chien, en faisant le tour du quartier", 'micka_promenade', {t:10}),
+   B("Dire non merci", 'parents', {t:5})
+  ]},
+ micka_promenade: {p:"Dans la rue · avec le chien", who:'micka',
+  text:"Le chien tire de toutes ses forces vers un buisson, change d'avis, tire vers un poteau, change d'avis, s'assoit au milieu du passage piéton. Une voisine passe : « Oh, le pauvre petit ! » Le chien lui lance un regard de victime. Il est très bon acteur.",
+  c:[
+   B("Le porter dans tes bras jusqu'au bout de la rue", 'micka_fin', {t:10}),
+   B("Le laisser choisir le chemin", 'micka_chat', {t:5})
+  ]},
+ micka_chat: {p:"Dans la rue · avec le chien", who:'micka',
+  text:"Le chien aperçoit un chat. Le chat aperçoit le chien. Les deux se regardent. Puis tout va très vite : le chien part, tu pars, la laisse part aussi, et vous traversez trois jardins.",
+  c:[B("Le rattraper à bout de souffle", 'micka_fin', {t:15, flag:'essouffle'})]},
+ micka_fin: {p:"Chez les parents de Micka · Cormeilles", who:'micka',
+  text:"Micka te regarde, le chien dans tes bras, et semble très ému. « Il t'aime bien, je le sens. » Le chien aboie une fois, sans conviction. Le contrat est conclu.",
+  c:[B("Repartir avec le chien", 'parents', {t:5, item:'chien', flag:'chien_pris'})]},
+ fin_chien: {end:'lose', h:"Le mot de trop",
+  text:"Micka encaisse mal le mot « moche ». Le chien aussi, apparemment : il hurle à la mort pendant que les voisins ouvrent leurs volets. Tu passes la soirée à t'excuser dans une cuisine, en chaussons, devant une famille consternée."},
+
+ /* ---------- Quentin et Audrey ---------- */
+chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
+  text:"Un train de la ligne J vient de repartir. Sur le parvis, Audrey tire un grand sac à roulettes, et à côté d'elle, dans un nuage de vapeur, Quentin Morel, cigarette électronique au bec. Ils arrivent de Paris, comme tout le monde ce soir.",
+  c:[
+   B("Parler à Audrey", 'audrey', {t:5}),
+   B("Parler à Quentin", 'quentinm', {t:5}),
+   B("Les laisser et repartir", 'rue', {t:5})
+  ]},
+ audrey: {p:"Parvis de la gare · Cormeilles", who:'audrey',
+  text:"Audrey soupire en souriant, en regardant Quentin : « La cigarette électronique, dehors. Oui, on est dehors. Encore plus dehors. » Elle se tourne vers toi, un peu fatiguée du voyage mais contente de te voir : « Ça fait plaisir ! Tu as besoin de quelque chose ? »",
+  c:[
+   B("Proposer de porter le sac", 'audrey_sacs', {t:10}),
+   B("Lui dire que Quentin vapote sur le quai", 'audrey_vape', {t:5}),
+   B("Retourner vers eux", 'chez_quentin', {t:5})
+  ]},
+ audrey_sacs: {p:"Parvis de la gare · Cormeilles", who:'audrey',
+  text:"Le sac pèse une tonne. Il y a au moins trois bouteilles dedans, un plaid, et un objet qui cliquette sans que personne veuille dire ce que c'est. Audrey t'attend à chaque coin de rue en s'excusant du poids, Quentin raconte son dernier placement, et la poignée te scie la main.",
+  c:[
+   B("Porter le sac jusqu'au bout, sans te plaindre", 'audrey_ok', {t:15, flag:'sacs'}),
+   B("Le traîner par la poignée, en râlant", 'audrey_ko', {t:10, flag:'sacs'})
+  ]},
+ audrey_ok: {p:"Parvis de la gare · Cormeilles", who:'audrey',
+  text:"« Merci, vraiment, tu me sauves. » Audrey te sourit, soulagée. Elle fouille dans le sac, en sort une bouteille de crémant. « Tiens. Pour Yann. Il m'a fait promettre de bien choisir, et je crois que tu l'as mérité. »",
+  c:[B("Remercier Audrey", 'chez_quentin', {t:5, item:'cremant'})]},
+ audrey_ko: {p:"Parvis de la gare · Cormeilles", who:'audrey',
+  text:"Audrey te regarde traîner son sac, puis te regarde, puis éclate de rire. « Tu es adorable, mais donne. » Elle le soulève d'une main en s'excusant presque. Quentin applaudit lentement. Elle te tend tout de même un crémant, avec un sourire : « Pour Yann. Pour la peine. »",
+  c:[B("Prendre le crémant et filer", 'chez_quentin', {t:10, item:'cremant'})]},
+ audrey_vape: {p:"Parvis de la gare · Cormeilles", who:'audrey',
+  text:"Audrey rit doucement. « Je sais, je sais. » Elle fait signe à Quentin d'aller vapoter plus loin, loin des panneaux. « Merci de me soutenir. » Elle sort une bouteille de crémant du sac et te la glisse dans les mains.",
+  c:[B("Remercier Audrey", 'chez_quentin', {t:5, item:'cremant'})]},
+  quentinm: {p:"Parvis de la gare · Cormeilles", who:'quentinm',
+  text:"Quentin Morel te serre la main entre deux bouffées. « Je te propose un truc : tu me confies 10 € ce soir, je te garantis 12 % avant minuit. C'est du court terme, très qualitatif. »",
+  c:[
+   B("Écouter son pitch", 'quentinm_pitch', {t:10}),
+   B("Lui demander un conseil sur le vin", 'quentinm_vin', {t:5}),
+   B("Lui dire qu'Audrey arrive", 'chez_quentin', {t:5, note:"Il cache la cigarette électronique dans sa manche. Ça fume quand même, de la manche."}),
+   B("Refuser poliment", 'chez_quentin', {t:5})
+  ]},
+ quentinm_pitch: {p:"Parvis de la gare · Cormeilles", who:'quentinm',
+  text:"Il sort son téléphone et te montre un graphique qui monte, puis qui monte encore, puis qui monte d'une façon que tu juges suspecte. « Rendement, volatilité, effet de levier, convexité. » Il dit « alpha » trois fois.",
+  c:[
+   B("Investir 10 €", 'chez_quentin', {t:5, m:-10, item:'recu', lock:pay(10), note:"Il t'a tendu un reçu manuscrit. « Je te recontacte au deuxième trimestre. »"}),
+   B("Demander à voir le prospectus", 'quentinm', {t:10, note:"Il n'y a pas de prospectus. Il y a une serviette en papier avec un schéma."}),
+   B("Refuser et filer", 'chez_quentin', {t:5})
+  ]},
+ quentinm_vin: {p:"Parvis de la gare · Cormeilles", who:'quentinm',
+  text:"« Le vin ? C'est un actif. Le blanc sec se déprécie vite, le rouge se bonifie. Pour Yann, un blanc, bien frais, c'est le seul placement qui compte à minuit. » Il tire sur sa cigarette électronique, très satisfait.",
+  c:[B("Merci, c'est utile", 'quentinm', {t:5})]},
+
+ /* ---------- Gare ---------- */
+ gare: {p:"La gare · Cormeilles",
+  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, Chrisly arrive en traînant une valise, JC fait tourner une pièce entre ses doigts, et Maël s'étire de profil.",
+  c:[
+   B("Aller aux bornes de tickets", 'gare_borne', {t:5}),
+   B("Parler à Chrisly", 'chrisly', {t:5}),
+   B("Parler à JC", 'jc', {t:5}),
+   B("Parler à Maël", 'mael', {t:5}),
+   B("Retourner dans la rue", 'rue', {t:10})
+  ]},
+ chrisly: {p:"La gare · Cormeilles", who:'chrisly',
+  text:"Chrisly débarque sur le quai à toute allure, sa valise rebondit derrière lui. « Toulouse-Paris, trois heures, record ! Le Canada, c'est dans quelques semaines, mais le 31, ça ne se rate pas ! » Il se hisse sur la pointe des pieds pour lire le tableau des départs. « Au fait : le 100 mètres des vacances, c'est moi. Je dis ça, je dis rien. »",
+  c:[
+   B("Lui proposer de courir ensemble", 'course_c1', {t:5}),
+   B("Lui rappeler le 100 mètres", 'chrisly', {t:15, note:"Tu as relancé le 100 mètres. Il en a parlé quinze minutes, avec les chronos."}),
+   B("L'aider avec sa valise", 'chrisly_valise', {t:10}),
+   B("Retourner sur le quai", 'gare', {t:5})
+  ]},
+ chrisly_valise: {p:"La gare · Cormeilles", who:'chrisly',
+  text:"La valise pèse trois fois ce qu'elle devrait. « Des cadeaux pour la famille avant le Canada. » Dedans, une bouteille de vin de Toulouse, qu'il hésite à te donner.",
+  c:[
+   B("Lui demander la bouteille", 'chrisly', {t:5, item:'rouge_cf', note:"Il hésite, puis te donne un rouge. « Pour Yann. Dis-lui que c'est de Toulouse. »"}),
+   B("Lui dire de la garder", 'chrisly', {t:5})
+  ]},
+ course_c1: {p:"En route avec Chrisly · le départ", who:'chrisly',
+  text:"Chrisly décide du rythme, et le rythme, c'est la vitesse maximale. Tu comprends vite pourquoi il a gagné. Il s'arrête, t'attend, repart, t'attend, en faisant semblant de ne pas s'impatienter.",
+  c:[
+   B("Tenir comme tu peux", S=>maybe(S,'course_c2',0.5), {t:25, flag:'essouffle'}),
+   B("Lui dire d'y aller sans toi", 'saintgratien', {t:70, flag:'essouffle', note:"Chrisly est arrivé dix minutes avant toi, et le raconte déjà."})
+  ]},
+ course_c2: {p:"En route avec Chrisly · à mi-chemin", who:'chrisly',
+  text:"« Dernier kilomètre, je te donne un sprint. » Il ne te donne rien, il s'en va. Tu le vois rétrécir au bout de la rue, avec sa valise qui rebondit.",
+  c:[B("Faire un dernier effort", 'saintgratien', {t:20, flag:'essouffle'})]},
+ mael: {p:"La gare · Cormeilles", who:'mael',
+  text:"Maël est assis sur un banc du quai, un livre de poche ouvert sur les genoux, un stylo rouge à la main, les marges noircies d'annotations. Il lève la tête, ravi. « Tu tombes bien. J'ai besoin de quelqu'un qui me contredise. Yann n'est pas là, et il le fait mieux que tout le monde. »",
+  c:[
+   B("Accepter un débat", 'mael_sujets', {t:5}),
+   B("Lui demander son chrono du marathon", 'mael_chrono', {t:10}),
+   B("Lui demander comment aller à Saint-Gratien", 'mael_cousin', {t:5}),
+   B("Retourner sur le quai", 'gare', {t:5})
+  ]},
+ mael_chrono: {p:"La gare · Cormeilles", who:'mael',
+  text:"Maël sort son téléphone, un peu timide, puis très fier. « 3 h 58. Sub 4 h pour un premier marathon. J'ai pleuré sur la ligne, j'assume. » Il fait défiler un autre chrono. « Yann : 3 h 37. Il ne s'en est même pas vanté. Vingt et une minutes d'écart. Ce sont mes vingt et une minutes de dignité. » Il cite Murakami de mémoire, avec une grimace d'accent. « Il a couru, j'ai écrit dans mes marges. On est quittes. »",
+  c:[B("Sourire et revenir au banc", 'mael', {t:5})]},
+ mael_sujets: {p:"La gare · le banc de Maël", who:'mael',
+  text:S=>S.flags.m_resp
+   ? "Maël a les yeux qui brillent. « Encore un ? Je prends le contraire de tout ce que tu diras. Je préviens, ce n'est pas une menace, c'est de l'affection. »"
+   : "« Choisis un sujet, je prends le contraire. Je préviens, c'est de l'affection, pas de l'agressivité. » Il stylote déjà le coin de sa page.",
+  c:[
+   B("L'œuvre et l'artiste", 'mael_d1', {t:5, need:S=>!S.flags.d1}),
+   B("Le livre ou le film", 'mael_d2', {t:5, need:S=>!S.flags.d2}),
+   B("Le marathon, sport ou thérapie", 'mael_d3', {t:5, need:S=>!S.flags.d3}),
+   B("Accepter son livre annoté", 'mael_sujets', {t:5, item:'livre_mael', flag:'m_livre', need:S=>S.flags.m_resp && !S.flags.m_livre, note:"Maël te tend le livre, une main sur le cœur : « Il y a trois « faux ! » en marge. Ils sont affectueux. »"}),
+   B("Revenir au banc", 'mael', {t:5})
+  ]},
+ mael_d1: {p:"La gare · le banc de Maël", who:'mael',
+  text:"« Un film génial, réalisé par quelqu'un de détestable. Tu le regardes ? » Il referme le livre sur son doigt, prêt à contredire.",
+  c:[
+   B("Oui, une œuvre vit toute seule", 'mael_sujets', {t:20, fx:S=>{ S.flags.d1 = true; S.flags.m_resp = true; }, note:"Maël se redresse, ravi : « Donc tu écoutes un album d'un artiste que tu méprises ? » Tu tiens bon. Il sourit, battu à moitié : « Pas mal. Pas mal du tout. »"}),
+   B("Non, on ne peut pas ignorer l'homme", 'mael_sujets', {t:20, fx:S=>{ S.flags.d1 = true; S.flags.m_resp = true; }, note:"« Donc tu brûles les bibliothèques ? » Tu précises, tu nuances, tu cites un exemple. Maël lève le stylo, comme un escrimeur : « Touché. »"}),
+   B("Tu as raison, comme toujours", 'mael_sujets', {t:20, flag:'d1', note:"Maël soupire, déçu : « Tu es poli. C'est triste. J'ai besoin de résistance, pas de politesse. »"})
+  ]},
+ mael_d2: {p:"La gare · le banc de Maël", who:'mael',
+  text:"« La grande question du XXᵉ siècle. Réponds sans tricher. » Il tapote la couverture de son livre.",
+  c:[
+   B("Oui, l'imagination gagne toujours", 'mael_sujets', {t:20, fx:S=>{ S.flags.d2 = true; S.flags.m_resp = true; }, note:"« Même contre un grand réalisateur ? » Tu défends ta position, il t'écoute avec une joie presque indécente. « Enfin quelqu'un qui a un avis. »"}),
+   B("Non, certains films dépassent leur livre", 'mael_sujets', {t:20, fx:S=>{ S.flags.d2 = true; S.flags.m_resp = true; }, note:"Maël pousse un cri de bonheur : « Donne un exemple ! » Tu en donnes un, puis deux. Il note quelque chose dans sa marge : « À débattre. »"}),
+   B("Je ne sais pas, je n'ai rien lu", 'mael_sujets', {t:20, flag:'d2', note:"Maël te regarde avec une immense tendresse : « Ça se corrige. » Il ne te juge pas, mais il note ton nom dans un carnet imaginaire."})
+  ]},
+ mael_d3: {p:"La gare · le banc de Maël", who:'mael',
+  text:"« J'ai couru mon premier marathon en 3 h 58. Entre le kilomètre trente et le kilomètre trente-cinq, j'ai cru que je ne vivrais plus. Alors, sport ou thérapie ? »",
+  c:[
+   B("Un sport : il y a un chrono et des règles", 'mael_sujets', {t:20, fx:S=>{ S.flags.d3 = true; S.flags.m_resp = true; }, note:"« Mais pourquoi on y retourne ? » Tu défends le chrono, il défend le mystère. Vous finissez à égalité, ce qui le rend très heureux."}),
+   B("Une thérapie : quatre heures à parler à soi-même", 'mael_sujets', {t:20, fx:S=>{ S.flags.d3 = true; S.flags.m_resp = true; }, note:"Il s'immobilise, bouleversé : « Quatre heures à parler à soi-même. » Il le note, il le souligne, il l'encadre mentalement."}),
+   B("Les deux, bien sûr", 'mael_sujets', {t:20, flag:'d3', note:"« Réponse de diplomate. » Il sourit, un peu déçu : « Engage-toi la prochaine fois, c'est le principe d'un débat. »"})
+  ]},
+ mael_cousin: {p:"La gare · Cormeilles", who:'mael',
+  text:"Maël referme son livre. « À Saint-Gratien ? J'ai mieux qu'un train : un cousin. Lucien. Il connaît les égouts entre Cormeilles et Saint-Gratien comme moi les marges de ce livre. Enfin, il a connu. Enfin, il y vit un peu. » Il désigne une plaque d'égout, au fond de la gare, légèrement entrouverte. « Il t'attend. Je lui ai dit que tu viendrais. »",
+  c:[
+   B("Descendre dans les égouts", 'egout_entree', {t:20}),
+   B("Refuser poliment", 'mael', {t:5})
+  ]},
+ egout_entree: {p:"Sous Cormeilles · les égouts", who:'mael',
+  text:"L'échelle est froide et mouillée. En bas, une odeur de pierre humide, un bruit d'eau, et un homme en cuissardes avec une lampe frontale, qui a la voix exacte de Maël en plus grave. « Lucien. Maël m'a dit que tu aimais débattre. Ici, on débat avec les rats : ils perdent toujours, mais ils reviennent. » Il balaie le tunnel du faisceau. « Je te guide jusqu'à la fourche. Après, je m'arrête : j'ai un rendez-vous. »",
+  c:[
+   B("Lui demander un conseil", 'egout_conseil', {t:5}),
+   B("Le suivre jusqu'à la fourche", 'egout_fourche', {t:25}),
+   B("Remonter à l'air libre", 'gare', {t:10})
+  ]},
+ egout_conseil: {p:"Sous Cormeilles · les égouts", who:'mael',
+  text:"Lucien s'arrête et lève un doigt, comme un professeur. « Règle des égouts : ici, rien n'est jamais à sa place. Même les panneaux. Surtout les panneaux. » Il réfléchit, puis ajoute : « Ça ressemble à un débat. Celui qui crie le plus fort n'a pas toujours raison, mais il a souvent de la lumière. » Il hausse les épaules. « Ne me demande pas de précision, je plaisante la moitié du temps. »",
+  c:[B("Le suivre jusqu'à la fourche", 'egout_fourche', {t:25})]},
+ egout_fourche: {p:"Sous Cormeilles · la fourche", who:'mael',
+  text:"Le tunnel se sépare en deux. À gauche, une guirlande de Noël clignote au-dessus d'une pancarte peinte à la main : « SAINT-GRATIEN → ». Un léger bourdonnement vient du fond, sûrement les canalisations. À droite, un boyau étroit et sombre, avec un courant d'air tiède et une odeur de carton. Lucien lève sa lampe : « Moi, je m'arrête là. Je ne choisis jamais pour les autres. Bonne année. » Il disparaît dans l'ombre.",
+  c:[
+   B("Aller à gauche, vers la guirlande", 'fin_egout_rave', {t:20}),
+   B("Aller à droite, dans le boyau sombre", 'egout_reserve', {t:20}),
+   B("Remonter par l'échelle", 'gare', {t:30})
+  ]},
+ egout_reserve: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
+  text:"Le boyau débouche derrière une palette de bouteilles d'eau. Tu te glisses dans une réserve éclairée au néon. Un employé, assis sur un carton, mange des chips en regardant son téléphone. Il te regarde, cligne des yeux, hausse les épaules. « Encore un. C'est le troisième ce mois-ci. Prends une chose, une seule, et tu ne dis rien à mon chef. »",
+  c:[
+   B("Prendre un plateau de sushis invendu", 'egout_sortie', {t:5, item:'sushis', flag:'r_pris', need:S=>!S.flags.r_pris, note:"Il hoche la tête : « Il date d'aujourd'hui. À peu près. »"}),
+   B("Prendre une bouteille de crémant", 'egout_sortie', {t:5, item:'cremant_cf', flag:'r_pris', need:S=>!S.flags.r_pris, note:"Il la glisse dans un sac plastique : « Je n'ai rien vu. »"}),
+   B("Prendre une mini-bûche", 'egout_sortie', {t:5, item:'buche', flag:'r_pris', need:S=>!S.flags.r_pris, note:"« Elle est un peu écrasée, dit-il. Comme moi. »"}),
+   B("Ne rien prendre et sortir", 'saintgratien', {t:10})
+  ]},
+ egout_sortie: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
+  text:"L'employé te fait un petit signe vers la porte du magasin. « Par là. Fais comme si tu étais entré normalement. »",
+  c:[B("Sortir par le magasin", 'saintgratien', {t:10})]},
+ fin_egout_rave: {end:'lose', h:"Le Nouvel An, c'est ailleurs",
+  text:"La guirlande clignote, la pancarte te sourit. Le bourdonnement devient une basse, puis un mur de son. Le tunnel s'ouvre sur une salle voûtée remplie de lasers, de gilets fluo et de gens qui dansent les yeux fermés. Quelqu'un te pose un casque de chantier sur la tête, quelqu'un d'autre te tend un gobelet et un petit quelque chose que tu ne demandes pas. À partir de là, ton souvenir se mesure en battements par minute. À minuit, tu es debout sur une enceinte, persuadé que le DJ s'appelle Lucien. Ton téléphone vibre sous une pile de gilets : « T'es où ? » Tu réponds par une suite d'emojis. Dans cette salle, personne ne sait quelle année on est, et plus personne ne pense à Yann."},
+ jc: {p:"La gare · Cormeilles", who:'jc',
+  text:"JC t'accueille comme un croupier : « Pile ou face ? Mathématiquement, je suis imbattable. » Il fait tourner sa pièce entre ses doigts, regarde à droite, à gauche. Puis, très bas : « Ce soir, il y a peut-être une doro party à Paris. Gabie en est, je crois. Je ne peux pas t'en dire plus. Prévois des chaussures confortables. »",
+  c:[
+   B("Parier 10 € à pile ou face", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
+   B("Écouter son système", 'jc_systeme', {t:10}),
+   B("Lui demander l'adresse de la doro party", 'jc_doro', {t:10}),
+   B("Retourner sur le quai", 'gare', {t:5})
+  ]},
+ jc_systeme: {p:"La gare · Cormeilles", who:'jc',
+  text:"« Si on mise toujours le double après une perte, on finit forcément gagnant. » JC sort un stylo, une feuille, une courbe. « Il suffit d'avoir un capital infini. » Il ne l'a pas.",
+  c:[
+   B("Dire que tu es convaincu", 'jc', {t:5}),
+   B("Lui faire remarquer le problème du capital", 'jc', {t:5, note:"Il a répondu : « Justement, je cherche des investisseurs. » Il t'a regardé."})
+  ]},
+ jc_gagne: {p:"La gare · Cormeilles", who:'jc',
+  text:"Face. JC prend la défaite en ingénieur : « Statistiquement, ça devait arriver. » Tu as maintenant {m} en poche, et un air de joueur.",
+  c:[
+   B("Retenter 10 €", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), t:5, fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
+   B("Arrêter là, tu as gagné", 'gare', {t:5})
+  ]},
+ jc_perd: {p:"La gare · Cormeilles", who:'jc',
+  text:"Pile. Tu avais dit face. JC, impassible : « La variance, mon ami. » Il te propose de te refaire. Il connaît un endroit, à deux pas de Saint-Gratien.",
+  c:[
+   B("Retenter 10 €", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), t:5, fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
+   B("Suivre JC au casino d'Enghien, pour te refaire", 'fin_casino', {t:30}),
+   B("Arrêter là", 'gare', {t:5})
+  ]},
+ fin_casino: {end:'lose', h:"La machine à sous chante",
+  text:"Le casino d'Enghien est à deux pas de Saint-Gratien, ce qui est cruel. JC a « un système ». À minuit, vous êtes devant une machine qui chante, avec 2 € et une confiance intacte. Ton téléphone vibre : Yann demande où tu es."},
+ jc_doro: {p:"La gare · Cormeilles", who:'jc',
+  text:"JC regarde à gauche, à droite, murmure : « Je ne peux pas te donner l'adresse. Je peux te donner un rendez-vous. Gabie nous rejoint là-bas. Dix minutes : un train, un métro, un autre train. » Il met un doigt devant sa bouche.",
+  c:[
+   B("Le suivre", 'fin_doro', {t:10}),
+   B("Refuser, c'est trop mystérieux", 'jc', {t:5})
+  ]},
+ fin_doro: {end:'hidden', h:"La doro party",
+  text:"JC te fait signe de le suivre, très discret. Vous prenez un train, un métro, un autre train, un couloir sans nom. Il est 00h07 quand on te tend un verre dans une pièce sans fenêtre. Gabie, au fond, te fait un signe de la main, comme si de rien n'était. Personne ne sait où tu es. Yann non plus."},
+
+ /* ---------- Billets, train, bus ---------- */
+ gare_borne: {p:"Les bornes de tickets · Cormeilles",
+  text:"La borne de tickets clignote. Une dame devant toi se bat avec l'écran : « Ça ne marche jamais ! » Un ticket vers Franconville coûte 2,50 €, vers Saint-Gratien 4,20 €. Ou rien du tout.",
+  c:[
+   B("Aider la dame", 'borne_dame', {t:10}),
+   B("Ticket pour Franconville, 2,50 €", 'quai', {t:5, m:-2.5, lock:pay(2.5), fx:S=>{ S.ticket = 'cheap'; }}),
+   B("Ticket pour Saint-Gratien, 4,20 €", 'quai', {t:5, m:-4.2, lock:pay(4.2), fx:S=>{ S.ticket = 'full'; }}),
+   B("Passer sans ticket, les portiques sont ouverts", 'quai', {t:5, fx:S=>{ S.ticket = 'none'; }, note:"Les portiques sont en panne, personne ne vérifie. Ça va tenir jusqu'au premier contrôleur."}),
+   B("Retourner dans la rue", 'rue', {t:10})
+  ]},
+ borne_dame: {p:"Les bornes de tickets · Cormeilles",
+  text:"Tu aides la dame à choisir sa destination, valider, payer. Elle te remercie avec effusion : « Attendez, j'ai pris un ticket de trop. Saint-Gratien, 4,20 €. Prenez-le, c'est pour vous. »",
+  c:[B("Prendre le ticket", 'quai', {t:5, fx:S=>{ S.ticket = 'full'; }, note:"Elle t'a offert son ticket. Tu repars légitime."})]},
+ quai: {p:"Le quai · Cormeilles",
+  text:S=>S.t >= 180
+   ? "Il est {time}. Le panneau lumineux n'affiche plus que « Fin de service ». Le dernier train est parti, et tu n'as pas entendu."
+   : "Le quai est froid. Le panneau affiche « Prochain train : 22h14 », puis « Prochain train : supprimé », puis à nouveau « 22h14 ».",
+  c:[
+   B("Attendre le train", S=>rnd(0.35)?'quai_supprime':'train_monte', {t:15, need:S=>S.t<180}),
+   B("Prendre le bus à la place", 'bus_arret', {t:10}),
+   B("Retourner dans la rue", 'rue', {t:10})
+  ]},
+ quai_supprime: {p:"Le quai · Cormeilles",
+  text:"« Train supprimé. Nous vous remercions de votre compréhension. » Le panneau, lui, a l'air de s'en moquer.",
+  c:[
+   B("Attendre le suivant", 'train_monte', {t:40}),
+   B("Prendre le bus à la place", 'bus_arret', {t:10}),
+   B("Retourner dans la rue", 'rue', {t:10})
+  ]},
+ train_monte: {p:"Dans le train",
+  text:"Le train arrive, bondé et bruyant. Un type parle seul, un couple s'embrasse, un bébé chante. Tu trouves une place debout, près de la porte, avec une vue magnifique sur le dos d'un monsieur.",
+  c:[
+   B("Rester près de la porte, prêt à descendre", S=>(S.ticket!=='full' && rnd(0.6))?'controleur':'train_arrive', {t:10}),
+   B("Aller vers le fond du wagon", S=>(S.ticket!=='full' && rnd(0.85))?'controleur':'train_arrive', {t:10})
+  ]},
+ controleur: {p:"Dans le train · le contrôleur",
+  text:S=>S.ticket==='cheap'
+   ? "Le contrôleur scanne ton ticket, lève un sourcil. « Valable jusqu'à Franconville seulement. Vous allez où ? »"
+   : "Le contrôleur apparaît, le regard lent. « Votre ticket, s'il vous plaît. » Tu n'as pas de ticket.",
+  c:[
+   B("Compléter le ticket (3 €)", 'train_arrive', {t:5, m:-3, lock:pay(3), need:S=>S.ticket==='cheap', fx:S=>{ S.ticket='full'; }, note:"Il a tamponné le complément avec une lenteur cérémonielle."}),
+   B("Dire que tu descends à Franconville", 'train_arrive', {t:5, need:S=>S.ticket==='cheap', note:"« Alors ça va. » Il est reparti, un peu déçu."}),
+   B("« J'ai oublié mon ticket dans l'autre manteau »", S=>S.pass?'controle_ok':'controle_pv', {t:5, need:S=>S.ticket==='none', fx:S=>{ S.pass = rnd(0.3); if (!S.pass) { S.m = Math.max(0, S.m-35); S.flags.pv = true; } }}),
+   B("Faire semblant de dormir", S=>S.pass?'controle_ok':'controle_pv', {t:5, need:S=>S.ticket==='none', fx:S=>{ S.pass = rnd(0.2); if (!S.pass) { S.m = Math.max(0, S.m-35); S.flags.pv = true; } }}),
+   B("Expliquer que tu vas chez un chirurgien pédiatrique", S=>S.pass?'controle_ok':'controle_pv', {t:5, need:S=>S.ticket==='none', fx:S=>{ S.pass = rnd(0.15); if (!S.pass) { S.m = Math.max(0, S.m-35); S.flags.pv = true; } }}),
+   B("Courir vers l'autre wagon", S=>S.pass?'controle_ok':'controle_pv', {t:10, need:S=>S.ticket==='none', fx:S=>{ S.pass = rnd(0.4); if (!S.pass) { S.m = Math.max(0, S.m-35); S.flags.pv = true; } }}),
+   B("Payer l'amende (35 €)", 'controle_pv', {t:5, m:-35, lock:pay(35), need:S=>S.ticket==='none', fx:S=>{ S.flags.pv = true; }})
+  ]},
+ controle_ok: {p:"Dans le train · le contrôleur",
+  text:"Le contrôleur te regarde longtemps, comme un juge, puis soupire. « Allez. C'est la nuit du 31. Mais je ne vous ai pas vu. » Il passe au wagon suivant.",
+  c:[B("Respirer", 'train_arrive', {t:5})]},
+ controle_pv: {p:"Dans le train · le contrôleur",
+  text:"Le contrôleur sort un carnet à souche, l'air d'un artisan. « Procès-verbal. C'est trente-cinq euros, ou ce que vous avez. » Il est très poli. Il est impitoyable. Tu signes.",
+  c:[B("Descendre à Franconville, la dignité intacte", 'train_arrive', {t:10})]},
+ train_arrive: {p:"Dans le train · Franconville",
+  text:"Le train s'arrête. Le panneau annonçait Saint-Gratien, mais c'était avant les travaux : « Terminus, merci de descendre. » Tu descends à Franconville, devant des immeubles que tu reconnais : le coin de l'appart de Marco.",
+  c:[B("Descendre", 'franconville', {t:15})]},
+ franconville: {p:"Franconville · chez Marco et Gabie", z:'f',
+  text:"Franconville, nuit noire. Les fenêtres de l'appartement de Marco sont allumées. Saint-Gratien est à quelques kilomètres : un bus de remplacement passe, peut-être.",
+  c:[
+   B("Sonner chez Marco et Gabie", 'gabie', {t:5}),
+   B("Aller au bus de remplacement", 'bus_remp', {t:10}),
+   B("Finir à pied, c'est possible techniquement", 'marche3', {t:10, flag:'essouffle'})
+  ]},
+ bus_remp: {p:"Franconville · bus de remplacement", z:'f',
+  text:"Un bus jaune clignote à l'arrêt. Le chauffeur, derrière sa vitre, lit un journal avec une dignité d'ambassadeur. « Ticket valable, ou 2 € à bord. »",
+  c:[
+   B("Montrer ton ticket pour Saint-Gratien", 'bus_remp_ride', {t:5, need:S=>S.ticket==='full'}),
+   B("Payer 2 € au chauffeur", 'bus_remp_ride', {t:5, m:-2, lock:pay(2), need:S=>S.ticket!=='full'}),
+   B("Lui dire que tu vas chez un chirurgien", 'bus_remp_ride', {t:5, need:S=>S.ticket!=='full', fx:S=>{ S.pass = rnd(0.4); }, to:S=>S.pass?'bus_remp_ride':'bus_remp_non'}),
+   B("Retourner voir Marco et Gabie", 'franconville', {t:5})
+  ]},
+ bus_remp_non: {p:"Franconville · bus de remplacement", z:'f',
+  text:"« Non. » Le chauffeur retourne à son journal. Les portes du bus se ferment avec un petit bruit moqueur.",
+  c:[
+   B("Payer 2 € et attendre le prochain", 'bus_remp_ride', {t:25, m:-2, lock:pay(2)}),
+   B("Finir à pied", 'marche3', {t:5, flag:'essouffle'})
+  ]},
+ bus_remp_ride: {p:"Franconville · dans le bus", z:'f',
+  text:"Le bus part à vitesse prudente. Une dame lit un livre. Un ado écoute de la musique trop fort. Il y a, à l'arrière, un monsieur qui répète « bonne année » à chaque arrêt.",
+  c:[B("Arriver à Saint-Gratien", S=>maybe(S,'saintgratien',0.4), {t:20})]},
+ gabie: {p:"Franconville · chez Marco et Gabie", z:'f', who:'gabie', timer:10, tt:'gabie_ko',
+  text:S=>(S.player==='marco' ? "Tu sonnes chez toi, par réflexe, avant de te rappeler que tu as la clé. " : "")+"Gabie ouvre, un shaker dans une main, un livre dans l'autre, ses cheveux décolorés remontés en chignon. Elle te regarde de haut en bas : « Tu tombes bien. Vite : qui a écrit « Les Fleurs du mal » ? Tu as dix secondes. »",
+  c:[
+   B("Verlaine", 'gabie_ko', {t:5}),
+   B("Baudelaire", 'gabie_ok', {t:5}),
+   B("Rimbaud", 'gabie_ko', {t:5})
+  ]},
+ gabie_ok: {p:"Franconville · chez Marco et Gabie", z:'f', who:'gabie',
+  text:"« Baudelaire. Bien. Très bien. » Elle te colle dans les mains un recueil de poésie : « Pour Yann. Il dort trois heures par nuit, il aura le temps de le lire pendant ses gardes. »\n\nElle penche la tête, ses boucles d'oreilles tintent, son septum accroche la lumière : « Maintenant, tu veux faire des squats avec moi ? Ou tu préfères que je te parle de la doro party ? JC m'a dit de ne rien dire, mais je ne sais pas me taire. »",
+  c:[
+   B("Prendre le recueil et filer", 'franconville', {t:10, item:'poesie'}),
+   B("Lui demander pour la doro party", 'gabie_doro', {t:10}),
+   B("Accepter son défi de squats", 'gabie_squats', {t:15})
+  ]},
+ gabie_doro: {p:"Franconville · chez Marco et Gabie", z:'f', who:'gabie',
+  text:"« C'est secret. Mais je peux te dire que ça se passe à Paris, qu'il faut des chaussures confortables, que JC a fait un tableur, et que personne ne sait comment il a trouvé l'adresse. » Elle s'interrompt, ravie de s'être trahie. « Tu n'as rien entendu. »",
+  c:[B("Lui promettre de ne rien dire", 'gabie_ok', {t:5})]},
+ gabie_squats: {p:"Franconville · chez Marco et Gabie", z:'f', who:'gabie',
+  text:"« Dix squats. Je compte. » Elle est très sérieuse, très musclée, très cultivée. Elle récite un poème pendant que tu t'accroupis. Tes cuisses se mettent à protester vers le sixième.",
+  c:[
+   B("Tenir jusqu'à dix", 'franconville', {t:10, flag:'essouffle', note:"Gabie a noté : « Pas mal. La forme est correcte. Le vers, moins. »"}),
+   B("Demander pitié", 'fin_salle', {t:20})
+  ]},
+ gabie_ko: {p:"Franconville · chez Marco et Gabie", z:'f', who:'gabie',
+  text:"« BAU-DE-LAIRE. » Elle te corrige avant même que tu aies fini ta phrase, puis te relève deux fautes dans ce que tu dis pour te défendre. C'est long. Elle est adorable avec ça.",
+  c:[
+   B("Présenter des excuses et repartir", 'franconville', {t:20}),
+   B("Demander un cours de rattrapage", 'fin_salle', {t:30})
+  ]},
+ fin_salle: {end:'lose', h:"Dix squats et un poète",
+  text:"« Dix squats, et on discute de Baudelaire. » À minuit, tu es toujours sous la barre, Gabie compte, son septum brillant dans la lumière, un sourire en coin. Tu connais enfin Baudelaire. Tu ne connaîtras pas la soirée de Yann."},
+ bus_arret: {p:"L'arrêt de bus · Cormeilles",
+  text:"Les horaires affichés sont à moitié arrachés, à moitié optimistes. Une jeune femme attend aussi, un sac de courses à ses pieds. Un livreur passe en klaxonnant. Un bus finit par arriver, ou alors c'est celui d'il y a vingt minutes.",
+  c:[
+   B("Attendre le bus", S=>rnd(0.3)?'bus_retard':'bus_monte', {t:15}),
+   B("Abandonner et retourner dans la rue", 'rue', {t:10})
+  ]},
+ bus_retard: {p:"L'arrêt de bus · Cormeilles",
+  text:"Un bus arrive, avec « Hors service » affiché. Il passe sans s'arrêter. Quelqu'un à l'arrêt rit nerveusement. Un autre bus arrive, quinze minutes plus tard, cette fois avec de vraies lumières.",
+  c:[B("Monter dans le suivant", 'bus_monte', {t:20})]},
+ bus_monte: {p:"Dans le bus",
+  text:"Le chauffeur te regarde d'un air épuisé. « 2 € à bord, pas de monnaie, pas de caprice. »",
+  c:[
+   B("Payer 2 €", 'bus_trajet', {t:5, m:-2, lock:pay(2), need:S=>S.ticket!=='full'}),
+   B("Montrer ton ticket", 'bus_trajet', {t:5, need:S=>S.ticket==='full'}),
+   B("Dire que tu as oublié ton portefeuille", 'bus_trajet', {t:5, need:S=>S.ticket!=='full', fx:S=>{ S.pass = rnd(0.4); }, to:S=>S.pass?'bus_trajet':'bus_descente'})
+  ]},
+ bus_descente: {p:"Dans le bus",
+  text:"« Dehors. » Le chauffeur n'a même pas élevé la voix. Les portes s'ouvrent avec une lenteur cruelle. Tu descends à l'arrêt suivant, au milieu de nulle part, avec dignité.",
+  c:[B("Marcher jusqu'à l'arrêt d'après", 'bus_arret', {t:20})]},
+ bus_trajet: {p:"Dans le bus",
+  text:"Le bus avance, s'arrête, redémarre. Un fêtard monte, déguisé en flûte à champagne, et s'assoit à côté de toi. « Bonne année avant l'heure ! » Le bus passe devant des maisons illuminées, des gens qui se serrent dans les bras.",
+  c:[B("Continuer jusqu'au terminus", S=>maybe(S,'bus_terminus',0.5), {t:25})]},
+ bus_terminus: {p:"Dans le bus · Franconville",
+  text:"« Terminus. Travaux. Tout le monde descend. » Le bus s'arrête à Franconville, devant des immeubles que tu reconnais. La flûte à champagne te souhaite une bonne année.",
+  c:[B("Descendre", 'franconville', {t:10})]},
+ transport: {p:"Départ pour Saint-Gratien",
+  text:"Il est {time}. Saint-Gratien est à 7 ou 8 km, trop loin pour y aller à pied sans y laisser de l'énergie. Tu as {m} en poche. Comment tu y vas ?",
+  c:[
+   B("Prendre le train", 'gare_borne', {t:10}),
+   B("Attendre le bus", 'bus_arret', {t:10}),
+   B("VTC, tarif du 31 décembre", 'vtc_appli', {t:0}),
+   B("Y aller à pied, 7 ou 8 km", 'marche1', {t:5}),
+   B("Finalement, retourner voir les amis", 'rue', {t:5})
+  ]},
+ vtc_appli: {p:"L'appli VTC",
+  text:"L'appli affiche : « Trajet vers Saint-Gratien : 24 € (tarif majoré). 31 décembre, ça va être serré. » Le petit logo de la voiture tourne en rond.",
+  c:[
+   B("Commander", 'vtc_route', {t:10, m:-24, lock:pay(24)}),
+   B("Annuler et chercher une autre option", 'transport', {t:5})
+  ]},
+ vtc_route: {p:"Dans le VTC",
+  text:"Le chauffeur a une note de 4,9 et un GPS qui hésite. Il te sourit dans le rétroviseur. « Musique ? Silence ? Ma vie ? »",
+  c:[
+   B("Musique", 'vtc_fin', {t:10}),
+   B("Silence", 'vtc_fin', {t:10}),
+   B("Sa vie", 'vtc_vie', {t:15})
+  ]},
+ vtc_vie: {p:"Dans le VTC",
+  text:"Il a fait cinq métiers, deux pays, et une fois un tour du monde en solo. Il parle de la mer. Il ne regarde plus la route. Il te regarde, dans le rétroviseur, avec beaucoup d'émotion.",
+  c:[B("Lui demander de regarder la route", 'vtc_fin', {t:5})]},
+ vtc_fin: {p:"Dans le VTC",
+  text:"Le GPS annonce : « Tournez à droite dans cent mètres. » Le chauffeur tourne à gauche. Le GPS recalcule. Il tourne à droite. Le GPS panique.",
+  c:[B("Attendre l'arrivée", S=>rnd(0.3)?'vtc_casino':'saintgratien', {t:10})]},
+ vtc_casino: {p:"Dans le VTC",
+  text:"Le chauffeur te dépose devant le casino d'Enghien, à deux pas de Saint-Gratien, « parce que le GPS a dit ». Il est très désolé. Il te remet un bon de réduction pour sa prochaine course.",
+  c:[B("Marcher jusqu'à Saint-Gratien", 'saintgratien', {t:20, flag:'essouffle'})]},
+ marche1: {p:"À pied · la route",
+  text:"Tu pars à pied. Après vingt minutes, le trottoir disparaît. Tu marches sur le bord de la route, avec des voitures qui te frôlent, et une impression douloureuse que c'était une mauvaise idée.",
+  c:[
+   B("Continuer", S=>maybe(S,'marche2',0.5), {t:30, flag:'essouffle'}),
+   B("Faire du stop", 'marche_stop', {t:10}),
+   B("Faire demi-tour", 'rue', {t:25})
+  ]},
+ marche_stop: {p:"À pied · le stop",
+  text:"Une voiture ralentit, puis accélère, comme si elle avait changé d'avis. Une autre te klaxonne. Une troisième s'arrête enfin : un couple d'un certain âge, avec une tarte sur la banquette arrière.",
+  c:[
+   B("Monter avec eux", 'marche3', {t:20, note:"Ils t'ont déposé plus loin en te racontant leur mariage. La tarte était pour leurs petits-enfants."}),
+   B("Refuser et continuer à pied", 'marche2', {t:5})
+  ]},
+ marche2: {p:"À pied · le milieu du trajet",
+  text:"Tu as dépassé une zone industrielle, un pont, un rond-point qui ressemblait à un labyrinthe. Il fait nuit, il fait froid, ton souffle forme un nuage. Tu te dis qu'il est peut-être temps d'avoir des regrets.",
+  c:[
+   B("Continuer, malgré tout", 'marche3', {t:25}),
+   B("Suivre un bruit de moteur au loin", 'fin_perdus', {t:20})
+  ]},
+ fin_perdus: {end:'hidden', h:"Venez par là, c'est chez Yann",
+  text:S=>S.player==='antonin'
+   ? "Tu quittes la route pour suivre un bruit de moteur qui n'est pas le tien. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Cindy, valise à roulettes, partage un thermos avec personne. « Je suis à Singapour, pas de commentaire. Toi aussi, tu es perdu ? » Elle monte derrière toi. À minuit, vous êtes chez Yann. Personne ne demande ce que vous apportez."
+   : S.player==='cindy'
+   ? "Tu quittes la route pour suivre un bruit de moteur. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Antonin, casque sur les genoux, mange un morceau de fromage. « Ah, te voilà. Venez par là, c'est chez Yann. » Tu montes derrière lui. À minuit, vous êtes chez Yann. Personne ne demande ce que vous apportez."
+   : "Tu quittes la route pour suivre un bruit de moteur. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Antonin et Cindy partagent un thermos. « Ah, te voilà. On t'attendait. » Cindy : « Je suis à Singapour, pas de commentaire. » Antonin te tend un casque : « Venez par là, c'est chez Yann. » Tu ne sais pas comment, mais à minuit tu es chez Yann, les mains vides, avec un casque et un thermos. Pour une fois, personne ne demande ce que tu apportes : on ne dit pas non à quelqu'un qui arrive avec Antonin et Cindy."},
+ marche3: {p:"À pied · la fin du trajet",
+  text:"Au loin, tu vois des guirlandes, des lumières, un panneau qui annonce Saint-Gratien. Tu ne sens plus tes chevilles. Tu y es presque.",
+  c:[B("Terminer à pied", 'saintgratien', {t:20, flag:'essouffle'})]},
+
+ /* ---------- Lycée ---------- */
+lycee: {p:"Le lycée Philippe Kieffer · Cormeilles", who:'marco',
+  text:"Vacances : le portail est à moitié ouvert. Un gardien en gilet jaune t'arrête : « Où allez-vous, jeune homme ? » Derrière lui, tu aperçois Marco qui traverse la cour, un énorme sac sur l'épaule, plié en deux sous le poids.",
+  c:[
+   B("Dire que tu viens voir Marco", 'lycee_cour', {t:5, note:"Le gardien lève un sourcil, puis te laisse passer : « Ah, lui. Il parle tout seul depuis ce matin. »"}),
+   B("Dire que tu cherches un cadeau", 'lycee_gardien', {t:5}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ lycee_gardien: {p:"Le portail du lycée · Cormeilles", who:'marco',
+  text:"« Un cadeau, au lycée ? » Le gardien se redresse, croise les bras sur son gilet jaune, puis son visage s'adoucit. « Je m'appelle Gérard. Vingt-deux ans que je garde ce portail. J'ai vu des élèves devenir profs, des profs devenir fantômes, et un photocopieur survivre à tout. » Il regarde la cour. « Je ne peux pas t'aider, mais je peux te parler. »",
+  c:[
+   B("Écouter l'histoire du photocopieur", 'lycee_gardien', {t:10, flag:'g_hist', need:S=>!S.flags.g_hist, note:"Gérard raconte comment le photocopieur est tombé en panne le jour de l'inspection, puis s'est remis en marche tout seul le lendemain. Il en parle comme d'un vieux collègue. « Lui et moi, on se comprend. »"}),
+   B("Lui demander ce que Marco a dans son sac", 'lycee_gardien', {t:5, flag:'g_sac', need:S=>!S.flags.g_sac, note:"Gérard baisse la voix : « Du sport, du vintage, et un maillot orange et noir qu'il ne montre à personne. À mon avis, il attend la bonne personne. »"}),
+   B("Fouiller les objets trouvés avec lui", 'lycee_gardien', {t:10, item:'objets_trouves', flag:'g_objets', need:S=>!S.flags.g_objets, note:"Gérard sort une caisse en carton : « Rien n'est réclamé depuis 2019. Prends ce que tu veux, mais pas les gants. »"}),
+   B("Entrer dans la cour", 'lycee_cour', {t:5}),
+   B("Le remercier et ressortir", 'rue', {t:5})
+  ]},
+  lycee_cour: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"Marco pose son sac sur un banc. « Parfait. Interro surprise. Une question, pas de note. » Il a ce regard de prof qui ne rigole pas, mais qui rigole un peu quand même. Sur son téléphone, des dizaines de notifications.",
+  c:[
+   B("Passer l'interro", 'lycee_quiz', {t:5}),
+   B("« Qu'est-ce que tu as dans ton sac ? »", 'lycee_vintage', {t:5}),
+   B("Regarder son téléphone", 'lycee_phone', {t:5}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ lycee_phone: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"Sur son écran, la conversation avec Moizlard : 47 messages envoyés de Marco, zéro lu. « Rase-toi. » « Rase-toi. » « Dernière chance. » « Je vois que tu as lu. » Il n'a pas lu. Marco relance Moizlard sur le sujet, tous les jours, avec constance, et ça ne s'arrêtera pas.",
+  c:[B("Hocher la tête, impressionné", 'lycee_cour', {t:5})]},
+lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"Marco ouvre son sac comme un forain. Un sweat de club, une veste de sport années 90, des jeux vidéo dans des boîtes cabossées. Puis il sort, avec précaution, un maillot orange et noir : le FC Lorient, vintage. « Ça, c'est pas pour tout le monde. Il y a quelqu'un qui va pleurer de joie. »",
+  c:[
+   B("Acheter le maillot du FC Lorient (8 €)", 'lycee_cour', {t:5, m:-8, item:'lorient', lock:pay(8)}),
+   B("Acheter la veste de sport (6 €)", 'lycee_cour', {t:5, m:-6, item:'vintage', lock:pay(6)}),
+   B("Retourner voir Marco", 'lycee_cour', {t:5})
+  ]},
+  lycee_quiz: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"« Première question : qui harcèle Moizlard ? »",
+  c:[
+   B("Arthur", 'lycee_ko', {t:5}),
+   B("Yann", 'lycee_ko', {t:5}),
+   B("Marco", 'lycee_q2', {t:5})
+  ]},
+ lycee_q2: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"« Bien. Deuxième question : qui lui a écrit « Rase-toi » quarante-sept fois aujourd'hui ? » Marco ne cille pas.",
+  c:[
+   B("Chrisly", 'lycee_ko', {t:5}),
+   B("Marco", 'lycee_q3', {t:5}),
+   B("Maël", 'lycee_ko', {t:5})
+  ]},
+ lycee_q3: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"« Dernière question, et c'est la plus dure : qu'est-ce qu'un phybien ? » Marco te regarde par-dessus ses lunettes.",
+  c:[
+   B("Un poisson d'eau douce", 'lycee_ko', {t:5}),
+   B("Un truc qui harcèle Moizlard", 'lycee_ok', {t:5}),
+   B("Un ancien élève de Marco", 'lycee_ko', {t:5})
+  ]},
+ lycee_ok: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"« Je ne reconnais rien, mais c'est la bonne réponse. » Marco, ravi, fouille dans son sac et te donne une veste de sport années 90 qu'il vend normalement 25 €.",
+  c:[B("Prendre la veste et ressortir", 'rue', {t:5, item:'vintage'})]},
+ lycee_ko: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
+  text:"« Révise. » Marco ne note personne, mais soupire en annotant un carton.",
+  c:[
+   B("Retenter l'interro", 'lycee_quiz', {t:5}),
+   B("Acheter la veste de sport (6 €)", 'rue', {t:5, m:-6, item:'vintage', lock:pay(6)}),
+   B("Ressortir", 'rue', {t:5})
+  ]},
+ citystade: {p:"Le city-stade · Cormeilles",
+  text:"Quatre ados, un ballon, un filet cassé. « Monsieur ! Un penalty ? Si vous marquez, on vous donne un truc. Si vous ratez, vous êtes nul. »",
+  c:[
+   B("Tirer un penalty", S=>S.pass?'citystade_ok':'citystade_ko', {t:10, fx:S=>{ S.pass = rnd(0.5); }}),
+   B("Refuser, tu as autre chose à faire", 'rue', {t:5})
+  ]},
+ citystade_ok: {p:"Le city-stade · Cormeilles",
+  text:"Le ballon part, trouve la lucarne. Les ados hurlent. Le plus petit vient te serrer la main avec solennité. « On vous donne notre plus beau cadeau. » Un sac de confettis.",
+  c:[B("Repartir en héros", 'rue', {t:5, item:'confettis'})]},
+ citystade_ko: {p:"Le city-stade · Cormeilles",
+  text:"Le ballon part, très haut, très loin, dans le jardin d'un voisin. Les ados te regardent, sans pitié. « Nul. » Le plus petit ajoute : « On dit rien à Yann. »",
+  c:[B("Repartir, la tête basse", 'rue', {t:10})]},
+
+ /* ---------- Appels et amis conducteurs ---------- */
+ cindy_appel: {p:"Un coup de fil · Singapour", who:'cindy',
+  text:"Cindy décroche à la première sonnerie, d'une voix parfaitement réveillée. « Il est cinq heures du matin ici, j'ai un thé, un café et un fou rire. Je suis à Singapour jusqu'à jeudi, donc tu ne m'appelles pas. » Derrière elle, une annonce d'aéroport et le bruit d'une valise à roulettes. « Dis-moi vite, je n'ai pas de forfait pour ça. »",
+  c:[
+   B("Lui demander ce qu'aimerait {Y}", S=>S.pass?'cindy_conseil':'cindy_conseil_ko', {t:5, fx:S=>{ S.pass = rnd(0.5); }}),
+   B("Lui demander de réveiller Antonin pour toi", S=>S.pass?'cindy_antonin':'cindy_antonin_ko', {t:5, fx:S=>{ S.pass = rnd(0.4); }}),
+   B("Raccrocher", 'appel', {t:0})
+  ]},
+ cindy_conseil: {p:"Un coup de fil · Singapour", who:'cindy',
+  text:"« {Y} ? Il dit qu'il aime le blanc sec, mais il boit ce qu'on lui sert. Ce qu'il adore, c'est ce qui raconte une histoire. Une bouteille avec une étiquette bizarre, un objet qu'on ne sait pas nommer, un souvenir. » Un silence, le bruit d'un café qu'on repose. « Ne dis pas que c'est moi. »",
+  c:[B("Merci, bon vol", 'appel', {t:0})]},
+ cindy_conseil_ko: {p:"Un coup de fil · Singapour", who:'cindy',
+  text:"« {Y} ? Facile. Il adore la simplicité. Des chips nature, rien d'autre, c'est son péché mignon. Je te le jure sur ma valise. » Une annonce d'embarquement couvre sa voix, elle ajoute quelque chose que tu n'entends pas, puis elle raccroche. Elle avait la voix de quelqu'un qui n'a pas dormi depuis deux jours.",
+  c:[B("Raccrocher, un peu inquiet", 'appel', {t:0})]},
+ cindy_antonin: {p:"Un coup de fil · Cindy et Antonin", who:'antonin',
+  text:"« Attends, j'appelle Antonin. » Cindy lance un appel à trois. Trois sonneries, puis une voix pleine de vent : « Allô ? Je suis dans un col. — Tu es dans ton salon, Antonin, dit Cindy. — Ah. Oui. Dans le col de mon salon. » Elle lui explique, très vite, que tu es à Cormeilles, que c'est urgent, que Yann attend. « Je prends un casque en plus », soupire-t-il. Cindy, satisfaite : « Voilà. Bonne année, je dors. »",
+  c:[
+   B("Monter derrière Antonin", 'moto1', {t:10}),
+   B("Remercier et raccrocher", 'appel', {t:0})
+  ]},
+ cindy_antonin_ko: {p:"Un coup de fil · Cindy et Antonin", who:'antonin',
+  text:"« Attends, j'appelle Antonin. » Cindy lance un appel à trois. Antonin décroche dans un bruit de moteur et de vent : « Allô ? J'entends rien. Vous êtes qui ? » Cindy lui crie ton adresse, puis sa batterie lâche. Antonin, seul avec toi : « Cormeilles ? Je suis à Chambéry, mais je fonce. Comptez quarante minutes. Ou une heure et demie. » Il raccroche.",
+  c:[
+   B("Attendre sur le trottoir", 'moto1', {t:75, note:"Antonin est arrivé à 21h10, avec un fromage dans sa sacoche et aucune excuse."}),
+   B("Laisser tomber et repartir", 'appel', {t:5})
+  ]},
+ cindy_porte: {p:"Devant chez Cindy · Cormeilles", who:'cindy',
+  text:S=>S.flags.c_pris
+   ? "La voisine de Cindy te regarde par la fenêtre, le carton est vide, les volets sont toujours fermés. « Elle a dit une chose, pas deux. »"
+   : "La porte de Cindy est fermée, les volets aussi, et un autocollant d'aéroport est resté collé sur la boîte aux lettres. Sa voisine, en robe de chambre, sort sur le palier : « Cindy m'a laissé un carton pour quelqu'un qui passerait. Elle a dit : « Une seule chose, pas deux, et pas de questions. » Je n'en ai pas posé. » Dans le carton, un thé glacé de Singapour, des biscuits emballés un par un, et un objet lourd enveloppé dans une page de magazine en chinois.",
+  c:[
+   B("Demander à la voisine ce qu'il y a vraiment dedans", 'cindy_porte', {t:5, flag:'c_demande', need:S=>!S.flags.c_pris && !S.flags.c_demande, note:"« Elle a dit de ne pas ouvrir l'objet enveloppé, et de ne pas le laisser au soleil. Je n'ai pas compris. »"}),
+   B("Prendre le thé glacé", 'cindy_porte', {t:5, item:'the_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, note:"La voisine hoche la tête : « Il paraît qu'il se boit très frais. »"}),
+   B("Prendre les biscuits au kaya", 'cindy_porte', {t:5, item:'biscuits_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, fx:S=>{ if (rnd(0.4)) S.bag = S.bag.map(b=>b==='biscuits_cindy'?'biscuits_perimes':b); }, note:"« Elle en a mis trop, dit la voisine. Elle fait toujours trop. »"}),
+   B("Prendre l'objet enveloppé", 'cindy_porte', {t:5, item:'souvenir_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, fx:S=>{ if (rnd(0.5)) S.bag = S.bag.map(b=>b==='souvenir_cindy'?'durian':b); }, note:"La voisine détourne les yeux : « Je n'ai rien vu. »"}),
+   B("Repartir dans la rue", 'rue', {t:5})
+  ]},
+ antonin_garage: {p:"Le hangar d'Antonin · Cormeilles", who:'antonin',
+  text:"Le hangar d'Antonin sent l'huile et le kérosène. Au fond, un hélicoptère au capot levé : Antonin répare et entretient des hélicoptères, et il en parle comme d'autres parlent de leur chat. Sa moto est sur la béquille, la chaîne démontée, encore couverte de la boue des cols. Il raconte son voyage à l'établi : trois cols, un orage, un refuge où l'on dort à six. « Je suis rentré hier soir, j'ai la tête encore là-haut. » Il s'essuie les mains sur un chiffon. « Tu viens pour Yann ? Je ne vends pas de cadeaux, mais je vends des trajets. »",
+  c:[
+   B("L'aider à remonter la chaîne", 'antonin_garage', {t:30, flag:'a_chaine', need:S=>!S.flags.a_chaine, note:"Tu as les mains noires jusqu'aux coudes. Antonin, ému : « Tu as le geste. »"}),
+   B("Accepter l'hélicoptère qu'il te propose", 'antonin_heli', {t:10}),
+   B("Lui demander d'essayer sa moto", 'fin_moto_solo', {t:5}),
+   B("Lui demander de t'emmener à Saint-Gratien", 'moto1', {t:10, need:S=>S.flags.a_chaine, note:"Il décroche un casque du mur : « Monte, la chaîne est bonne. »"}),
+   B("Lui demander de t'emmener à Saint-Gratien", 'antonin_non', {t:5, need:S=>!S.flags.a_chaine}),
+   B("Repartir dans la rue", 'rue', {t:5})
+  ]},
+ antonin_heli: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
+  text:"« Moto, c'est bien. Hélicoptère, c'est mieux. » Antonin te boucle un casque audio, vérifie trois cadrans, tape sur un quatrième. Le rotor se lance, le hangar s'envole sous vous. Cormeilles devient une carte, Saint-Gratien une constellation de guirlandes. « Parfait, on y est en quatre minutes. » Un silence. « On se pose où, au fait ? »",
+  c:[
+   B("Dans le jardin de Yann", 'antonin_heli2', {t:35}),
+   B("Sur le parking du Carrefour", 'antonin_heli2', {t:35}),
+   B("Sur le toit de la gare", 'antonin_heli2', {t:35})
+  ]},
+ antonin_heli2: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
+  text:"Vous tournez au-dessus de Saint-Gratien. Le jardin de Yann a des arbres, le parking a des câbles, le toit de la gare a un contrôleur qui vous regarde. Vous essayez trois fois. Des voisins sortent sur leur balcon, certains filment, un chien aboie sans conviction. « Ah, dit Antonin. Je n'ai pas le droit de me poser ici. Je n'ai jamais eu le droit de me poser nulle part, en fait. » Vous refaites le trajet inverse en silence. Il est plus tard que prévu.",
+  c:[B("Se poser au hangar d'Antonin", 'antonin_garage', {t:25, note:"Une heure de vol, zéro atterrissage. Antonin éteint le rotor : « Pour la moto, par contre, c'est sûr. »"})]},
+ antonin_non: {p:"Le hangar d'Antonin · Cormeilles", who:'antonin',
+  text:"« Pas avec la chaîne comme ça. On finit dans le fossé, et je tiens à ma moto. Aide-moi d'abord, je ne te demande que vingt minutes. » Il en faudra trente.",
+  c:[B("Retourner à l'établi", 'antonin_garage', {t:0})]},
+ fin_moto_solo: {end:'lose', h:"Pas de permis, beaucoup de courage",
+  text:"« Je peux essayer ? » Antonin hésite, puis te tend le casque, ce qui est sa première erreur. Le hangar est encombré, la porte est fermée. La moto, elle, ne s'est pas posé la question. Tu finis dans l'étagère des pneus. Antonin, les mains sur la tête : « Elle démarre quand même, regarde ! » À minuit, tu es aux urgences avec un casque sur les genoux, et un message de Yann : « T'es où ? »"},
+ fin_moto_col: {end:'hidden', h:"Les trois cols d'Antonin",
+  text:"« Je connais un raccourci. » Ce n'est pas un raccourci. C'est un col, puis un deuxième, puis un chemin de chèvres qu'Antonin appelle « la voie douce ». À minuit pile, vous êtes dans un refuge, avec six inconnus, une marmite de soupe et un ronfleur. Ton téléphone n'a plus de réseau. Antonin lève sa cuillère : « Bonne année ! » Tu n'as pas de cadeau pour Yann, mais tu as une histoire de refuge pour la vie."},
+ appel: {p:"Un coup de fil",
+  text:"Tu sors ton téléphone. Qui tu appelles ?",
+  c:[
+   B("Anaïs, avec sa grosse voiture", 'anais', {t:5}),
+   B("Moizlard, voiture américaine, cheville foulée", 'moizlard', {t:5}),
+   B("Cindy, à Singapour (il est 5 h du matin là-bas)", 'cindy_appel', {who:'cindy', t:5}),
+   B("Antonin, qui devrait être rentré de la montagne", S=>S.antonin?'antonin':'antonin_ko', {who:'antonin', t:5, fx:S=>{ S.antonin = rnd(0.5); }}),
+   B(S=>S.player==='yann'?"Maël, pour avoir des indices":"Yann, pour avoir des indices", 'appel_yann', {t:5}),
+   B("Raccrocher", 'rue', {t:0})
+  ]},
+ appel_yann: {p:"Un coup de fil · Yann",
+  text:S=>S.player==='yann'
+   ? "Maël décroche au troisième essai. « Allô ? Je suis dans ton salon, j'ai pas le temps. » Silence. « Écoute : un blanc sec bien frais, un truc à manger, et une surprise. Ne me fais pas faire la tête à minuit. » Il raccroche. Il a déjà ouvert ton frigo."
+   : "Yann décroche au troisième essai. « Allô ? Je suis en train de goûter, j'ai pas le temps. » Silence. « Écoute : un blanc sec bien frais, un truc à manger, et une surprise. Ne me fais pas faire la tête à minuit. » Il raccroche. Il est déjà bien parti.",
+  c:[B("Raccrocher", 'appel', {t:5})]},
+ anais: {p:"Anaïs arrive", who:'anais',
+  text:S=>"Anaïs arrive avec sa grosse voiture, vitre baissée, et ne coupe pas le moteur. « Tu montes. Ceinture. Tu ne discutes pas. »"+(S.player==='chrisly'?"":" Chrisly est assis à côté d'elle, sa valise sur les genoux.")+" Dans le porte-gobelet, un verre d'eau.",
+  c:[
+   B("Obéir : ceinture, silence", 'anais_route1', {t:5}),
+   B("La présenter comme « la +1 de Chrisly »", 'anais_verre', {t:5}),
+   B("Dire que tu préfères le train", 'transport', {t:5})
+  ]},
+ anais_verre: {p:"Anaïs", who:'anais',
+  text:"Un silence. Anaïs attrape calmement son verre d'eau. Tu as le temps de te dire que tu connais cette scène : Chrisly pourrait en témoigner. Trop tard.",
+  c:[B("Te sécher avec ta manche et continuer", 'anais_route1', {t:10, flag:'trempe'})]},
+ anais_route1: {p:"En voiture avec Anaïs", who:'anais',
+  text:"Tu t'enfonces dans un siège immense, au milieu d'un habitacle qui sent le dossier et le cuir. Anaïs, elle, parle d'une affaire en cours, très vite, très fort, en plaidant dans le rétroviseur. Elle n'a pas encore dit bonjour.",
+  c:[
+   B("Mettre de la musique", 'anais_musique', {t:5}),
+   B("Lui parler d'un dossier de client", 'anais_dossier', {t:5}),
+   B("Proposer un raccourci", 'anais_raccourci', {t:5}),
+   B("Te taire", 'anais_route2', {t:15})
+  ]},
+ anais_musique: {p:"En voiture avec Anaïs", who:'anais',
+  text:"Anaïs éteint la radio d'un geste. « Je préfère plaider sans fond sonore. » Elle te regarde. Elle laisse passer deux feux. Puis, à regret, elle remet une chanson : « Une seule. »",
+  c:[B("Écouter la chanson, en silence", 'anais_route2', {t:10})]},
+ anais_dossier: {p:"En voiture avec Anaïs", who:'anais',
+  text:"Elle s'anime. Elle parle d'un client, d'un contrat, d'une clause suspecte, d'un adversaire qui n'a pas compris. Elle gesticule en conduisant. À la fin, très satisfaite : « Merci d'avoir demandé. Prends ça, un client me l'a offert. »",
+  c:[B("Prendre la bouteille et remercier", 'anais_route2', {t:20, item:'cremant_cf', note:"Une bouteille de crémant, glissée de la boîte à gants. Anaïs : « Ne dis pas d'où elle vient. »"})]},
+ anais_raccourci: {p:"En voiture avec Anaïs", who:'anais',
+  text:"« Un raccourci ? » Anaïs réfléchit, très longtemps, comme devant un dossier. Puis : « D'accord. Mais si on est en retard, c'est ta faute. » Elle prend le raccourci. Il est plein de travaux.",
+  c:[B("Supporter les travaux", 'anais_route2', {t:20})]},
+ anais_route2: {p:"En voiture avec Anaïs", who:'anais',
+  text:"Les lumières de Saint-Gratien apparaissent. Anaïs range sa grosse voiture sans effort, coupe le moteur. « Nous y sommes. Tu sors, sans te cogner la tête. »",
+  c:[B("Descendre", S=>maybe(S,'saintgratien',0.3), {t:10})]},
+ moizlard: {p:"Moizlard arrive", who:'moizlard',
+  text:"Moizlard arrive dans une berline immense. Tu cherches machinalement la pédale d'embrayage : il n'y en a pas. « Je ne sais conduire que des automatiques, dit-il. J'ai appris à Chicago. » Il montre sa cheville enroulée dans une écharpe : « Paddle. Je conduis, mais je ne marche pas. » Sur le tableau de bord, un X-wing en Lego trône à côté d'un café en format extra large. Son téléphone vibre sans arrêt.",
+  c:[
+   B("Monter", 'moi_voiture', {t:10}),
+   B("Lui proposer un rasoir, affectueusement", 'moizlard_raser', {t:5}),
+   B("Regarder son téléphone qui vibre", 'moi_marco', {t:5}),
+   B("Lui demander un set Lego pour Yann", 'moizlard', {t:10, item:'lego', note:"Il hésite longtemps, puis te sort un set de derrière le siège. « Prends-en soin. Je le saurai. »"}),
+   B("Raccrocher", 'appel', {t:5})
+  ]},
+ moi_marco: {p:"Moizlard arrive", who:'moizlard',
+  text:S=>S.player==='marco'
+   ? "Sur son téléphone, une conversation entière, signée de toi : « Rase-toi. » « Rase-toi. » « Dernière chance. » Tu es l'auteur de chaque ligne, et tu en es fier."
+   : "Sur l'écran : 47 messages de Marco. « Rase-toi. » « Rase-toi. » « Dernière chance. » « Je vois que tu as lu. » Moizlard soupire. « Il fait ça depuis le matin. Ça repousse… enfin, ça devrait. »",
+  c:[B("Lui dire de couper les notifications", 'moizlard', {t:5})]},
+ moizlard_raser: {p:"Moizlard", who:'moizlard',
+  text:"Il passe la main sur son crâne ras. « Pas ce soir, la tondeuse est en vacances. » Il rechigne, mais tout le monde sait que tu as raison. Ça repousse... enfin, ça devrait.",
+  c:[B("Revenir à la voiture", 'moizlard', {t:5})]},
+ moi_voiture: {p:"En voiture avec Moizlard", who:'moizlard',
+  text:"Il conduit avec le pied gauche immobile et le droit qui fait tout, en grimaçant. « À Chicago, on n'a jamais eu besoin d'un levier de vitesse. » Il démarre, et c'est à ce moment-là qu'il commence à parler.",
+  c:[B("Écouter", 'moi_tunnel', {t:5})]},
+ moi_tunnel: {p:"En voiture avec Moizlard", who:'moizlard',
+  text:"Moizlard est lancé. Chicago, le vent, le métro aérien, la pizza deep dish « qui n'a rien à voir avec ce qu'on mange ici », l'hiver à moins vingt, le jour où il a perdu ses clés près du lac, les Lego, encore les Lego. Il ne respire pas. Il ne s'arrête pas. C'est un tunnel, et tu es dedans.",
+  c:[
+   B("L'écouter jusqu'au bout", 'moi_drive', {t:25}),
+   B("L'interrompre poliment", 'moi_drive', {t:5, note:"Il a repris deux minutes plus tard, exactement là où il s'était arrêté."}),
+   B("Le relancer sur les Lego", 'moi_drive', {t:40, item:'lego', note:"Quarante minutes plus tard, ému, il t'a offert un set « pour Yann, parce que tu as écouté »."})
+  ]},
+ moi_drive: {p:"Au drive · avec Moizlard", who:'moizlard',
+  text:"Il fait un détour par le drive pour un café, parce que « c'est la tradition ». « Un extra large. » L'employée regarde le gobelet, qui ressemble à un seau. « Ça n'existe pas. » Moizlard sourit : « À Chicago, si. »",
+  c:[
+   B("Commander un petit café", 'moi_dofus', {t:10}),
+   B("Commander un extra large (3 €)", 'moi_dofus', {t:10, m:-3, lock:pay(3), note:"Le gobelet est immense. Tu ne le finiras jamais. Moizlard sourit : « Welcome to Chicago. »"})
+  ]},
+ moi_dofus: {p:"Dans le casque de Moizlard", who:'moizlard',
+  text:"Dans le casque de Moizlard, Eliaz, en plein donjon Dofus, hurle que le boss est presque mort.",
+  c:[
+   B("Attendre la fin du donjon", 'dofus', {t:5}),
+   B("Insister pour avancer", S=>maybe(S,'saintgratien',0.4), {t:20})
+  ]},
+ dofus: {p:"Dans le casque de Moizlard", who:'eliaz',
+  text:"La voix d'Eliaz grésille, avec un clavier qui claque derrière : « Une minute, le boss est à trois pour cent de vie. » Un ventilateur de PC souffle. « J'ai fini Elden Ring avant tout le monde en restant trois jours enfermé, ce donjon, c'est un échauffement. Gabie m'a parlé d'une doro party, mais je suis en donjon. » Moizlard ne conduit plus.",
+  c:[
+   B("Attendre la fin du donjon", 'saintgratien', {t:45}),
+   B("Couper le son", 'saintgratien', {t:25, note:"Eliaz proteste dans le vide : « Allô ? Allô ? »"})
+  ]},
+ antonin: {p:"Antonin arrive", who:'antonin',
+  text:"Cindy t'a laissé un vocal depuis Singapour : « Je rentre jeudi, ne me cherche pas ! » Antonin, lui, décroche au deuxième appel : il est rentré en moto pour le Nouvel An, en road trip depuis la montagne. « T'es où ? Je prends un casque en plus. »",
+  c:[
+   B("Monter derrière lui", 'moto1', {t:10}),
+   B("Avouer que tu as peur de la moto", 'transport', {t:5})
+  ]},
+ moto1: {p:"Sur la moto d'Antonin", who:'antonin',
+  text:"Le casque sent le cuir et la montagne. Antonin raconte son dernier road trip, trois cols, un orage, un fromage. Tu accroches ses épaules avec une énergie de survie.",
+  c:[
+   B("Lui demander de prendre l'autoroute", 'moto2', {t:15}),
+   B("Lui demander de prendre la route de campagne", S=>S.pass?'moto2':'fin_moto_col', {t:20, fx:S=>{ S.pass = rnd(0.6); }, note:"Les paysages étaient beaux, la nuit les avalait tous."})
+  ]},
+ moto2: {p:"Sur la moto d'Antonin", who:'antonin',
+  text:"Antonin ralentit devant une station-service. « Plein ? Je prends vingt secondes. » Il fait le plein avec la même délicatesse qu'il règle un téléski. Le pompiste lui demande : « Vous aussi, vous allez à une fête ? »",
+  c:[B("Repartir vers Saint-Gratien", S=>maybe(S,'saintgratien',0.3), {t:15})]},
+ antonin_ko: {p:"Un coup de fil", who:'antonin',
+  text:"Messagerie. « Je suis en train de franchir un col, je rappelle ! » Cindy, elle, est toujours à Singapour.",
+  c:[B("Raccrocher", 'appel', {t:5})]},
+
+ /* ---------- Saint-Gratien ---------- */
+ saintgratien: {p:"Saint-Gratien", z:'s',
+  text:S=>"Saint-Gratien. Il est {time}, il reste {left} avant minuit. "+(S.player==='yann'?'Ta maison est':'Yann habite')+" à quelques minutes. Il reste une chance d'acheter quelque chose au Carrefour City, ou de retirer un peu d'argent, avant de sonner.",
+  c:[
+   B("Entrer au Carrefour City", 'carrefour', {t:10}),
+   B("Passer au distributeur", 'distrib', {t:10}),
+   B("Aller directement chez Yann", 'immeuble', {t:8})
+  ]},
+ distrib: {p:"Le distributeur · Saint-Gratien", z:'s',
+  text:"Le distributeur affiche « Bonne année » en clignotant. Devant toi, un homme tape son code avec la lenteur d'un moine. Derrière toi, une file d'attente impatiente se forme.",
+  c:[
+   B("Retirer 20 €", S=>S.pass?'distrib_ok':'distrib_ko', {t:10, fx:S=>{ S.pass = rnd(0.6); if (S.pass) S.m += 20; }}),
+   B("Passer ton tour", 'saintgratien', {t:5})
+  ]},
+ distrib_ok: {p:"Le distributeur · Saint-Gratien", z:'s',
+  text:"Les billets sortent avec un bruit satisfaisant. Une petite voix intérieure te dit que ça ne se reproduira pas. Tu as maintenant {m} en poche.",
+  c:[B("Retourner dans la rue", 'saintgratien', {t:5})]},
+ distrib_ko: {p:"Le distributeur · Saint-Gratien", z:'s',
+  text:"« Distributeur momentanément hors service. » L'écran affiche une petite tête triste. La file derrière toi pousse un soupir collectif.",
+  c:[B("Repartir, résigné", 'saintgratien', {t:5})]},
+ carrefour: {p:"Carrefour City · Saint-Gratien", z:'s',
+  text:S=>S.bag.indexOf('chien')>=0
+   ? "Un vigile se plante devant toi : « Pas de chien. » Tu regardes le chien. Le chien te regarde. « C'est le chien de Micka. » Le vigile : « Pas de chien. »"
+   : "Le Carrefour City, un 31 décembre à cette heure : deux bouteilles, un rayon chips et un panier de fleurs presque fanées. Tu as {m} en poche.",
+  c:[
+   B("Laisser le chien dehors", 'carrefour_rayon', {t:5, need:S=>S.bag.indexOf('chien')>=0, fx:S=>{ S.bag = S.bag.filter(b=>b!=='chien'); }, note:"Tu as attaché le chien à un poteau. Il te regarde partir avec un air de victime. Tu l'oublies là."}),
+   B("Insister, il est très calme", 'carrefour_rayon', {t:5, need:S=>S.bag.indexOf('chien')>=0, fx:S=>{ S.pass = rnd(0.35); if (!S.pass) S.bag = S.bag.filter(b=>b!=='chien'); }, note:"Le vigile a cédé ou pas : tu le verras bien dans ton sac."}),
+   B("Entrer dans le magasin", 'carrefour_rayon', {t:5, need:S=>S.bag.indexOf('chien')<0}),
+   B("Ressortir", 'saintgratien', {t:5})
+  ]},
+ carrefour_rayon: {p:"Carrefour City · les rayons", z:'s',
+  text:"Le Carrefour City, un 31 décembre à cette heure. Quelques rayons éclairés, d'autres déjà vides : ici, presque tout manque : il reste surtout des chips nature. Une caissière fatiguée scanne sans regarder. Tu as {m} en poche.",
+  c:[
+   B("Rayon vins et bières", 'cf_vins', {t:5}),
+   B("Rayon snacks et traiteur", 'cf_snacks', {t:5}),
+   B("Rayon saisonnier", 'cf_saison', {t:5}),
+   B("Passer en caisse et sortir", 'caisse', {t:5})
+  ]},
+ cf_vins: {p:"Carrefour City · vins et bières", z:'s',
+  text:"Des bouteilles bien alignées, beaucoup de trous, des étiquettes qui promettent du terroir. Le rayon est dévasté, comme tous les 31 : un 31 au soir, on trouve une bouteille par miracle.",
+  c:[
+   B(lab("Un crémant (14 €)",'cremant'), 'cf_vins', {t:5, m:-14, item:'cremant_cf', lock:buy('cremant',14)}),
+   B(lab("Un rouge (11 €)",'rouge'), 'cf_vins', {t:5, m:-11, item:'rouge_cf', lock:buy('rouge',11)}),
+   B(lab("Un rosé en brique (3 €)",'rose'), 'cf_vins', {t:5, m:-3, item:'rose_brique', lock:buy('rose',3)}),
+   B(lab("Un pack de bières (6 €)",'bieres'), 'cf_vins', {t:5, m:-6, item:'bieres', lock:buy('bieres',6)}),
+   B("Retourner dans les rayons", 'carrefour_rayon', {t:5})
+  ]},
+ cf_snacks: {p:"Carrefour City · snacks et traiteur", z:'s',
+  text:"Des chips de toutes les saveurs (barbecue, ondulées bacon, nature), un traiteur fermé à moitié, et un rayon de plats préparés qui a connu des jours meilleurs.",
+  c:[
+   B(lab("Des chips goût barbecue (2 €)",'chips'), 'cf_snacks', {t:5, m:-2, item:'chips', lock:buy('chips',2)}),
+   B(lab("Des chips ondulées bacon, Leader Price (2 €)",'bacon'), 'cf_snacks', {t:5, m:-2, item:'chips_bacon', lock:buy('bacon',2)}),
+   B(lab("Des chips nature (1 €)",'nature'), 'cf_snacks', {t:5, m:-1, item:'chips_nature', lock:buy('nature',1)}),
+   B(lab("Des cacahuètes (2 €)",'cacahuetes'), 'cf_snacks', {t:5, m:-2, item:'cacahuetes', lock:buy('cacahuetes',2)}),
+   B(lab("Une mini-bûche (6 €)",'buche'), 'cf_snacks', {t:5, m:-6, item:'buche', lock:buy('buche',6)}),
+   B(lab("Un plateau de sushis (12 €)",'sushis'), 'cf_snacks', {t:5, m:-12, item:'sushis', lock:buy('sushis',12)}),
+   B("Retourner dans les rayons", 'carrefour_rayon', {t:5})
+  ]},
+ cf_saison: {p:"Carrefour City · le rayon saisonnier", z:'s',
+  text:"Des articles de fête à moitié déballés, quelques ballons dégonflés, un panier de fleurs presque fanées, des boules à neige qui ont connu Noël.",
+  c:[
+   B(lab("Un pack de cotillons (4 €)",'cotillons'), 'cf_saison', {t:5, m:-4, item:'cotillons', lock:buy('cotillons',4)}),
+   B(lab("Une boule à neige (8 €)",'boule'), 'cf_saison', {t:5, m:-8, item:'boule_neige', lock:buy('boule',8)}),
+   B(lab("Un bouquet presque fané (5 €)",'fleurs'), 'cf_saison', {t:5, m:-5, item:'fleurs', lock:buy('fleurs',5)}),
+   B("Retourner dans les rayons", 'carrefour_rayon', {t:5})
+  ]},
+ caisse: {p:"Carrefour City · la caisse", z:'s',
+  text:"La caissière passe tes articles, avec une lenteur de rituel. « Vous avez la carte ? Un sac ? Un reçu ? » Tu réponds non trois fois. Elle sourit : « Bonne année. »",
+  c:[
+   B("Retourner aux rayons", 'carrefour_rayon', {t:5}),
+   B("Ressortir", 'saintgratien', {t:5})
+  ]},
+ immeuble: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
+  text:S=>S.player==='yann'
+   ? "Ton pavillon, ton petit jardin, ta haie bien taillée et ton nom écrit à la main sur la boîte aux lettres. De la lumière aux fenêtres, de la musique, des rires. Maël a mis le verrou de l'intérieur par plaisanterie. Le portillon est fermé, la sonnette ne répond pas, et tu es chez toi."
+   : "Un pavillon avec un petit jardin, une haie bien taillée et un nom écrit à la main sur la boîte aux lettres. De la lumière aux fenêtres, de la musique, des rires. Le portillon est fermé, la sonnette ne répond pas, et tu ne sais pas si Yann entendrait même un coup de canon.",
+  c:[
+   B(S=>S.player==='yann'?"Appeler Maël":"Appeler Yann", 'immeuble_appel', {t:5}),
+   B("Attendre qu'un voisin sorte", 'voisine', {t:10}),
+   B("Chercher un passage par la haie", 'digicode', {t:5}),
+   B("Retourner au Carrefour City", 'saintgratien', {t:10})
+  ]},
+ immeuble_appel: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
+  text:S=>{ const Q = S.player==='yann' ? 'Maël' : 'Yann';
+    return S.bag.length
+     ? Q+" décroche : « T'as ce qu'il faut ? » Il écoute ce que tu lui dis, murmure « hmm » en connaisseur, puis"+(S.player==='yann'?" : « Bon, je t'ouvre. »":", la langue un peu pâteuse : « Entre, le portillon est coincé, pousse fort. »")
+     : Q+" décroche : « T'as ce qu'il faut ? » Tu hésites. Il soupire"+(S.player==='yann'?", avec toute l'autorité d'un juge officiel. « Reviens quand tu l'as. »":", avec la lenteur de quelqu'un qui n'est plus très stable. « Reviens quand tu l'as. »"); },
+  c:[
+   B("Entrer dans le jardin", 'chezyann', {t:5, need:S=>S.bag.length>0}),
+   B("Retourner au Carrefour City", 'saintgratien', {t:10}),
+   B("Retourner devant le portillon", 'immeuble', {t:5})
+  ]},
+ voisine: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
+  text:"Un voisin en robe de chambre arrose sa pelouse à une heure improbable. « Vous allez chez le docteur ? Il fait trop de bruit ! » Il pousse le portillon d'un coup de hanche : il n'était que coincé. « Bonne année quand même. »",
+  c:[B("Entrer dans le jardin", 'chezyann', {t:5})]},
+ digicode: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
+  text:"Tu cherches un passage dans la haie. Elle est parfaitement taillée, donc parfaitement hermétique. Un chien aboie dans le jardin d'à côté. Un voisin ouvre sa fenêtre : « Vous cherchez quelqu'un ? »",
+  c:[
+   B("Faire semblant de rien et attendre un voisin", 'voisine', {t:15}),
+   B(S=>S.player==='yann'?"Appeler Maël":"Appeler Yann", 'immeuble_appel', {t:5})
+  ]},
+ chezyann: {p:"Chez Yann · Saint-Gratien", z:'s',
+  text:S=>S.player==='yann'
+   ? "Il est {time}. Tu rentres chez toi : pour une fois, c'est toi qui sonnes à ta propre porte. Maël a ouvert avec ta clé de secours et il joue le juge officiel, verre à la main."
+   : "Il est {time}. Yann ouvre la porte du pavillon en chaussettes, un verre déjà à la main, un bracelet d'hôpital encore au poignet. « Demain, je suis de garde, dit-il en titubant. Ce soir, je suis en vacances. » Il est totalement torché, et très content de te voir.\n\nIl te regarde : « Avant de regarder ce que t'apportes, une question. »",
+  c:[B("Écouter sa question", S=>'chezyann_q'+S.yq, {t:0, fx:S=>{ S.yq = Math.floor(Math.random()*YQ.length); }})]},
+ chezyann_q0: {p:"Chez Yann · L'épreuve du vin", z:'s', timer:10, tt:'chezyann_test_ko',
+  text:"« On sert un vin blanc à quelle température ? Tu as dix secondes. »",
+  c:[
+   B("Autour de 20 °C", 'chezyann_fin', {t:0, note:"{Y} grimace : « Un blanc tiède, c'est un crime. Mais bon. »"}),
+   B("Autour de 9 °C", 'chezyann_fin', {t:0, fx:S=>{ S.flags.bonvin = true; }, note:"{Y} hoche la tête, ému : « Neuf degrés. Enfin quelqu'un qui écoute. »"}),
+   B("Température ambiante, comme le reste", 'chezyann_fin', {t:0, note:"{Y} grimace : « Un blanc tiède, c'est un crime. Mais bon. »"})
+  ]},
+ chezyann_q1: {p:"Chez Yann · L'épreuve du Portugal", z:'s', timer:10, tt:'chezyann_test_ko',
+  text:"« D'où vient le vinho verde ? Dix secondes. »",
+  c:[
+   B("Du Portugal", 'chezyann_fin', {t:0, fx:S=>{ S.flags.bonvin = true; }, note:"{Y} sourit : « Du nord du Portugal. Alexandra serait fière. »"}),
+   B("D'Espagne", 'chezyann_fin', {t:0, note:"{Y} lève les yeux au ciel : « Ce n'est pas de là, mais je te pardonne. »"}),
+   B("De Hongrie", 'chezyann_fin', {t:0, note:"{Y} lève les yeux au ciel : « Ce n'est pas de là, mais je te pardonne. »"})
+  ]},
+ chezyann_q2: {p:"Chez Yann · L'épreuve du crémant", z:'s', timer:10, tt:'chezyann_test_ko',
+  text:"« Comment ouvre-t-on une bouteille de crémant sans la faire exploser ? Dix secondes. »",
+  c:[
+   B("On la secoue d'abord, pour l'ambiance", 'chezyann_fin', {t:0, note:"{Y} recule d'un pas, les mains protégeant son verre : « Je préfère garder mes yeux. »"}),
+   B("On retient le bouchon et on tourne la bouteille, doucement", 'chezyann_fin', {t:0, fx:S=>{ S.flags.bonvin = true; }, note:"{Y} applaudit : « Un petit soupir, pas un coup de feu. Un vrai professionnel. »"}),
+   B("On vise quelqu'un, c'est plus drôle", 'chezyann_fin', {t:0, note:"{Y} recule d'un pas, les mains protégeant son verre : « Je préfère garder mes yeux. »"})
+  ]},
+ chezyann_q3: {p:"Chez Yann · L'épreuve du bloc", z:'s', timer:10, tt:'chezyann_test_ko',
+  text:"« Où se trouve le plus petit os du corps humain ? Dix secondes. »",
+  c:[
+   B("Dans l'oreille", 'chezyann_fin', {t:0, fx:S=>{ S.flags.bonvin = true; }, note:"{Y} lève son verre : « L'étrier. Dans l'oreille. Je t'engage pour mes gardes. »"}),
+   B("Dans le petit doigt", 'chezyann_fin', {t:0, note:"{Y} soupire, accablé : « C'est l'étrier. Dans l'oreille. Je suis déçu, mais debout. »"}),
+   B("Dans le nez", 'chezyann_fin', {t:0, note:"{Y} soupire, accablé : « C'est l'étrier. Dans l'oreille. Je suis déçu, mais debout. »"})
+  ]},
+ chezyann_q4: {p:"Chez Yann · L'épreuve du lavabo", z:'s', timer:10, tt:'chezyann_test_ko',
+  text:"« Combien de temps faut-il se laver les mains au savon ? Dix secondes pour répondre, on est à l'hôpital. »",
+  c:[
+   B("Dix secondes, c'est largement suffisant", 'chezyann_fin', {t:0, note:"{Y} se frotte le visage : « Quarante à soixante secondes. Je te laisse entrer, mais lave-toi les mains. »"}),
+   B("Cinq minutes, avec des bulles", 'chezyann_fin', {t:0, note:"{Y} se frotte le visage : « Quarante à soixante secondes. Je te laisse entrer, mais lave-toi les mains. »"}),
+   B("Quarante à soixante secondes", 'chezyann_fin', {t:0, fx:S=>{ S.flags.bonvin = true; }, note:"{Y} respire : « Quarante à soixante secondes. Tu as le bon réflexe. »"})
+  ]},
+ chezyann_test_ko: {p:"Chez Yann · l'épreuve", z:'s',
+  text:"Tu hésites trop longtemps. {Y} hausse un sourcil. « Dommage. » Il passe à la suite, avec un sourire.",
+  c:[B("Continuer", 'chezyann_fin', {t:0})]},
+ chezyann_fin: {p:"Chez Yann · le verdict", z:'s',
+  text:"Yann, le verre à la main : « Montre-moi ce que tu as apporté. »",
+  c:[B(S=>S.bag.length?"Tendre ce que tu apportes":"Entrer les mains vides", S=>resolve(S), {t:0})]},
+ fin_minuit: {end:'lose', h:"Minuit, déjà",
+  text:S=>"Minuit sonne pendant que tu es encore en chemin. Ton téléphone vibre : « T'es où ? », « On compte sans toi ! », « "+(S.player==='yann'?'Maël a ouvert ta bouteille':'Yann est totalement torché')+". » Tu entends le compte à rebours au loin, et tu comprends que ce sera pour l'année prochaine."},
+ lose_mains: {end:'lose', h:"On n'entre pas les mains vides",
+  text:"{Y} te regarde, puis tes mains, puis te sourit avec toute la tendresse d'un chirurgien : « On n'entre pas les mains vides. » La porte se referme doucement. À minuit, tu entends le compte à rebours depuis le palier."},
+ lose_mystere: {end:'lose', h:"Vinaigre sans étiquette",
+  text:"{Y} débouche la bouteille sans étiquette, hume, hésite, goûte, grimace. « Vinaigre. » Il le dit calmement, avec la tristesse d'un médecin qui annonce une mauvaise nouvelle. La porte se referme doucement. Tu comprends ce que « Spécial » voulait dire."},
+ win_mystere: {end:'win', h:"Un grand cru oublié",
+  text:S=>"{Y} débouche la bouteille sans étiquette, hume, goûte, reste silencieux. « Mais… c'est excellent. Où tu as trouvé ça ? » Tu réponds : « Dans une épicerie pas chère. » Il te regarde avec un respect nouveau. Il te sert le premier verre.\n\n"+extras(S)},
+ win_parfait: {end:'win', h:"La liste complète",
+  text:S=>{
+    const by = {};
+    S.bag.forEach(b=>{ if (b !== 'mystere' || S.mys) { if (ITEMS[b].s > 0 || (b==='mystere' && S.mys)) by[ITEMS[b].k] = ITEMS[b].n; } });
+    return "{Y} ouvre la porte, un verre déjà à la main, et regarde ce que tu apportes : de quoi boire ("+by.b+"), de quoi manger ("+by.m+"), et une surprise ("+by.s+"). Il reste muet, puis il se tourne vers la pièce : « Il a tout fait. Il a tout fait ! » On t'applaudit. On te demande comment. Tu réponds que c'est une longue histoire.\n\n"+extras(S);
+  }}
+};
+
+const YQ = [["Tu as su répondre à sa question sur le blanc : il hoche la tête avec un vrai respect.","Tu as raté sa question sur le blanc, mais ce que tu as apporté t'en fait pardonner."],["Tu savais d'où vient le vinho verde : {Y} t'a regardé avec un respect nouveau.","Tu t'es trompé de pays pour le vinho verde, mais {Y} a fait semblant de ne pas l'avoir entendu."],["Tu sais ouvrir une bouteille sans faire sauter le bouchon : {Y} t'a confié la prochaine.","Tu as mal répondu sur l'ouverture du crémant : {Y} ne te laissera pas ouvrir la bouteille."],["Tu connaissais le plus petit os du corps : {Y} t'a fait un diplôme honoraire sur une serviette.","Tu as raté sa question sur l'os de l'oreille : {Y} a noté ton nom avec une croix dans un carnet imaginaire."],["Tu connaissais le temps de lavage des mains : {Y} te montre déjà où se trouve le savon.","Tu as raté sa question sur le lavage des mains : {Y} te tend le savon, par principe."]];
+function sc(S,id){ return id==='mystere' ? (S.mys?3:-2) : ITEMS[id].s; }
+function resolve(S){
+  if (!S.bag.length) return 'lose_mains';
+  const kill = S.bag.find(b=>ITEMS[b] && ITEMS[b].kill);
+  if (kill) { S.best = kill; return 'lose_'+kill; }
+  const best = S.bag.reduce((a,b)=> sc(S,b) >= sc(S,a) ? b : a);
+  S.best = best;
+  if (sc(S,best) < 0) return best === 'mystere' ? 'lose_mystere' : 'lose_'+best;
+  const ks = new Set(S.bag.filter(b=>sc(S,b)>0).map(b=>ITEMS[b].k));
+  if (ks.size === 3) return 'win_parfait';
+  return 'win_'+best;
+}
+function extras(S){
+  const out = [];
+  const yqt = YQ[S.yq == null ? 0 : S.yq];
+  out.push(S.flags.bonvin ? yqt[0] : yqt[1]);
+  if (S.flags.trempe) out.push("Tu es encore humide. « Anaïs ? » demande {Y} sans lever les yeux. Il avait deviné.");
+  if (S.flags.pluie) out.push("Tu as de la pluie dans les cheveux. On te prête une serviette.");
+  if (S.flags.essouffle) out.push("Tu as encore le souffle court : on te met un verre d'eau dans la main, et un siège sous toi.");
+  if (S.flags.m_resp) out.push("Tu as tenu tête à Maël dans un débat : il en parle encore, avec une admiration qu'il ne cache pas.");
+  if (S.flags.sacs) out.push("Tu as encore la marque de la poignée dans la main : tu as porté le sac d'Audrey, et elle t'a remercié deux fois.");
+  if (S.flags.chapeau) out.push("Tu portes un chapeau de pingouin, que personne n'ose commenter.");
+  if (S.flags.tiktok) out.push("On t'a reconnu : tu es dans le fond d'une vidéo TikTok à 14 vues.");
+  if (S.flags.pv) out.push("Un contrôleur t'a donné une amende pour être là. Tu ne le diras à personne.");
+  const neg = S.bag.find(b=>sc(S,b)<0);
+  if (neg) out.push("Au fond de ta poche, tu gardes « "+ITEMS[neg].n+" ». Personne n'a besoin de le savoir.");
+  out.push("À minuit, tout le monde trinque, et tu es là.");
+  return out.join("\n\n");
+}
+function winText(S,id){
+  const it = ITEMS[id];
+  const intro = S.player==='yann'
+    ? "Il est {time}. Tu rentres chez toi. Maël, qui a ouvert avec ta clé de secours, inspecte ce que tu rapportes en juge officiel."
+    : "{Y} ouvre la porte, un verre déjà à la main. Il est {time}, il reste {left} avant minuit.";
+  return intro+"\n\n"+it.w+"\n\n"+extras(S);
+}
+Object.keys(ITEMS).forEach(id=>{
+  const it = ITEMS[id];
+  if (id === 'mystere') return;
+  if (it.s < 0) SCENES['lose_'+id] = {end:'lose', h:it.h, text:it.w};
+  else SCENES['win_'+id] = {end:'win', h:it.h, text:S=>winText(S,id)};
+});
+
+const EVENTS = ['ev_moto','ev_cindy','ev_tarte','ev_dame','ev_livreur','ev_ados','ev_arnaque','ev_fetards','ev_meteo','ev_tiktok','ev_yann','ev_boulangere'];
+function maybe(S, dest, p){
+  S.seen = S.seen || {};
+  const SKIP = {ev_moto:'antonin', ev_cindy:'cindy'};
+  const pool = EVENTS.filter(e=>!S.seen[e] && SKIP[e] !== S.player);
+  const forced = (S.player === 'arthur' || S.player === 'gabie') && !S.seen.ev_tarte;
+  if (forced || (pool.length && Math.random() < (p == null ? 0.3 : p))){
+    const e = forced ? 'ev_tarte' : pool[Math.floor(Math.random()*pool.length)];
+    S.seen[e] = 1; S.next = dest; return e;
+  }
+  return dest;
+}
+/*DATA_END*/
+
+const $ = id => document.getElementById(id);
+function el(tag, cls, txt){ const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+function foundSet(){ try { return new Set(JSON.parse(store('dsg-ends') || '[]')); } catch (e) { return new Set(); } }
+const ENDS = Object.keys(SCENES).filter(k=>SCENES[k].end);
+let S = null, timerId = null;
+
+function fill(str){
+  return String(str).replace(/\{(\w+)\}/g,(m,k)=>{
+    switch(k){
+      case 'time': return fmt(S.t);
+      case 'm': return eur(S.m);
+      case 'Y': return Y(S);
+      case 'left': return leftTxt(S.t);
+      case 'name': return S.pseudo || NAMES[S.player];
+      default: return m;
+    }
+  });
+}
+function val(x){ return typeof x === 'function' ? x(S) : x; }
+function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } }
+function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== id); }); }
+
+function renderStart(){
+  showOnly('start'); clearTimer();
+  const root = $('start'); root.textContent = '';
+  const found = foundSet();
+  const box = el('div','wrap');
+  box.appendChild(el('div','eyebrow','31 décembre · 20h30'));
+  box.appendChild(el('h1',null,'Direction Saint-Gratien'));
+  box.appendChild(el('p','lead',"Tu pars du before chez Eva, à Cormeilles. Yann t'attend à Saint-Gratien, à 7 ou 8 km, pour le Nouvel An. Sa règle est simple : si tu n'apportes rien qui lui plaise, tu ne rentres pas. Quelque chose à boire, quelque chose à manger, une surprise : les trois, c'est le grand jeu."));
+  box.appendChild(el('p','lead',"Entre les deux : des amis, des inconnus, un contrôleur, des mauvaises idées, une horloge qui ne s'arrête pas et un budget de 20 €. Minuit, lui, n'attendra personne."));
+  box.appendChild(el('h2',null,'Qui joues-tu ?'));
+  box.appendChild(el('p','small',"Choisis ton prénom : tu ne te croiseras pas toi-même dans l'histoire."));
+  const grid = el('div','who-grid');
+  const keys = Object.keys(NAMES).sort((a,b)=> a==='autre' ? 1 : b==='autre' ? -1 : NAMES[a].localeCompare(NAMES[b],'fr'));
+  let chosen = store('dsg-player'); if (!NAMES[chosen]) chosen = null;
+  const pseudoWrap = el('div','pseudo');
+  const pseudoLab = el('label',null,'Ton prénom pour le classement'); pseudoLab.htmlFor = 'pseudo';
+  const pseudo = el('input'); pseudo.id = 'pseudo'; pseudo.maxLength = 24; pseudo.autocomplete = 'given-name';
+  pseudo.value = store('dsg-pseudo') || (chosen && chosen !== 'autre' ? NAMES[chosen] : '');
+  pseudoWrap.appendChild(pseudoLab); pseudoWrap.appendChild(pseudo);
+  const go = el('button','btn','Partir de chez Eva');
+  const ready = ()=>{ go.disabled = !(chosen && pseudo.value.trim().length >= 2); };
+  pseudo.addEventListener('input', ready);
+  keys.forEach(k=>{
+    const b = el('button','who-btn',NAMES[k]); b.type = 'button';
+    b.setAttribute('aria-pressed', String(k === chosen));
+    b.addEventListener('click',()=>{
+      const prev = chosen; chosen = k; store('dsg-player',k);
+      grid.querySelectorAll('.who-btn').forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      const cur = pseudo.value.trim();
+      if (k !== 'autre' && (!cur || (prev && cur === NAMES[prev]))) pseudo.value = NAMES[k];
+      if (k === 'autre' && prev && cur === NAMES[prev]) pseudo.value = '';
+      ready();
+    });
+    grid.appendChild(b);
+  });
+  box.appendChild(grid);
+  box.appendChild(pseudoWrap);
+  ready();
+  go.addEventListener('click',()=>{ const p = pseudo.value.trim().replace(/\s+/g,' '); if (chosen && p.length >= 2){ store('dsg-pseudo', p); newGame(chosen, p); } });
+  box.appendChild(go);
+  box.appendChild(el('p','small',"Ton score est enregistré tout seul à la fin de la partie, avec ce prénom."));
+  box.appendChild(el('p','small',"Fins découvertes : "+found.size+" sur "+ENDS.length+". Chaque partie croise des amis et des inconnus différents : rejoue pour voir les autres."));
+  root.appendChild(box);
+  window.scrollTo(0,0);
+}
+
+function newGame(p, pseudo){
+  S = {player:p, pseudo:pseudo || NAMES[p], t:0, m:20, bag:[], flags:{}, note:'', best:null, win:false, antonin:false, pass:false, ticket:null, seen:{}, stock:newStock(), mys:false, next:'rue', kb:0, tries:0, yq:0};
+  showOnly('game');
+  goTo('eva');
+}
+
+function goTo(id){
+  clearTimer();
+  let sc = SCENES[id];
+  if (sc.who && (Array.isArray(sc.who) ? sc.who.indexOf(S.player) >= 0 : sc.who === S.player)){ id = sc.alt || 'rue'; sc = SCENES[id]; }
+  S.scene = id;
+  if (sc.end) return showEnd(id, sc);
+  showScene(id, sc);
+}
+
+function askDrop(id, bag, cb){
+  const box = $('scene'); box.textContent = '';
+  box.appendChild(el('div','place','Ton sac est plein'));
+  const txt = el('div','txt');
+  txt.appendChild(el('p',null,"Tu portes déjà trois choses. Pour prendre « "+ITEMS[id].n+" », tu dois en lâcher une. Laquelle ?"));
+  box.appendChild(txt);
+  const list = el('div','choices');
+  bag.forEach((b,k)=>{
+    const btn = el('button','choice'); btn.type = 'button';
+    btn.appendChild(el('span','lab','Lâcher « '+ITEMS[b].n+' »'));
+    btn.addEventListener('click',()=>cb(k));
+    list.appendChild(btn);
+  });
+  const no = el('button','choice'); no.type = 'button';
+  no.appendChild(el('span','lab','Ne pas prendre « '+ITEMS[id].n+' »'));
+  no.addEventListener('click',()=>cb(-1));
+  list.appendChild(no);
+  box.appendChild(list);
+  box.scrollIntoView({block:'start'});
+}
+
+function pick(c){
+  clearTimer();
+  const ni = [c.item].concat(c.items || []).filter(i=>i && S.bag.indexOf(i) < 0);
+  const bag = S.bag.slice(); let notes = '';
+  (function step(i){
+    if (i >= ni.length){ S.bag = bag; return applyChoice(c, notes); }
+    const id = ni[i];
+    if (bag.length < 3){ bag.push(id); return step(i+1); }
+    askDrop(id, bag, k=>{
+      if (k < 0) notes += " Tu laisses « "+ITEMS[id].n+" » où il est.";
+      else { notes += " Tu lâches « "+ITEMS[bag[k]].n+" » pour prendre « "+ITEMS[id].n+" »."; bag.splice(k,1); bag.push(id); }
+      step(i+1);
+    });
+  })(0);
+}
+
+function applyChoice(c, extra){
+  S.t += c.t || 0; S.m = Math.round((S.m + (c.m || 0))*100)/100;
+  if (c.flag) S.flags[c.flag] = true;
+  if (c.fx) c.fx(S);
+  let to = typeof c.to === 'function' ? c.to(S) : c.to;
+  S.note = (c.note ? fill(c.note) : '') + extra;
+  if (S.m > 50 && !SCENES[to].end && to.indexOf('chezyann') !== 0) to = 'fin_riche';
+  if (S.t >= END_T && !SCENES[to].end) to = (to.indexOf('eva') === 0 ? 'fin_eva_nuit' : 'fin_minuit');
+  goTo(to);
+}
+
+function updateBoard(sc){
+  $('clock').textContent = fmtc(S.t);
+  $('left').textContent = 'minuit dans '+leftTxt(S.t);
+  $('money').textContent = eur(S.m);
+  const bits = S.bag.map(b=>ITEMS[b].n);
+  if (S.ticket === 'cheap') bits.push('Ticket Franconville');
+  if (S.ticket === 'full') bits.push('Ticket Saint-Gratien');
+  $('bag').textContent = bits.length ? bits.join(' · ') : 'rien';
+  const ks = {};
+  S.bag.forEach(b=>{ const s = (b === 'mystere') ? 1 : ITEMS[b].s; if (s > 0) ks[ITEMS[b].k] = true; });
+  $('need').querySelectorAll('li').forEach(li=>{
+    const ok = !!ks[li.dataset.k];
+    li.classList.toggle('ok', ok);
+    li.textContent = (ok ? '✓ ' : '') + li.dataset.label;
+  });
+  const z = sc.z || 'c';
+  $('line').querySelectorAll('li').forEach(li=>{ if (li.dataset.z === z) li.setAttribute('aria-current','step'); else li.removeAttribute('aria-current'); });
+}
+
+function visibleChoices(sc){
+  const list = (sc.c || []).filter(c=>{
+    if (c.need && !c.need(S)) return false;
+    const w = c.who || (typeof c.to === 'string' && SCENES[c.to] ? SCENES[c.to].who : null);
+    return Array.isArray(w) ? w.indexOf(S.player) < 0 : w !== S.player;
+  });
+  if (!list.length) list.push({l:'Retourner dans la rue', to:'rue', t:5});
+  return list;
+}
+
+function showScene(id, sc){
+  updateBoard(sc);
+  const box = $('scene'); box.textContent = '';
+  const place = el('div','place',sc.p || '');
+  if (sc.who && !Array.isArray(sc.who) && NAMES[sc.who]) place.appendChild(el('span','with','avec '+NAMES[sc.who]));
+  box.appendChild(place);
+  if (S.note){ box.appendChild(el('p','note',S.note)); S.note = ''; }
+  const txt = el('div','txt');
+  fill(val(sc.text)).split('\n\n').forEach(par=>txt.appendChild(el('p',null,par)));
+  box.appendChild(txt);
+  if (sc.timer){
+    const bar = el('div','timer'); const i = el('i'); i.style.animationDuration = sc.timer+'s'; bar.appendChild(i);
+    bar.setAttribute('role','presentation'); box.appendChild(bar);
+    timerId = setTimeout(()=>pick({to:sc.tt, t:5, note:"Le temps est écoulé."}), sc.timer*1000);
+  }
+  const list = el('div','choices');
+  visibleChoices(sc).forEach(c=>{
+    const b = el('button','choice'); b.type = 'button';
+    b.appendChild(el('span','lab',fill(val(c.l))));
+    const bits = [];
+    if (c.t) bits.push('+'+c.t+' min');
+    if (c.m) bits.push((c.m>0?'+':'−')+eur(Math.abs(c.m)));
+    const lock = c.lock ? c.lock(S) : null;
+    if (lock) bits.push(lock);
+    if (bits.length) b.appendChild(el('span','cost',bits.join(' · ')));
+    if (lock) b.disabled = true; else b.addEventListener('click',()=>pick(c));
+    list.appendChild(b);
+  });
+  box.appendChild(list);
+  box.scrollIntoView({block:'start'});
+}
+
+function endScore(kind, id){
+  if (kind === 'lose') return 0;
+  if (kind === 'hidden') return 75;
+  if (id === 'win_parfait') return 100;
+  const s = S.best ? sc(S, S.best) : 0;
+  return Math.max(50, Math.min(95, Math.round(50 + 10*s)));
+}
+
+function showEnd(id, sc){
+  const found = foundSet(); found.add(id); store('dsg-ends', JSON.stringify([...found]));
+  showOnly('end');
+  const root = $('end'); root.textContent = '';
+  const card = el('div','endcard');
+  const kind = sc.end;
+  card.appendChild(el('span','badge '+kind, kind==='win' ? 'Fin gagnante' : kind==='hidden' ? 'Fin cachée' : 'Fin perdue'));
+  card.appendChild(el('h2',null,fill(sc.h)));
+  const txt = el('div','txt');
+  fill(val(sc.text)).split('\n\n').forEach(par=>txt.appendChild(el('p',null,par)));
+  card.appendChild(txt);
+  const bag = S.bag.map(b=>ITEMS[b].n).join(', ');
+  card.appendChild(el('p','sum','Joueur : '+S.pseudo+' · Heure : '+fmt(S.t)+' · Budget restant : '+eur(S.m)+(bag ? ' · Sac : '+bag : '')));
+  const points = endScore(kind, id);
+  card.appendChild(el('p','score','Score : '+points+' / 100'));
+  const status = el('p','small','Enregistrement du score…'); status.setAttribute('role','status');
+  card.appendChild(status);
+  const row = el('div','row');
+  const again = el('button','btn','Recommencer'); again.type='button'; again.addEventListener('click',()=>newGame(S.player, S.pseudo));
+  const change = el('button','btn ghost','Changer de joueur'); change.type='button'; change.addEventListener('click',renderStart);
+  row.appendChild(again); row.appendChild(change);
+  card.appendChild(row);
+  card.appendChild(el('p','small','Fins découvertes : '+found.size+' sur '+ENDS.length));
+  const ul = el('ul','found');
+  ENDS.filter(k=>found.has(k)).forEach(k=>ul.appendChild(el('li',null,fill(SCENES[k].h))));
+  card.appendChild(ul);
+  const boardBox = el('div','endcard'); boardBox.appendChild(el('h2',null,'Classement'));
+  const boardBody = el('div'); boardBody.appendChild(el('p','small','Chargement…')); boardBox.appendChild(boardBody);
+  const full = el('a','small','Voir le classement complet'); full.href = '../classement.html?game=saint-gratien'; boardBox.appendChild(full);
+  root.appendChild(card);
+  root.appendChild(boardBox);
+  window.scrollTo(0,0);
+  recordAndShow(points, id, kind, fill(sc.h), status, boardBody);
+}
+
+function recordAndShow(points, id, kind, title, status, boardBody){
+  if (!(window.MesJeux && MesJeux.ready())){
+    status.textContent = "Le classement n'est pas encore branché : ce score n'est pas enregistré.";
+    boardBody.textContent = ''; return;
+  }
+  const details = {ending:id, title:title, kind:kind, time:fmt(S.t), money:S.m, bag:S.bag.map(b=>ITEMS[b].n), character:S.player};
+  MesJeux.save('saint-gratien', S.pseudo, points, details).then(res=>{
+    status.textContent = res.ok ? 'Score enregistré dans le classement.' : "Le score n'a pas pu être envoyé. Il sera renvoyé à la prochaine ouverture du jeu.";
+    return MesJeux.list('saint-gratien', 1000);
+  }).then(rows=>{
+    const best = MesJeux.bestPerPlayer(rows).slice(0, 10);
+    boardBody.textContent = '';
+    const table = el('table','lb');
+    const head = el('tr'); ['#','Joueur','Score'].forEach(t=>head.appendChild(el('th',null,t))); table.appendChild(head);
+    best.forEach((r,i)=>{
+      const tr = el('tr', r.player.toLowerCase() === S.pseudo.toLowerCase() ? 'me' : null);
+      tr.appendChild(el('td','rk',String(i+1)));
+      const nm = el('td','nm',r.player);
+      const t = r.details && r.details.title; if (t) nm.appendChild(el('span','sub',t));
+      tr.appendChild(nm); tr.appendChild(el('td','num',String(Math.round(r.score)))); table.appendChild(tr);
+    });
+    boardBody.appendChild(table);
+  }).catch(()=>{ boardBody.textContent = ''; boardBody.appendChild(el('p','small',"Le classement n'a pas pu être lu pour le moment.")); });
+}
+
+renderStart();
+</script>
+
+</body></html>

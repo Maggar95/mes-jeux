@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<main class="page">
+  <p class="small" style="margin:0 0 28px"><a href="index.html">Tous les jeux</a></p>
+  <h1>Classements</h1>
+  <div class="tabs" id="tabs" role="group" aria-label="Jeu"></div>
+  <div class="mode" id="mode">
+    <label><input type="radio" name="mode" value="best" checked>Meilleur score de chaque joueur</label>
+    <label><input type="radio" name="mode" value="all">Toutes les parties</label>
+  </div>
+  <div id="out" aria-live="polite"></div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/games.js"></script>
+<script src="js/scores.js"></script>
+<script>
+(function () {
+  "use strict";
+  var games = window.MESJEUX_GAMES, esc = MesJeux.esc;
+  var params = new URLSearchParams(location.search);
+  var current = games.filter(function (g) { return g.id === params.get("game"); })[0] || games[0];
+  var mode = "best", cache = {};
+  var tabs = document.getElementById("tabs"), out = document.getElementById("out");
+
+  function drawTabs() {
+    tabs.innerHTML = "";
+    games.forEach(function (g) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "tab"; b.textContent = g.title;
+      b.setAttribute("aria-pressed", String(g === current));
+      b.onclick = function () { current = g; drawTabs(); load(); };
+      tabs.appendChild(b);
+    });
+  }
+
+  function fmtDate(iso) {
+    try { return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }); } catch (e) { return ""; }
+  }
+
+  function draw(rows) {
+    var shown = mode === "best" ? MesJeux.bestPerPlayer(rows) : rows;
+    if (!shown.length) { out.innerHTML = '<p class="note">Aucune partie pour l’instant. Lance la première.</p>'; return; }
+    var h = '<table class="board"><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">' + esc(current.scoreLabel) + "</th></tr></thead><tbody>";
+    shown.slice(0, 100).forEach(function (r, i) {
+      var sub = [current.detail ? current.detail(r) : "", fmtDate(r.created_at)].filter(Boolean).join(" · ");
+      h += '<tr><td class="rk">' + (i + 1) + '</td><td class="nm"><span class="who">' + esc(r.player) + "</span>" + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") +
+           '</td><td class="num">' + esc(Math.round(r.score)) + "</td></tr>";
+    });
+    out.innerHTML = h + "</tbody></table>" +
+      '<p class="note">' + shown.length + (mode === "best" ? " joueur" : " partie") + (shown.length > 1 ? "s" : "") + (shown.length > 100 ? " (100 premiers affichés)" : "") + ".</p>";
+  }
+
+  function load() {
+    if (!MesJeux.ready()) { out.innerHTML = '<p class="note">Les classements ne sont pas encore branchés.</p>'; return; }
+    if (cache[current.id]) { draw(cache[current.id]); }
+    else out.innerHTML = '<p class="note">Chargement…</p>';
+    var id = current.id;
+    MesJeux.list(id, 1000).then(function (rows) {
+      cache[id] = rows;
+      if (current.id === id) draw(rows);
+    }, function () {
+      if (current.id === id) out.innerHTML = '<p class="note">Classement indisponible pour le moment. Réessaie dans un instant.</p>';
+    });
+  }
+
+  document.getElementById("mode").addEventListener("change", function (e) {
+    if (e.target && e.target.name === "mode") { mode = e.target.value; if (cache[current.id]) draw(cache[current.id]); }
+  });
+  drawTabs(); load();
+})();
+</script>
+</body>
+</html>

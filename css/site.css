@@ -1,0 +1,93 @@
+/* Cahier à carreaux Seyès : lignes bleues, marge rouge, surligneur jaune. */
+:root {
+  --paper: #fbfaf6;
+  --card: #fffffe;
+  --ink: #1b2a8a;
+  --text: #1d2233;
+  --muted: #5d6482;
+  --rule: rgba(60, 90, 200, .17);
+  --rule2: rgba(60, 90, 200, .09);
+  --margin: rgba(214, 64, 64, .6);
+  --hit: #ffe58a;
+  --f-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --f-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #10152b; --card: #161d3b; --ink: #a9baff; --text: #e9ecf8; --muted: #9aa3c7;
+    --rule: rgba(140, 165, 255, .16); --rule2: rgba(140, 165, 255, .08);
+    --margin: rgba(255, 120, 120, .55); --hit: #5a4a0c;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--text); background-color: var(--paper);
+  font: 17px/28px var(--f-body);
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0 27px, var(--rule) 27px 28px),
+    repeating-linear-gradient(to right, transparent 0 111px, var(--rule2) 111px 112px);
+}
+.page { position: relative; max-width: 720px; margin: 0 auto; padding: 56px 18px 112px 46px; }
+.page::before { content: ""; position: absolute; top: 0; bottom: 0; left: 24px; width: 2px; background: var(--margin); }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h1 { font-weight: 800; font-size: clamp(46px, 13vw, 84px); line-height: .95; letter-spacing: -.035em; color: var(--ink); }
+h2 { font-weight: 800; font-size: 28px; line-height: 56px; }
+p { margin: 0 0 28px; max-width: 58ch; }
+a { color: var(--ink); text-underline-offset: 4px; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.lead { margin-top: 28px; font-size: 19px; }
+.small { font-size: 15px; line-height: 28px; color: var(--muted); }
+
+.btn {
+  display: inline-block; font: 600 16px/46px var(--f-body); padding: 0 22px; border: 0; border-radius: 3px;
+  background: var(--ink); color: var(--paper); text-decoration: none; cursor: pointer;
+}
+.btn:hover { filter: brightness(1.12); }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.row { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+
+/* Décompte des parties : traits de pointage par groupes de cinq */
+.tally { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; min-height: 56px; margin: 0 0 28px; color: var(--ink); }
+.tally svg { height: 40px; width: auto; }
+.tally .count { font: 600 15px/28px var(--f-body); color: var(--muted); }
+
+/* Une entrée par jeu */
+.game { margin-top: 56px; }
+.tag {
+  display: inline-block; padding: 0 16px; font: 800 24px/48px var(--f-display); letter-spacing: -.01em;
+  background: var(--bg); color: var(--fg); transform: rotate(-1.2deg);
+  box-shadow: 4px 4px 0 var(--rule);
+}
+.game .blurb { margin: 28px 0; }
+.podium { list-style: none; margin: 0 0 28px; padding: 0; }
+.podium li { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: baseline; line-height: 28px; }
+.podium .rk { font: 800 17px/28px var(--f-display); color: var(--muted); }
+.podium .nm { overflow-wrap: anywhere; font-weight: 600; }
+.podium li:first-child .nm span { background: linear-gradient(transparent 52%, var(--hit) 52%); padding: 0 3px; margin-left: -3px; }
+.podium .sc { font: 800 20px/28px var(--f-display); font-variant-numeric: tabular-nums; }
+.podium .empty { display: block; color: var(--muted); }
+
+/* Classement complet */
+.tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0; }
+.tab {
+  font: 600 16px/42px var(--f-body); padding: 0 18px; border-radius: 3px; cursor: pointer;
+  background: transparent; color: var(--ink); border: 2px solid var(--ink);
+}
+.tab[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.mode { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 28px; }
+.mode label { cursor: pointer; }
+.mode input { accent-color: var(--ink); margin-right: 6px; }
+.board { width: 100%; border-collapse: collapse; background: var(--card); }
+.board th { text-align: left; font: 600 14px/28px var(--f-body); color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--ink); }
+.board td { padding: 10px; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+.board .rk { width: 44px; font: 800 17px/28px var(--f-display); color: var(--muted); }
+.board .num { text-align: right; font: 800 20px/28px var(--f-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.board .nm { font-weight: 600; overflow-wrap: anywhere; }
+.board .sub { display: block; font-size: 14px; line-height: 22px; color: var(--muted); font-weight: 400; }
+.board tr:first-child .nm .who { background: linear-gradient(transparent 52%, var(--hit) 52%); padding: 0 3px; margin-left: -3px; }
+.note { margin: 28px 0 0; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+@media (max-width: 480px) { .page { padding-left: 40px; padding-right: 14px; } .page::before { left: 20px; } }
