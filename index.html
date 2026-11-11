@@ -44,16 +44,18 @@
     return h + '<span class="count">' + n + " partie" + (n > 1 ? "s" : "") + " jouée" + (n > 1 ? "s" : "") + (n > 50 ? " (50 traits affichés)" : "") + "</span>";
   }
 
+  /* Un jeu = son nom ; un clic déroule la description, le podium et le bouton Jouer */
   function gameBlock(g) {
-    var sec = document.createElement("section");
-    sec.className = "game";
-    sec.innerHTML =
-      '<h3 class="tag" style="--bg:' + g.bg + ';--fg:' + g.fg + '">' + esc(g.title) + '</h3>' +
+    var d = document.createElement("details");
+    d.className = "game";
+    d.innerHTML =
+      '<summary class="tag" style="--bg:' + g.bg + ';--fg:' + g.fg + '">' + esc(g.title) + '</summary>' +
+      '<div class="game-body">' +
       '<p class="blurb">' + esc(g.blurb) + (g.codeHash ? ' <span class="small">Ce jeu demande un code.</span>' : "") + '</p>' +
       '<ol class="podium" id="top-' + esc(g.id) + '"><li><span class="empty">Chargement des scores…</span></li></ol>' +
       '<div class="row"><a class="btn" href="' + esc(g.file) + '">Jouer</a>' +
-      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement</a></div>';
-    return sec;
+      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement complet</a></div></div>';
+    return d;
   }
 
   function lockBlock(s) {
