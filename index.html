@@ -18,6 +18,7 @@
   <p class="note"><a href="classement.html">Voir les classements</a></p>
 </main>
 
+<script src="js/qrcode.js"></script>
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
@@ -55,8 +56,22 @@
       '<p class="blurb">' + esc(g.blurb) + (g.codeHash ? ' <span class="small">Ce jeu demande un code.</span>' : "") + '</p>' +
       '<ol class="podium" id="top-' + esc(g.id) + '"><li><span class="empty">Chargement des scores…</span></li></ol>' +
       '<div class="row"><a class="btn" href="' + esc(g.file) + '">Jouer</a>' +
-      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement complet</a></div></div>';
+      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement complet</a></div>' +
+      qrBlock(g) + '</div>';
     return d;
+  }
+
+  /* QR code du jeu : il ouvre directement la page du jeu (adresse complète, calculée depuis celle du site) */
+  function qrBlock(g) {
+    if (typeof qrcode !== "function") return "";
+    try {
+      var url = new URL(g.file, location.href).href;
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      var svg = qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true, alt: "QR code pour ouvrir " + g.title });
+      return '<figure class="qr">' + svg + '<figcaption>Scanne pour jouer<span class="small"> · ' + esc(g.title) + '</span></figcaption></figure>';
+    } catch (e) { return ""; }
   }
 
   function lockBlock(s) {

@@ -11,8 +11,13 @@ Site de petits jeux avec classements, jouable sans compte.
 - `js/access.js` : les codes d'accès
 - `js/endings.js` : classement par fins découvertes (Saint-Gratien)
 - `js/scores.js` : enregistrement et lecture des scores
+- `js/qrcode.js` : petite bibliothèque libre (MIT, « qrcode-generator ») qui dessine les QR codes ; rien à régler
 - `js/config.js` : adresse et clé publique de la base Supabase
 - `css/site.css` : style de l'accueil et du classement
+
+## QR codes
+
+Chaque jeu affiche son QR code dans son menu déroulant de l'accueil. Il est calculé automatiquement à partir de l'adresse du site et du fichier du jeu : un nouveau jeu ajouté dans `js/games.js` a donc son QR sans rien faire de plus. Il ouvre la page du jeu ; si le jeu ou sa rubrique a un code, la page le redemande (le QR ne contourne rien). Le QR reste noir sur blanc en mode sombre pour bien se scanner. Pour le projeter ou l'imprimer, une capture d'écran suffit.
 
 ## Codes d'accès
 

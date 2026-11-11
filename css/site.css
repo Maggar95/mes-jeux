@@ -85,6 +85,12 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .podium .sc { font: 800 20px/28px var(--f-display); font-variant-numeric: tabular-nums; }
 .podium .empty { display: block; color: var(--muted); }
 
+/* QR code du jeu : toujours noir sur blanc (même en mode sombre) pour rester lisible au scan */
+.qr { margin: 28px 0 0; width: 196px; }
+.qr svg { display: block; width: 196px; height: 196px; border: 2px solid var(--ink); border-radius: 3px; background: #fff; }
+.qr figcaption { margin-top: 8px; font: 600 15px/22px var(--f-body); color: var(--ink); }
+.qr .small { font-weight: 400; display: block; line-height: 22px; }
+
 /* Classement complet */
 .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0; }
 .tab {
