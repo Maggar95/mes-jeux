@@ -6,7 +6,7 @@ window.MESJEUX_SECTIONS = [
   { id: "bts", title: "BTS" },
   { id: "premiere", title: "Première" },
   { id: "terminale", title: "Terminale" },
-  { id: "perso", title: "Perso", digits: 4, codeHash: "734fbd3da07dea62ad54370094a80e733c5e7912d9f0d6925ebbcdbd4dbbbfdb" }
+  { id: "perso", title: "Perso", digits: 4, codeHash: "b78d125addc643d00a0fc62475ec89306f435505efd996a34bdfbd725b7fa637" }
 ];
 
 window.MESJEUX_GAMES = [
