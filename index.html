@@ -12,35 +12,23 @@
 <body>
 <main class="page">
   <h1>Mes petits jeux</h1>
-  <p class="lead">Choisis un jeu, entre ton prénom, joue. Ton score est enregistré tout seul à la fin de la partie.</p>
+  <p class="lead">Choisis ta rubrique, entre ton prénom, joue. Ton score est enregistré tout seul à la fin de la partie.</p>
   <div class="tally" id="tally" aria-live="polite"></div>
   <div id="games"></div>
-  <p class="note"><a href="classement.html">Voir tous les classements</a></p>
+  <p class="note"><a href="classement.html">Voir les classements</a></p>
 </main>
 
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
+<script src="js/access.js"></script>
 <script>
 (function () {
   "use strict";
-  var games = window.MESJEUX_GAMES, root = document.getElementById("games");
-  var esc = MesJeux.esc;
+  var esc = MesJeux.esc, root = document.getElementById("games");
+  var total = 0, pending = 0;
 
-  /* Une entrée par jeu, remplie après la lecture des scores */
-  games.forEach(function (g) {
-    var sec = document.createElement("section");
-    sec.className = "game";
-    sec.innerHTML =
-      '<h2 class="tag" style="--bg:' + g.bg + ';--fg:' + g.fg + '">' + esc(g.title) + '</h2>' +
-      '<p class="blurb">' + esc(g.blurb) + '</p>' +
-      '<ol class="podium" id="top-' + esc(g.id) + '"><li><span class="empty">Chargement des scores…</span></li></ol>' +
-      '<div class="row"><a class="btn" href="' + esc(g.file) + '">Jouer</a>' +
-      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement complet</a></div>';
-    root.appendChild(sec);
-  });
-
-  function setPodium(g, html) { document.getElementById("top-" + g.id).innerHTML = html; }
+  function podium(g, html) { var o = document.getElementById("top-" + g.id); if (o) o.innerHTML = html; }
 
   /* Traits de pointage : quatre barres et une barre en travers, par groupe de cinq */
   function tallyHTML(n) {
@@ -56,26 +44,71 @@
     return h + '<span class="count">' + n + " partie" + (n > 1 ? "s" : "") + " jouée" + (n > 1 ? "s" : "") + (n > 50 ? " (50 traits affichés)" : "") + "</span>";
   }
 
-  if (!MesJeux.ready()) {
-    games.forEach(function (g) { setPodium(g, '<li><span class="empty">Les classements ne sont pas encore branchés.</span></li>'); });
-    return;
+  function gameBlock(g) {
+    var sec = document.createElement("section");
+    sec.className = "game";
+    sec.innerHTML =
+      '<h3 class="tag" style="--bg:' + g.bg + ';--fg:' + g.fg + '">' + esc(g.title) + '</h3>' +
+      '<p class="blurb">' + esc(g.blurb) + (g.codeHash ? ' <span class="small">Ce jeu demande un code.</span>' : "") + '</p>' +
+      '<ol class="podium" id="top-' + esc(g.id) + '"><li><span class="empty">Chargement des scores…</span></li></ol>' +
+      '<div class="row"><a class="btn" href="' + esc(g.file) + '">Jouer</a>' +
+      '<a href="classement.html?game=' + encodeURIComponent(g.id) + '">Classement</a></div>';
+    return sec;
   }
 
-  var total = 0, pending = games.length;
-  games.forEach(function (g) {
+  function lockBlock(s) {
+    var box = document.createElement("div");
+    box.className = "lock";
+    box.innerHTML = '<p>Cette rubrique est réservée. Entre le code à ' + s.digits + ' chiffres.</p>' +
+      '<form class="codeform"><input inputmode="numeric" pattern="[0-9]*" maxlength="' + s.digits + '" autocomplete="off" aria-label="Code de la rubrique ' + esc(s.title) + '">' +
+      '<button class="btn" type="submit">Entrer</button></form><p class="err" role="alert"></p>';
+    var input = box.querySelector("input"), err = box.querySelector(".err");
+    box.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      Access.tryCode("sec", s, input.value).then(function (ok) {
+        if (ok) render(); else { err.textContent = "Code incorrect. Réessaie."; input.select(); }
+      });
+    });
+    return box;
+  }
+
+  function loadScores(g) {
+    pending++;
     MesJeux.list(g.id, 1000).then(function (rows) {
       total += rows.length;
       var top = MesJeux.bestPerPlayer(rows).slice(0, 3);
-      if (!top.length) { setPodium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
-      setPodium(g, top.map(function (r, i) {
+      if (!top.length) { podium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
+      podium(g, top.map(function (r, i) {
         return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + "</span></li>";
       }).join(""));
     }, function () {
-      setPodium(g, '<li><span class="empty">Classement indisponible pour le moment.</span></li>');
+      podium(g, '<li><span class="empty">Classement indisponible pour le moment.</span></li>');
     }).then(function () {
       if (--pending === 0 && total > 0) document.getElementById("tally").innerHTML = tallyHTML(total);
     });
-  });
+  }
+
+  function render() {
+    root.innerHTML = ""; total = 0; pending = 0;
+    document.getElementById("tally").innerHTML = "";
+    var toLoad = [];
+    Access.sections.forEach(function (s) {
+      var wrap = document.createElement("section");
+      wrap.className = "rubrique";
+      wrap.innerHTML = '<h2 class="rubrique-title">' + esc(s.title) + "</h2>";
+      root.appendChild(wrap);
+      if (!Access.sectionOpen(s)) { wrap.appendChild(lockBlock(s)); return; }
+      var list = Access.games.filter(function (g) { return g.section === s.id; });
+      if (!list.length) { var p = document.createElement("p"); p.className = "soon"; p.textContent = "Bientôt des jeux ici."; wrap.appendChild(p); return; }
+      list.forEach(function (g) { wrap.appendChild(gameBlock(g)); toLoad.push(g); });
+    });
+    if (!MesJeux.ready()) {
+      toLoad.forEach(function (g) { podium(g, '<li><span class="empty">Les classements ne sont pas encore branchés.</span></li>'); });
+      return;
+    }
+    toLoad.forEach(loadScores);
+  }
+  render();
 })();
 </script>
 </body>

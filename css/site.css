@@ -53,10 +53,20 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .tally svg { height: 40px; width: auto; }
 .tally .count { font: 600 15px/28px var(--f-body); color: var(--muted); }
 
+/* Rubriques */
+.rubrique { margin-top: 84px; }
+.rubrique-title { font-weight: 800; font-size: 36px; line-height: 56px; color: var(--ink); border-bottom: 2px solid var(--ink); }
+.soon { margin: 28px 0 0; color: var(--muted); }
+.lock { margin-top: 28px; }
+.codeform { display: flex; gap: 12px; flex-wrap: wrap; margin: 0; }
+.codeform input { font: 800 24px/46px var(--f-display); letter-spacing: .3em; text-align: center; width: 9em; max-width: 100%; padding: 0 12px; border: 2px solid var(--ink); border-radius: 3px; background: var(--card); color: var(--text); }
+.err { min-height: 28px; margin: 8px 0 0; color: #b3261e; font-size: 15px; }
+@media (prefers-color-scheme: dark) { .err { color: #ff8a80; } }
+
 /* Une entrée par jeu */
 .game { margin-top: 56px; }
 .tag {
-  display: inline-block; padding: 0 16px; font: 800 24px/48px var(--f-display); letter-spacing: -.01em;
+  display: inline-block; margin: 0; padding: 0 16px; font: 800 24px/48px var(--f-display); letter-spacing: -.01em;
   background: var(--bg); color: var(--fg); transform: rotate(-1.2deg);
   box-shadow: 4px 4px 0 var(--rule);
 }

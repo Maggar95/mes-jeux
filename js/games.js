@@ -1,10 +1,21 @@
-/* Liste des jeux du site. Pour ajouter un jeu : un fichier dans /jeux
-   et une entrée ici. L'accueil et le classement se mettent à jour seuls. */
+/* Rubriques et liste des jeux du site.
+   Pour ajouter un jeu : un fichier dans /jeux et une entrée dans MESJEUX_GAMES.
+   Les codes ne sont jamais écrits en clair : on garde leur empreinte (SHA-256).
+   Pour changer un code, demande à Claude de recalculer l'empreinte. */
+window.MESJEUX_SECTIONS = [
+  { id: "bts", title: "BTS" },
+  { id: "premiere", title: "Première" },
+  { id: "terminale", title: "Terminale" },
+  { id: "perso", title: "Perso", digits: 4, codeHash: "734fbd3da07dea62ad54370094a80e733c5e7912d9f0d6925ebbcdbd4dbbbfdb" }
+];
+
 window.MESJEUX_GAMES = [
   {
     id: "franchise",
+    section: "bts",
     title: "Le Franchisé",
     file: "jeux/franchise.html",
+    codeHash: "91f142bd09b5fede03a12146c666b452d28d2686e57d703cd76f7fa1a25219dc",
     blurb: "Tu ouvres un restaurant sous franchise et tu le gères cinq ans. Chaque décision de droit fait bouger ta trésorerie.",
     scoreLabel: "Note",
     max: 100,
@@ -17,6 +28,7 @@ window.MESJEUX_GAMES = [
   },
   {
     id: "saint-gratien",
+    section: "perso",
     title: "Direction Saint-Gratien",
     file: "jeux/saint-gratien.html",
     blurb: "Le 31 au soir, tu pars de Cormeilles avec 20 € pour rejoindre Yann. Rapporte de quoi boire, de quoi manger et une surprise avant minuit.",

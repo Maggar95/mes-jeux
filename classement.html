@@ -24,10 +24,13 @@
 <script src="js/config.js"></script>
 <script src="js/games.js"></script>
 <script src="js/scores.js"></script>
+<script src="js/access.js"></script>
 <script>
 (function () {
   "use strict";
-  var games = window.MESJEUX_GAMES, esc = MesJeux.esc;
+  var esc = MesJeux.esc;
+  /* Les jeux d'une rubrique fermée (Perso) n'apparaissent pas tant que son code n'a pas été saisi */
+  var games = window.MESJEUX_GAMES.filter(function (g) { return Access.sectionOpen(Access.section(g.section)); });
   var params = new URLSearchParams(location.search);
   var current = games.filter(function (g) { return g.id === params.get("game"); })[0] || games[0];
   var mode = "best", cache = {};
