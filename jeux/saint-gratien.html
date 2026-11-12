@@ -555,7 +555,7 @@ const MAP = (function(){
   return { visit, init, reset, count };
 })();
 
-const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
+const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', louis:'Louis', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
 function pad(n){ return String(n).padStart(2,'0'); }
 function clockParts(t){ const n = 20*60+t; return [Math.floor(n/60)%24, n%60]; }
 function fmt(t){ const p = clockParts(t); return p[0]+'h'+pad(p[1]); }
@@ -1621,7 +1621,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Ressortir", 'rue', {t:5})
   ]},
  citystade: {p:"Le city-stade · Cormeilles",
-  text:"Le city-stade est éclairé par un seul projecteur. D'un côté, quatre ados se disputent un ballon près d'un filet cassé. De l'autre côté du terrain, un homme joue seul.",
+  text:S=>"Le city-stade est éclairé par un seul projecteur. D'un côté, quatre ados se disputent un ballon près d'un filet cassé."+(S.player==='louis' ? " De l'autre côté du terrain, les cages sont vides : c'est ton coin habituel, il y a un peu moins de monde ce soir." : " De l'autre côté du terrain, un homme joue seul."),
   c:[
    B("Aller voir les jeunes", 'citystade_jeunes', {t:5}),
    B("Aller voir l'homme qui joue seul de l'autre côté du terrain", 'louis', {t:5}),
@@ -1633,7 +1633,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Tirer un penalty", S=>S.pass?'citystade_ok':'citystade_ko', {t:10, fx:S=>{ S.pass = rnd(0.5); }}),
    B("Refuser et revenir au milieu du terrain", 'citystade', {t:5})
   ]},
- louis: {p:"Le city-stade · Cormeilles",
+ louis: {p:"Le city-stade · Cormeilles", who:'louis',
   text:"Dans les cages, un type de taille normale, immobile, bras écartés, joue seul contre des tirs imaginaires. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
   c:[
    B("Le défier aux penalties", 'louis_jeu', {t:15}),
