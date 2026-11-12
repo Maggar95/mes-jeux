@@ -1621,14 +1621,20 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Ressortir", 'rue', {t:5})
   ]},
  citystade: {p:"Le city-stade · Cormeilles",
-  text:"Quatre ados, un ballon, un filet cassé. « Monsieur ! Un penalty ? Si vous marquez, on vous donne un truc. Si vous ratez, vous êtes nul. »",
+  text:"Le city-stade est éclairé par un seul projecteur. D'un côté, quatre ados se disputent un ballon près d'un filet cassé. De l'autre côté du terrain, un homme joue seul.",
+  c:[
+   B("Aller voir les jeunes", 'citystade_jeunes', {t:5}),
+   B("Aller voir l'homme qui joue seul de l'autre côté du terrain", 'louis', {t:5}),
+   B("Retourner dans la rue", 'rue', {t:5})
+  ]},
+ citystade_jeunes: {p:"Le city-stade · Cormeilles",
+  text:"« Monsieur ! Un penalty ? Si vous marquez, on vous donne un truc. Si vous ratez, vous êtes nul. »",
   c:[
    B("Tirer un penalty", S=>S.pass?'citystade_ok':'citystade_ko', {t:10, fx:S=>{ S.pass = rnd(0.5); }}),
-   B("Regarder les cages", 'louis', {t:5}),
-   B("Refuser, tu as autre chose à faire", 'rue', {t:5})
+   B("Refuser et revenir au milieu du terrain", 'citystade', {t:5})
   ]},
  louis: {p:"Le city-stade · Cormeilles",
-  text:"Dans les cages, un type de taille normale, immobile, bras écartés. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
+  text:"Dans les cages, un type de taille normale, immobile, bras écartés, joue seul contre des tirs imaginaires. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
   c:[
    B("Le défier aux penalties", 'louis_jeu', {t:15}),
    B("Faire demi-tour", 'citystade', {t:5})
