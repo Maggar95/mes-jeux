@@ -185,6 +185,16 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   .step output { min-width: 84px; font-size: 12.5px; } .endtitle { font-size: 23px; } .bigscore { font-size: 42px; }
 }
 @media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+.mini { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+.mcanvas { width: 100%; max-width: 420px; aspect-ratio: 8 / 5; border-radius: 8px; border: 2px solid var(--line); touch-action: none; display: block; margin: 0 auto; background: #120b24; cursor: none; }
+.mstat { margin: 8px 0; font-weight: 700; color: var(--yellow); }
+.stopbar { position: relative; height: 34px; border-radius: 8px; background: var(--bg); border: 2px solid var(--line); overflow: hidden; margin: 10px auto; max-width: 420px; }
+.stopbar .zone { position: absolute; top: 0; bottom: 0; background: var(--good); opacity: .85; }
+.stopbar .mark { position: absolute; top: 0; bottom: 0; width: 8px; margin-left: -4px; background: var(--pink); border-radius: 4px; }
+.pads { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 320px; margin: 10px auto 0; }
+.pad { height: 76px; border-radius: 12px; border: 3px solid transparent; font-weight: 700; color: #1a0a2e; opacity: .55; transition: opacity .1s, transform .1s; }
+.pad.p0 { background: var(--cyan); } .pad.p1 { background: var(--pink); } .pad.p2 { background: var(--yellow); } .pad.p3 { background: var(--good); }
+.pad.on { opacity: 1; transform: scale(1.05); border-color: #fff; }
 </style>
 </head>
 <body>
@@ -229,7 +239,9 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     I: { n: "Inès", e: "💡", r: "Régisseuse lumière" },
     Le: { n: "Léa", e: "📣", r: "Ambassadrice indépendante" },
     Ka: { n: "Karim B.", e: "🦺", r: "Candidat, responsable sécurité" },
-    D: { n: "Dylan", e: "🕶️", r: "Ambassadeur indépendant" }
+    D: { n: "Dylan", e: "🕶️", r: "Ambassadeur indépendant" },
+    S: { n: "Serge", e: "📦", r: "Magasinier, 22 ans de maison" },
+    M: { n: "Michel", e: "🎮", r: "Responsable de l'appli mobile, parieur compulsif" }
   };
 
   /* ================================================================== */
@@ -296,6 +308,20 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                   fb: "Kévin a posté la photo d'accueil d'Hector avant que tu parles à Sandrine. Elle l'apprend en story. Le climat social tombe dans la fosse." }
               ],
               rule: { ref: "Recrutement interne ou externe", text: "Interne : intégration simplifiée, fidélisation, motivation des équipes, mais profils limités et risque de routine. Externe : regard neuf, nouvelles idées, image dynamique, mais coût plus élevé, intégration plus longue et tension possible en interne." } }
+,
+            { ty: "choice", ch: 2, tag: "Le Père Noël", who: "K",
+              ctx: ["Kévin a eu une idée : un mini-village de Noël dans le parking du festival, trois week-ends de décembre, pour faire parler de la prochaine édition. Il lui manque un Père Noël.",
+                    "Il connaît quelqu'un : son oncle Roger, barbe naturelle et ventre convaincant, disponible les trois week-ends. « Il peut venir gratuitement, il adore les enfants ! »"],
+              q: "Comment fais-tu venir Roger ?",
+              opts: [
+                { t: "Un CDD saisonnier pour les trois week-ends, payé et déclaré", d: [-3, 4, 0], pts: 40, ok: true,
+                  fb: "Une activité qui revient à dates fixes et pour une courte durée : le motif d'emploi saisonnier existe pour ça. Contrat écrit, fin prévue au 24 décembre, Roger ravi. Même le renne en carton a droit à un sourire." },
+                { t: "Une prestation d'auto-entrepreneur : Roger facture, tu ne t'occupes de rien", d: [-2, 0, -4], pts: 15,
+                  fb: "Faisable si Roger travaille vraiment en indépendant. Mais s'il suit tes horaires, ton costume et tes consignes, on parle d'un salarié déguisé en indépendant. Mieux vaut un vrai contrat." },
+                { t: "Bénévole : « il adore ça, il ne voudra pas d'argent »", d: [2, -2, -6], pts: -10, ok: false,
+                  fb: "Du travail encadré, avec horaires et costume fournis, ne se paie pas en chocolats chauds. Roger va adorer, l'inspectrice Bertoli un peu moins." }
+              ],
+              rule: { ref: "Emplois saisonniers", text: "Le CDD peut être conclu pour un emploi saisonnier : une activité qui se répète chaque année à dates à peu près fixes, selon le rythme des saisons ou des modes de vie collectifs. Le travail effectué sous l'autorité d'un employeur se rémunère par un contrat de travail." } },
           ] },
 
         { label: "T2 · Printemps", chap: "Les relations de travail",
@@ -344,6 +370,20 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                   fb: "Les bénévoles sont précieux en complément. Mais si leur activité ressemble à un vrai travail encadré, payé en tickets-boisson, l'inspection du travail s'y intéresse de très près." }
               ],
               rule: { ref: "Motifs de CDD", text: "Remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers : ces cas permettent le CDD. L'intérim répond au même type de besoin ponctuel, mais via une entreprise de travail temporaire." } }
+,
+            { ty: "choice", ch: 2, tag: "Dilemme", who: "S",
+              ctx: ["Le nouveau système de billetterie numérique remplace les guichets papier. Serge, 22 ans de maison, 58 ans, y passait ses journées. Son poste n'existe plus, ou presque.",
+                    "Gérard, calculette en main : « Licencions-le, c'est 14 000 € de masse salariale en moins par an. » Serge, lui, apporte des croissants tous les vendredis."],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Je le forme aux scanners et à l'accueil numérique, et je le reclasse", d: [-5, 10, 3], pts: 50, ok: true,
+                  fb: "Avant tout licenciement, l'employeur doit chercher à adapter et reclasser le salarié, notamment par la formation. Tu gardes 22 ans de savoir-faire, et les croissants du vendredi." },
+                { t: "Je lui propose une rupture conventionnelle, négociée dans le respect", d: [-6, -2, 0], pts: 30,
+                  fb: "Solution légale et amiable, si Serge est vraiment d'accord. Il faut qu'elle soit voulue, pas imposée, et elle te coûte une indemnité. Les croissants s'arrêtent." },
+                { t: "Je le licencie pour faute : on trouvera bien quelque chose", d: [10, -18, -14], pts: -25, ok: false,
+                  fb: "Un licenciement sans cause réelle et sérieuse, c'est un procès perdu d'avance, un climat social glacé, et un tract de Mme Pérignon intitulé « Serge, ça pourrait être vous »." }
+              ],
+              rule: { ref: "Économique, social et juridique", text: "Une suppression de poste ne justifie pas à elle seule un licenciement : l'employeur doit d'abord tenter d'adapter le salarié à son nouvel emploi et de le reclasser. Licencier un salarié sans cause réelle et sérieuse expose à des sanctions et abîme le climat social." } },
           ] },
 
         { label: "T3 · Été", chap: "Le festival !",
@@ -363,6 +403,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                   fb: "Tu économises sur le dos de ceux qui font tourner le site. Mme Pérignon arrive avec des affiches et une chaîne de télévision locale." }
               ],
               rule: { ref: "Climat social et conformité", text: "Une décision qui économise à court terme peut coûter cher en climat social (motivation, fidélité, image employeur) et en risque juridique. Il faut peser les deux." } },
+            { ty: "bet", g: "pong" },
             { ty: "revenue" }
           ] },
 
@@ -590,6 +631,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                   fb: "Tu perds un excellent élément et tu envoies un message glacial à toute la régie. Les bénévoles cherchent déjà un festival plus sympa." }
               ],
               rule: { ref: "Bénévolat et travail", text: "Le bénévolat est un engagement libre et gratuit. Une activité régulière, encadrée, qui tient lieu d'un poste et se paie en avantages relève du travail : elle doit être rémunérée sous contrat." } },
+            { ty: "bet", g: "stop" },
             { ty: "revenue" }
           ] },
 
@@ -826,6 +868,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                   fb: "Pire encore : tu copies un document confidentiel sans son accord. La confiance, ça ne se photocopie pas." }
               ],
               rule: { ref: "Confidentialité du bilan", text: "Le contenu du bilan de compétences reste confidentiel. Il n'est communiqué à un tiers, y compris l'employeur, qu'avec l'autorisation du salarié. Un document de synthèse est remis au seul bénéficiaire." } },
+            { ty: "bet", g: "simon" },
             { ty: "revenue" }
           ] },
 
@@ -865,6 +908,79 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   ];
 
   /* Événements de festival : un par édition, tirés au hasard */
+
+  /* Variantes : à chaque partie, une de ces scènes remplace (une fois sur deux) la scène de même titre */
+  var ALT = {
+    "CDD ou CDI": { ty: "choice", ch: 2, tag: "CDD ou CDI", who: "G",
+      ctx: ["Hugo, de la logistique, s'est cassé la jambe en démontant une scène : arrêt de cinq mois. Les palettes, elles, ne s'arrêtent pas.",
+            "Gérard : « Il suffit de demander aux autres de faire ses heures en plus ! »"],
+      q: "Quel contrat proposes-tu pour le remplacer ?",
+      opts: [
+        { t: "Un CDD de remplacement, jusqu'au retour de Hugo", d: [-3, 3, 0], pts: 60, ok: true,
+          fb: "Remplacer un salarié absent est un cas de CDD. Le contrat est écrit et s'arrête au retour de Hugo. Les palettes sont soulagées." },
+        { t: "Un CDI : un bon cariste ne se laisse pas passer", d: [-10, 1, -3], pts: -10, ok: false,
+          fb: "Un contrat sans date de fin pour une absence de cinq mois : au retour de Hugo, tu auras deux personnes pour un seul chariot élévateur." },
+        { t: "Un intérimaire via une agence", d: [-6, 0, 0], pts: 30,
+          fb: "Possible aussi pour un remplacement, mais l'agence prend sa commission et le contrat se fait à trois. Plus cher que le CDD direct." }
+      ],
+      rule: { ref: "CDI et CDD", text: "Le CDI est la forme normale et générale de la relation de travail. Le CDD n'est possible que pour une tâche précise et temporaire, dans les cas prévus par la loi (remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers…). Il est écrit et prend fin à la date fixée ou à la réalisation de son objet." } },
+
+    "Besoin durable": { ty: "choice", ch: 2, tag: "Besoin durable", who: "G",
+      ctx: ["Il nous faut un coordinateur des bénévoles toute l'année : recrutement, plannings, relances, remerciements. Un besoin permanent, avec 800 bénévoles à gérer.",
+            "Gérard : « Un CDD de six mois, et on voit ensuite. Et ensuite, et ensuite… »"],
+      q: "Que décides-tu ?",
+      opts: [
+        { t: "Un CDI : le poste est permanent", d: [-4, 5, 2], pts: 60, ok: true,
+          fb: "Un emploi permanent se pourvoit par un CDI. Ton coordinateur pourra enfin se souvenir du prénom de ses bénévoles." },
+        { t: "Un CDD de six mois, renouvelé tant que ça marche", d: [2, -6, -12], pts: -20, ok: false,
+          fb: "Un CDD sert une tâche précise et temporaire, pas un besoin durable : le risque de requalification en CDI est réel." },
+        { t: "Un stagiaire, c'est moins cher", d: [3, -4, -14], pts: -25, ok: false,
+          fb: "Un stage est une période de formation, pas un moyen de pourvoir un poste permanent. L'inspectrice Bertoli adore cette méthode, pour les raisons contraires." }
+      ],
+      rule: { ref: "Emploi permanent", text: "Un besoin durable relève du CDI. CDD et intérim sont réservés à des tâches ponctuelles : ils ne peuvent pas pourvoir durablement un emploi permanent de l'entreprise." } },
+
+    "Pic d'activité": { ty: "choice", ch: 2, tag: "Pic d'activité", who: "T",
+      ctx: ["Pendant les trois jours, il faut 60 agents de propreté, du montage des barrières au ramassage des gobelets. Passé le lundi matin, plus de gobelets, donc plus de besoin."],
+      q: "Comment les recrutes-tu ?",
+      opts: [
+        { t: "En CDD (accroissement temporaire d'activité)", d: [-7, 2, 0], pts: 60, ok: true,
+          fb: "Un pic d'activité est un motif légal de CDD : contrat écrit, date de fin connue." },
+        { t: "En intérim, avec une agence", d: [-11, 0, 0], pts: 35,
+          fb: "Possible pour un besoin ponctuel, l'agence gère l'administratif. Mais elle prend sa part : le CDD direct coûte moins cher." },
+        { t: "En CDI, pour fidéliser les ramasseurs de gobelets", d: [-22, 2, -2], pts: -25, ok: false,
+          fb: "Tu embauches à vie pour trois jours de travail par an. Gérard lance la machine à café en signe de deuil." }
+      ],
+      rule: { ref: "Motifs de CDD", text: "Remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers : ces cas permettent le CDD. L'intérim répond au même type de besoin ponctuel, mais via une entreprise de travail temporaire." } },
+
+    "Interne ou externe": { ty: "choice", ch: 1, tag: "Interne ou externe", who: "T",
+      ctx: ["Le responsable des bars part pour un autre festival. Deux candidats : Paola, barmaid depuis 6 ans, que tous les saisonniers adorent mais qui n'a jamais géré de budget. Et Maxime, venu d'une grande chaîne de restauration rapide, très organisé, qui dit « process » toutes les 12 secondes.",
+            "Luigi : « Paola, évidemment. » Gérard : « Maxime, il parle en tableaux. »"],
+      q: "Qui nommes-tu responsable des bars ?",
+      opts: [
+        { t: "Paola, avec une formation à la gestion", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
+          fb: "La promotion interne motive les équipes et Paola connaît déjà les lieux. Il te reste à combler son manque d'expérience en gestion, par la formation." },
+        { t: "Maxime, le spécialiste des process", d: [-8, -6, 0], pts: 30, flag: "externe",
+          fb: "Un regard neuf et des méthodes éprouvées. Mais salaire plus élevé, intégration plus longue, et Paola se met soudain à servir très lentement. Défendable, si tu l'assumes." },
+        { t: "Maxime, sans prévenir Paola", d: [-8, -15, 0], pts: -10, ok: false,
+          fb: "Paola l'apprend par un saisonnier au détour d'une bière. Le climat social tombe dans la fosse." }
+      ],
+      rule: { ref: "Recrutement interne ou externe", text: "Interne : intégration simplifiée, fidélisation, motivation des équipes, mais profils limités et risque de routine. Externe : regard neuf et nouvelles compétences, mais coût plus élevé, intégration plus longue et risque de démotivation en interne." } },
+
+    "Intérim durable": { ty: "choice", ch: 2, tag: "Intérim durable", who: "G",
+      ctx: ["Camille, intérimaire, occupe depuis 11 mois le poste d'assistante paie, un emploi permanent. L'agence a renouvelé son contrat cinq fois.",
+            "Gérard : « Elle ne coûte pas plus cher qu'une salariée, si on regarde bien. » (Il ne regarde pas bien.)"],
+      q: "Que fais-tu ?",
+      opts: [
+        { t: "Lui proposer un CDI et arrêter l'intérim", d: [-3, 6, 4], pts: 45, ok: true,
+          fb: "Le contrat de travail temporaire ne peut pas pourvoir durablement un emploi permanent. Tu régularises, et Camille découvre les congés payés sans agence." },
+        { t: "Continuer à prolonger : c'est pratique", d: [2, -4, -12], pts: -20, ok: false,
+          fb: "L'intérim répond à des tâches ponctuelles. Le risque juridique grossit à chaque renouvellement." },
+        { t: "La remplacer par une autre intérimaire", d: [-3, -6, -8], pts: -20, ok: false,
+          fb: "Tu changes la personne, pas le problème : un emploi permanent ne se pourvoit pas durablement avec de l'intérim." }
+      ],
+      rule: { ref: "Travail intérimaire", text: "L'entreprise de travail temporaire embauche et rémunère l'intérimaire, mis à disposition de l'entreprise cliente. Le contrat ne peut pas pourvoir durablement un emploi lié à l'activité normale et permanente de l'entreprise." } }
+  };
+
   var EVENTS = [
     { title: "Concours de pizzas", text: "Luigi organise un concours de pizzas pour le personnel. Taux de participation : 70 %. Taux d'indigestion : 30 %.", d: [-1, 6, 0] },
     { title: "Le like de Kévin", text: "À 3 h du matin, Kévin a liké un tweet de Mégawatt avec le compte officiel du festival. Il jure que c'était « un doigt qui a glissé ».", d: [0, -4, 0] },
@@ -890,7 +1006,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     { min: 0, title: "Survivant de justesse", text: "Le festival a tenu bon, un peu par miracle. Il est temps de relire le cours." }
   ];
 
-  window.DRH_DATA = { W: W, EDITIONS: EDITIONS, EVENTS: EVENTS, ENDS: ENDS, TIERS: TIERS };
+  window.DRH_DATA = { W: W, EDITIONS: EDITIONS, EVENTS: EVENTS, ALT: ALT, ENDS: ENDS, TIERS: TIERS };
 })();
 
 (function () {
@@ -971,6 +1087,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
       steps.push({ k: "ed", ei: ei });
       ed.quarters.forEach(function (q, qi) {
         q.scenes.forEach(function (sc, si) {
+          if (D.ALT && D.ALT[sc.tag] && D.ALT[sc.tag].tag === sc.tag && sc.ty === "choice" && Math.random() < 0.5) sc = D.ALT[sc.tag];
           var st = { k: "scene", ei: ei, qi: qi, sc: sc, band: si === 0 ? q : null };
           if (sc.ty === "event") st.ev = deck.pop();
           steps.push(st);
@@ -1049,6 +1166,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   function goBtn() { return '<button class="btn" id="go">' + (S.over ? "Voir la fin" : "Continuer") + "</button>"; }
   function bindGo() { var b = document.getElementById("go"); if (b) b.onclick = next; }
   function next() {
+    if (S.cleanup) { try { S.cleanup(); } catch (e) { /* rien */ } S.cleanup = null; }
     if (boardUnsub) { boardUnsub(); boardUnsub = null; }
     if (S.over) S.i = steps.length - 1; else S.i++;
     render();
@@ -1074,6 +1192,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     if (sc.ty === "echo") { var bad = sc.test(S.f), pick = bad ? sc.bad : sc.good; if (!pick) { S.i++; return render(); } return renderEcho(st, pick, bad); }
     if (sc.ty === "event") return renderEvent(st);
     if (sc.ty === "revenue") return renderRevenue(st);
+    if (sc.ty === "bet") return renderBet(st);
     if (sc.ty === "choice") return renderChoice(st);
     if (sc.ty === "pick") return renderPick(st);
     if (sc.ty === "profile") return renderProfile(st);
@@ -1140,7 +1259,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
         var cls = o.ok === true ? "ok" : (o.ok === false ? "ko" : "");
         var title = o.ok === true ? "Bien joué" : (o.ok === false ? "Aïe" : "Décision prise");
         document.getElementById("fb").innerHTML = '<div class="fb ' + cls + '"><h3>' + title + "</h3><p>" + esc(o.fb) + "</p>" +
-          (best ? "<p><b>Mieux valait :</b> " + esc(best.t) + "</p>" : "") + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
+          (best ? "<p><b>" + (o.ok === false ? "Mieux valait" : "Autre piste, plus solide") + " :</b> " + esc(best.t) + "</p>" : "") + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
         bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
       };
     });
@@ -1292,6 +1411,166 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     $main.innerHTML = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + '</span><div class="event"><b>' + esc(pick.title) + "</b><p style=\"margin:0\">" + esc(pick.text) + "</p>" + chips(dd) + "</div>" + lowWarn() + goBtn() + "</section>";
     bindGo();
   }
+
+  /* ---------- Le pari de Michel et ses mini-jeux ---------- */
+  var BETS = {
+    pong: {
+      ctx: ["Michel déboule, téléphone brandi : « J'ai codé un jeu sur l'appli du festival. Un Pong. Je te parie 10 k€ que tu ne tiens pas 12 secondes. »",
+            "Gérard, de loin : « Ne tope pas. » Ce qui est, chez Gérard, un encouragement."],
+      rule: "Renvoie la balle avec ta raquette (souris, doigt, ou flèches haut et bas). Tiens 12 secondes sans la laisser passer."
+    },
+    stop: {
+      ctx: ["Michel revient, plus sûr de lui : « Nouveau jeu : la jauge d'ambiance. Tu l'arrêtes dans le vert deux fois sur trois ? 10 k€ que non. »",
+            "Il a l'air d'avoir parié son loyer. Ce n'est pas ton problème."],
+      rule: "Une barre fait des allers-retours. Appuie sur STOP quand elle est dans la zone verte. Il faut réussir deux essais sur trois."
+    },
+    simon: {
+      ctx: ["Michel, en larmes de joie, a refait un jeu : « Quatre notes, une mélodie à retenir. Six notes d'affilée : 10 k€ que tu craques. »",
+            "Il a dit « mélodie ». Tambour, à l'autre bout du couloir, lève la tête."],
+      rule: "Écoute la mélodie, puis reproduis-la en touchant les touches dans le même ordre. Elle s'allonge d'une note à chaque manche, jusqu'à six."
+    }
+  };
+
+  var MINI = {};
+
+  MINI.pong = function (box, done) {
+    var W2 = 320, H2 = 200, PH = 46, PW = 7;
+    box.innerHTML = '<canvas class="mcanvas" width="' + W2 + '" height="' + H2 + '" aria-label="Terrain de Pong"></canvas><p class="mstat" id="mstat" aria-live="off">Temps : 0,0 s / 12</p>';
+    var cv = box.querySelector("canvas"), ctx = cv.getContext("2d");
+    var m = { py: H2 / 2, bx: W2 / 2, by: H2 / 2, vx: 150, vy: 95, t: 0 };
+    S.mini = m;
+    var last = 0, raf = 0, fin = false, keys = {};
+    function setY(clientY) { var r = cv.getBoundingClientRect(); m.py = clamp((clientY - r.top) * (H2 / r.height), PH / 2, H2 - PH / 2); }
+    cv.addEventListener("pointermove", function (e) { setY(e.clientY); });
+    cv.addEventListener("pointerdown", function (e) { setY(e.clientY); });
+    function kd(e) { if (e.key === "ArrowUp" || e.key === "ArrowDown") { keys[e.key] = true; e.preventDefault(); } }
+    function ku(e) { if (e.key === "ArrowUp" || e.key === "ArrowDown") keys[e.key] = false; }
+    document.addEventListener("keydown", kd); document.addEventListener("keyup", ku);
+    function draw() {
+      ctx.fillStyle = "#120b24"; ctx.fillRect(0, 0, W2, H2);
+      ctx.strokeStyle = "#43326f"; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.moveTo(W2 / 2, 0); ctx.lineTo(W2 / 2, H2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#ffd23f"; ctx.fillRect(8, m.py - PH / 2, PW, PH);
+      ctx.fillStyle = "#ff3d81"; ctx.beginPath(); ctx.arc(m.bx, m.by, 6, 0, Math.PI * 2); ctx.fill();
+    }
+    function end(win) { if (fin) return; fin = true; cancelAnimationFrame(raf); done(win); }
+    function tick(ts) {
+      if (fin) return;
+      var dt = last ? Math.min(0.05, (ts - last) / 1000) : 0.016; last = ts;
+      if (keys.ArrowUp) m.py = clamp(m.py - 260 * dt, PH / 2, H2 - PH / 2);
+      if (keys.ArrowDown) m.py = clamp(m.py + 260 * dt, PH / 2, H2 - PH / 2);
+      m.t += dt; m.bx += m.vx * dt; m.by += m.vy * dt;
+      if (m.by < 6) { m.by = 6; m.vy = Math.abs(m.vy); }
+      if (m.by > H2 - 6) { m.by = H2 - 6; m.vy = -Math.abs(m.vy); }
+      if (m.bx > W2 - 6) { m.bx = W2 - 6; m.vx = -Math.abs(m.vx); }
+      if (m.vx < 0 && m.bx <= 8 + PW + 6) {
+        if (Math.abs(m.by - m.py) <= PH / 2 + 5) { m.bx = 8 + PW + 6; m.vx = Math.abs(m.vx) * 1.07; m.vy += (m.by - m.py) * 2.2; m.vy = clamp(m.vy, -220, 220); }
+        else if (m.bx < 0) { draw(); return end(false); }
+      }
+      draw();
+      var s = document.getElementById("mstat"); if (s) s.textContent = "Temps : " + Math.min(12, m.t).toFixed(1).replace(".", ",") + " s / 12";
+      if (m.t >= 12) return end(true);
+      raf = requestAnimationFrame(tick);
+    }
+    draw(); raf = requestAnimationFrame(tick);
+    return function () { fin = true; cancelAnimationFrame(raf); document.removeEventListener("keydown", kd); document.removeEventListener("keyup", ku); };
+  };
+
+  MINI.stop = function (box, done) {
+    var ZW = [0.30, 0.22, 0.16], SP = [0.9, 1.25, 1.6], round = 0, hits = 0, pos = 0, dir = 1, last = 0, raf = 0, fin = false, lock = false, zone = [0, 0];
+    box.innerHTML = '<p class="mstat" id="mstat">Essai 1 / 3</p><div class="stopbar" id="sbar"><i class="zone" id="szone"></i><i class="mark" id="smark"></i></div><div id="smsg" class="mstat" style="min-height:24px"></div><button class="btn" id="sstop" style="margin-top:6px">STOP !</button>';
+    var zEl = document.getElementById("szone"), mEl = document.getElementById("smark"), msg = document.getElementById("smsg"), stat = document.getElementById("mstat");
+    var m = { get pos() { return pos; }, get zone() { return zone; }, get hits() { return hits; }, get round() { return round; } };
+    S.mini = m;
+    function setZone() { var w = ZW[round], a = 0.08 + Math.random() * (0.84 - w); zone = [a, a + w]; zEl.style.left = (a * 100) + "%"; zEl.style.width = (w * 100) + "%"; stat.textContent = "Essai " + (round + 1) + " / 3"; }
+    function end(win) { if (fin) return; fin = true; cancelAnimationFrame(raf); done(win); }
+    function press() {
+      if (fin || lock) return; lock = true;
+      var hit = pos >= zone[0] && pos <= zone[1];
+      if (hit) hits++;
+      msg.textContent = hit ? "Dans le vert !" : "Raté…";
+      setTimeout(function () {
+        if (fin) return;
+        round++; msg.textContent = "";
+        if (round >= 3 || hits >= 2 || (round - hits) >= 2) return end(hits >= 2);
+        pos = 0; dir = 1; setZone(); lock = false;
+      }, 650);
+    }
+    document.getElementById("sstop").onclick = press;
+    function tick(ts) {
+      if (fin) return;
+      var dt = last ? Math.min(0.05, (ts - last) / 1000) : 0.016; last = ts;
+      if (!lock) { pos += dir * SP[Math.min(round, 2)] * dt; if (pos >= 1) { pos = 1; dir = -1; } if (pos <= 0) { pos = 0; dir = 1; } }
+      mEl.style.left = (pos * 100) + "%";
+      raf = requestAnimationFrame(tick);
+    }
+    setZone(); raf = requestAnimationFrame(tick);
+    return function () { fin = true; cancelAnimationFrame(raf); };
+  };
+
+  MINI.simon = function (box, done) {
+    var NOTES = [["Do", 262], ["Mi", 330], ["Sol", 392], ["Do aigu", 523]], N = 6, seq = [], round = 0, idx = 0, busy = true, fin = false, timers = [], ac = null;
+    for (var i = 0; i < N; i++) seq.push(Math.floor(Math.random() * 4));
+    box.innerHTML = '<p class="mstat" id="mstat">Écoute…</p><div class="pads">' + NOTES.map(function (n, i) { return '<button class="pad p' + i + '" data-i="' + i + '" aria-label="Note ' + n[0] + '">' + n[0] + "</button>"; }).join("") + "</div>";
+    var pads = box.querySelectorAll(".pad"), stat = document.getElementById("mstat");
+    S.mini = { get seq() { return seq; }, get round() { return round; }, get busy() { return busy; } };
+    function later(f, ms) { timers.push(setTimeout(f, ms)); }
+    function beep(i) {
+      try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); var o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = NOTES[i][1]; o.type = "triangle"; g.gain.value = 0.12; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.22); } catch (e) { /* pas de son */ }
+    }
+    function flash(i) { pads[i].classList.add("on"); beep(i); later(function () { pads[i].classList.remove("on"); }, 300); }
+    function end(win) { if (fin) return; fin = true; done(win); }
+    function play() {
+      busy = true; idx = 0; stat.textContent = "Écoute… (manche " + (round + 1) + " / " + N + ")";
+      for (var k = 0; k <= round; k++) (function (k) { later(function () { flash(seq[k]); }, 700 + k * 600); })(k);
+      later(function () { busy = false; stat.textContent = "À toi ! (" + (round + 1) + " note" + (round ? "s" : "") + ")"; }, 700 + (round + 1) * 600);
+    }
+    Array.prototype.forEach.call(pads, function (b) {
+      b.onclick = function () {
+        if (busy || fin) return;
+        var i = +b.getAttribute("data-i"); flash(i);
+        if (i !== seq[idx]) { busy = true; stat.textContent = "Fausse note !"; return later(function () { end(false); }, 600); }
+        idx++;
+        if (idx > round) {
+          round++; busy = true;
+          if (round >= N) { stat.textContent = "Mélodie parfaite !"; return later(function () { end(true); }, 600); }
+          stat.textContent = "Bien ! On allonge…"; later(play, 700);
+        }
+      };
+    });
+    play();
+    return function () { fin = true; timers.forEach(clearTimeout); try { if (ac) ac.close(); } catch (e) { /* rien */ } };
+  };
+
+  function renderBet(st) {
+    var sc = st.sc, B = BETS[sc.g], settled = false;
+    $main.innerHTML = '<section class="card"><span class="tag">Le pari de Michel</span>' + whoBox("M") + ctxBox(B.ctx) +
+      '<p class="q">Tu tapes dans la main de Michel ?</p><div id="bet"><div class="opts">' +
+      '<button class="opt" id="yes"><span class="k">A</span><span>Je tope : 10 k€ sur la table</span></button>' +
+      '<button class="opt" id="no"><span class="k">B</span><span>Non merci, je suis DRH, pas joueur</span></button></div>' +
+      '<p class="hint" style="margin:10px 0 0">Pari facultatif. Gagner rapporte 10 de trésorerie et 20 points ; perdre coûte 10 de trésorerie. Refuser ne coûte rien.</p></div><div id="fb"></div></section>';
+    function result(win, refused) {
+      if (settled) return; settled = true;
+      if (S.cleanup) { try { S.cleanup(); } catch (e) { /* rien */ } S.cleanup = null; }
+      var loss = Math.min(10, Math.max(0, S.cash - 1));
+      var dd = refused ? apply([0, 0, 0], 0, 0, 0) : (win ? apply([10, 0, 0], 20, 0, 0) : apply([-loss, 0, 0], 0, 0, 0));
+      var title = refused ? "Prudent" : (win ? "Pari gagné" : "Pari perdu");
+      var txt = refused ? "Michel range son téléphone avec un soupir de joueur frustré. Gérard te regarde, ému : c'est la première décision qu'il approuve sans réserve."
+        : (win ? "Michel te tend 10 k€ en pièces, en billets et en bons de réduction pour la friterie. Il jure de se refaire à la prochaine édition."
+        : "Michel encaisse en dansant sur la table. Gérard soupire en regardant son tableur : « Je l'avais dit. »");
+      var bet = document.getElementById("bet"); if (bet) bet.innerHTML = "";
+      document.getElementById("fb").innerHTML = '<div class="fb ' + (win ? "ok" : (refused ? "" : "ko")) + '"><h3>' + title + "</h3><p>" + esc(txt) + "</p>" + chips(dd) + lowWarn() + goBtn() + "</div>";
+      bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    document.getElementById("no").onclick = function () { result(false, true); };
+    document.getElementById("yes").onclick = function () {
+      var bet = document.getElementById("bet");
+      bet.innerHTML = '<p class="hint" style="margin:0 0 10px">' + esc(B.rule) + '</p><div class="mini" id="mbox"></div>';
+      Array.prototype.forEach.call($main.querySelectorAll(".ctx, .q"), function (e) { e.style.display = "none"; });
+      S.cleanup = MINI[sc.g](document.getElementById("mbox"), function (win) { result(win, false); });
+      scrollTop();
+    };
+  }
+
 
   /* ---------- Bilan de fin d'édition ---------- */
   function renderVerdict(st) {

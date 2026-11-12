@@ -50,6 +50,9 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 
 Jeu à choix sur les trois premiers chapitres de RHC (besoin en recrutement, relations de travail, évaluation) : trois éditions de festival, des dilemmes, des entretiens à mener. Le scénario et le moteur sont dans `jeux/drh-festival.html` (les scènes sont dans le tableau `EDITIONS`). Pas de code d'accès pour l'instant.
 
+- **Variantes** : cinq scènes existent en deux versions (tableau `ALT`), tirées au hasard à chaque partie, pour que deux parties ne se ressemblent pas.
+- **Le pari de Michel** : avant chaque recette de festival, Michel propose un pari facultatif de 10 de trésorerie. S'il est accepté, un mini-jeu se lance (Pong, jauge à arrêter dans le vert, mélodie à retenir). Gagner : +10 de trésorerie et +20 points ; perdre : −10 de trésorerie (jamais jusqu'à la faillite) ; refuser : rien. Ces points ne comptent pas dans le score maximal, donc ils n'abaissent pas le palier atteint.
+
 ## Classes
 
 Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : BTS MCO JV1, 1STMG1, TSTMG1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
