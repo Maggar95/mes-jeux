@@ -3,9 +3,9 @@
    Les codes ne sont jamais écrits en clair : on garde leur empreinte (SHA-256).
    Pour changer un code, demande à Claude de recalculer l'empreinte. */
 window.MESJEUX_SECTIONS = [
-  { id: "bts", title: "BTS", classes: ["BTS MCO JV1"] },
   { id: "premiere", title: "Première", classes: ["1STMG1"] },
   { id: "terminale", title: "Terminale", classes: ["TSTMG1"] },
+  { id: "bts", title: "BTS", classes: ["BTS MCO JV1"] },
   { id: "perso", title: "Perso", digits: 4, codeHash: "b78d125addc643d00a0fc62475ec89306f435505efd996a34bdfbd725b7fa637" }
 ];
 

@@ -55,7 +55,7 @@ Jeu à choix sur les trois premiers chapitres de RHC (besoin en recrutement, rel
 
 ## Classes
 
-Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : BTS MCO JV1, 1STMG1, TSTMG1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
+Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : 1STMG1, TSTMG1, BTS MCO JV1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
 
 ## Ajouter un jeu
 
