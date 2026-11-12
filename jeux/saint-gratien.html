@@ -1,4 +1,20 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+.pen{display:grid;gap:10px;margin-top:14px}
+.pen-info{margin:0;font-weight:600;color:var(--muted)}
+.pen-goal{position:relative;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,64px);gap:4px;padding:8px;border:3px solid var(--fg);border-bottom-width:0;border-radius:6px 6px 0 0;background:var(--panel2)}
+.pen-cell{border:2px dashed var(--line);border-radius:8px;background:transparent;color:var(--fg);cursor:pointer;position:relative;z-index:2;font:inherit}
+.pen-cell:hover:not(:disabled),.pen-cell:focus-visible{border-color:var(--accent);background:rgba(255,198,41,.15)}
+.pen-cell:disabled{cursor:default}
+.pen-cell.goal{background:var(--good);border-style:solid;border-color:var(--good)}
+.pen-cell.miss{background:var(--bad);border-style:solid;border-color:var(--bad)}
+.pen-keeper{position:absolute;left:50%;bottom:6px;width:48px;margin-left:-24px;display:grid;justify-items:center;transition:left .35s ease-out;z-index:1;pointer-events:none}
+.pen-head{display:block;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#f1c9a5 40%,#d29a70);box-shadow:0 0 10px 2px rgba(255,255,255,.7)}
+.pen-body{display:block;width:34px;height:26px;border-radius:6px 6px 3px 3px;background:#12a05a;margin-top:2px}
+.pen-keeper.dive .pen-body{transform:rotate(-8deg)}
+.pen-msg{margin:0;min-height:1.6em;font-weight:700}
+.pen-msg.ok{color:var(--good)} .pen-msg.ko{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){.pen-keeper{transition:none}}
+</style></head><body>
 <title>Direction Saint-Gratien</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
@@ -225,6 +241,62 @@ svg.map { flex: none; width: 100%; height: auto; display: block; background: var
 /*DATA_START*/
 const END_T = 240;
 /* ---------- Mini-jeux d'Eva (tirés au hasard) ---------- */
+const PEN = (function(){
+  let tok = 0, tm = null;
+  function stop(){ tok++; if (tm){ clearTimeout(tm); tm = null; } }
+  function run(area, done){
+    stop(); const my = tok;
+    const N = 5, NEED = 3; let shot = 0, goals = 0, last = -1, busy = false;
+    area.innerHTML = '';
+    const wrap = document.createElement('div'); wrap.className = 'pen';
+    const info = document.createElement('p'); info.className = 'pen-info';
+    const goal = document.createElement('div'); goal.className = 'pen-goal';
+    const keeper = document.createElement('div'); keeper.className = 'pen-keeper'; keeper.setAttribute('aria-hidden','true');
+    keeper.innerHTML = '<i class="pen-head"></i><i class="pen-body"></i>';
+    goal.appendChild(keeper);
+    const msg = document.createElement('p'); msg.className = 'pen-msg'; msg.setAttribute('aria-live','polite');
+    const cells = [];
+    const NAMESROW = ['en haut','en bas'], NAMESCOL = ['à gauche','au centre','à droite'];
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++){
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'pen-cell';
+      b.setAttribute('aria-label', 'Tirer ' + NAMESROW[r] + ' ' + NAMESCOL[c]);
+      b.addEventListener('click', () => shoot(r, c));
+      goal.appendChild(b); cells.push(b);
+    }
+    wrap.append(info, goal, msg); area.appendChild(wrap);
+    function paint(){ info.textContent = 'Tir ' + Math.min(shot + 1, N) + ' sur ' + N + ' · buts : ' + goals + ' (il en faut ' + NEED + ')'; }
+    paint();
+    function shoot(r, c){
+      if (busy || my !== tok) return; busy = true;
+      cells.forEach(b => b.disabled = true);
+      let kc = Math.floor(Math.random() * 3);
+      if (c === last && Math.random() < 0.5) kc = c;
+      last = c;
+      keeper.style.left = (kc * 33.33 + 16.66) + '%';
+      keeper.classList.add('dive');
+      let text, ok = false;
+      if (kc === c) text = 'Arrêté ! Louis a lu dans tes pensées.';
+      else if (r === 0 && c !== 1 && Math.random() < 0.15) text = 'Sur la barre ! Le crâne de Louis a failli la heurter.';
+      else { ok = true; goals++; text = 'BUT ! Louis plonge de l’autre côté.'; }
+      msg.textContent = text; msg.className = 'pen-msg ' + (ok ? 'ok' : 'ko');
+      cells[r * 3 + c].classList.add(ok ? 'goal' : 'miss');
+      shot++; paint();
+      tm = setTimeout(() => {
+        if (my !== tok) return;
+        const left = N - shot;
+        if (goals >= NEED || goals + left < NEED || shot >= N){
+          const win = goals >= NEED;
+          done(win ? 'win' : 'lose', 'Série terminée : ' + goals + ' but' + (goals > 1 ? 's' : '') + ' sur ' + shot + '.');
+          return;
+        }
+        keeper.style.left = '50%'; keeper.classList.remove('dive');
+        cells.forEach(b => { b.disabled = false; b.classList.remove('goal','miss'); });
+        msg.textContent = ''; busy = false;
+      }, 1300);
+    }
+  }
+  return { run, stop };
+})();
 const EVA = (function(){
   const rint = (a,b) => a + Math.floor(Math.random()*(b-a+1));
   const shuf = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j = rint(0,i); [a[i],a[j]] = [a[j],a[i]]; } return a; };
@@ -372,8 +444,8 @@ const MAP = (function(){
    ['station','Station-service','C',320,140,0,"Faire un tour à la station-service","Le plein, ou pas."],
    ['marielle','Chez Marielle|et Fabien','C',50,216,0,"Frapper chez Marielle et Fabien","Une quiche, et Arthur qui compte des burpees."],
    ['micka','Chez les parents|de Micka','C',140,216,0,"Sonner chez les parents de Micka","Un chien, un chat, une promenade."],
-   ['virgile','Les hauteurs|chez Virgile','C',230,216,0,"Monter chez Virgile","Une Mazda qui démarre quand elle veut."],
-   ['cindy','Devant chez|Cindy','K',180,50,0,"Passer devant chez Cindy, à Conflans","Collée à Cormeilles. Un carton laissé à la voisine."],
+   ['virgile','Les hauteurs','C',230,216,0,"Monter dans les hauteurs","Une Mazda qui démarre quand elle veut."],
+   ['cindy','Devant chez|Cindy','K',180,50,0,"Aller à Conflans","Collée à Cormeilles. Un carton laissé à la voisine."],
    // La gare
    ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, Chrisly et JC."],
    ['parvis','Le parvis','C',140,292,0,"Rester sur le parvis","Audrey, Quentin et un chauffeur très arrangeant."],
@@ -408,7 +480,7 @@ const MAP = (function(){
   const RULES = [
     [/^(Chez Eva|Chez toi|Le canapé|La table de jeux|Le before)/, 'eva'], [/^Cormeilles-en-Parisis$/, 'rue'],
     [/^Le (lycée|portail du lycée)/, 'lycee'], [/^Le city-stade/, 'citystade'], [/^L'épicerie/, 'epicerie'], [/^La boulangerie/, 'boulangerie'],
-    [/^Part de Folie/, 'pdf'], [/^Station-service/, 'station'], [/^(Chez Marielle|Deux portes)/, 'marielle'], [/^(Chez les parents de Micka|Dans la rue · avec le chien)/, 'micka'],
+    [/^Part de Folie/, 'pdf'], [/^Station-service/, 'station'], [/^(Chez Marielle|Les deux maisons)/, 'marielle'], [/^(Chez les parents de Micka|Dans la rue · avec le chien)/, 'micka'],
     [/^Les hauteurs/, 'virgile'], [/^(Parvis de la gare|Devant la gare)/, 'parvis'], [/^(La gare · Cormeilles|Les bornes de tickets)/, 'gare'],
     [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'],
     [/^Franconville · (bus de remplacement|dans le bus)/, 'busr'], [/^Le Plessis-Bouchard/, 'mael'], [/^Sous Le Plessis-Bouchard/, 'egouts'],
@@ -501,6 +573,7 @@ function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AV
 
 const ITEMS = {
   plat_eva: {k:'m', n:"Plat d'Eva sous cellophane", s:2, h:"Le plat d'Eva", w:"Le plat d'Eva, sous cellophane, passe de main en main. {Y} n'a presque rien avalé de la journée : le plat est vide à 23h50 et tout le monde remercie Eva à distance."},
+  gants_louis: {k:'s', n:"Gants neufs de Louis", s:1.5, h:"L'étiquette est encore dessus", w:"Les gants de gardien de Louis, étiquette toujours accrochée. À minuit, {Y} arrête une bouteille de champagne en plein vol et tout le monde applaudit."},
   jeu_societe: {k:'s', n:"Jeu de société d'Eva", s:2, h:"Une partie avant minuit", w:"Le jeu de société d'Eva. {Y} ouvre la boîte, lit les règles à voix haute, puis demande qui veut faire les équipes. À minuit, il y a quatre parties en cours sur la table, des cartes sous le canapé, et personne ne s'est mis d'accord sur le score."},
   bouteille_coffre: {k:'b', n:"Bouteille du coffre (sans étiquette)", s:4, h:"La bouteille du coffre", w:"{Y} essuie la poussière, déchiffre un mot au feutre : « À ouvrir pour une grande occasion. » Il hésite, regarde l'heure, regarde la bouteille. Le bouchon saute sans bruit. Un silence, puis : « Qui t'a donné ça ? » Tu réponds « un coffre ». Il ne pose pas d'autre question, il va chercher des verres plus grands."},
   the_cindy: {k:'b', n:"Thé glacé de Singapour", s:2.5, h:"Le thé qui vient de loin", w:"Un thé glacé de Singapour, aux fleurs, dans une bouteille que {Y} ne sait pas ouvrir. Il lit l'étiquette en entier, fait semblant de comprendre, puis le verse dans les verres. À minuit, tout le monde demande où il l'a trouvé. « J'ai mes sources. »"},
@@ -628,14 +701,13 @@ const SCENES = {
    B("L'épicerie pas chère", S=>maybe(S,'epicerie'), {t:10}),
    B("La boulangerie du coin", S=>maybe(S,'boulangerie'), {t:10}),
    B("Part de Folie", S=>maybe(S,'partdefolie'), {t:10, who:'alexandra'}),
-   B("Les hauteurs, chez Virgile", S=>maybe(S,'virgile'), {t:20, who:['virgile','katia']}),
-   B("Les deux portes côte à côte, chez les parents d'Arthur et de Micka", S=>maybe(S,'parents'), {t:15}),
-   B("Quentin et Audrey, qui descendent du train", S=>maybe(S,'chez_quentin'), {t:10, who:['audrey','quentinm']}),
-   B("La gare", S=>maybe(S,'gare'), {t:15}),
+   B("Les hauteurs", S=>maybe(S,'virgile'), {t:20, who:['virgile','katia']}),
+   B("Les deux maisons côte à côte, chez les parents d'Arthur et de Micka", S=>maybe(S,'parents'), {t:15}),
+   B(S=>(S.player==='audrey'||S.player==='quentinm') ? "La gare" : "La gare, où Quentin et Audrey descendent du train", S=>maybe(S,'gare'), {t:15}),
    B("Le lycée", S=>maybe(S,'lycee'), {t:15, who:'marco'}),
    B("Le city-stade", S=>maybe(S,'citystade'), {t:10}),
-   B("Le hangar d'Antonin, rentré hier de la montagne", S=>maybe(S,'antonin_garage'), {t:15, who:'antonin'}),
-   B("La porte de Cindy, partie à Singapour", S=>maybe(S,'cindy_porte'), {t:10, who:'cindy'}),
+   B("Un hangar en bordure de ville", S=>maybe(S,'antonin_garage'), {t:15, who:'antonin'}),
+   B("Conflans", S=>maybe(S,'cindy_porte'), {t:10, who:'cindy'}),
    B("Appeler un ami", 'appel', {t:0}),
    B("Chercher un petit boulot de dernière minute", 'boulot', {t:5}),
    B(S=>S.player==='yann'?"Rentrer chez toi, à Saint-Gratien":"Partir pour Saint-Gratien", 'transport', {t:0})
@@ -881,7 +953,7 @@ const SCENES = {
   text:"Tu as tellement écouté son plan que tu as réservé deux billets pour un festival en juillet, avec une tente et un hôtel. Il est 00h12. Alexandra a retrouvé son téléphone. Yann, lui, est déjà totalement torché."},
 
  /* ---------- Virgile ---------- */
- virgile: {p:"Les hauteurs · chez Virgile", who:'virgile',
+ virgile: {p:"Les hauteurs · Cormeilles", who:'virgile',
   text:"La montée t'a coupé les jambes. Virgile ouvre en tee-shirt, un ordinateur portable sous le bras. Il referme l'écran d'un geste sec, mais pas assez vite pour que tu ne voies pas une fenêtre de terminal. « Je ne peux pas t'en parler. C'est lié à l'armée. » Tu n'as encore rien demandé.\n\nDerrière lui, Katia ouvre une Ruby : « Viril, c'est qui ? »",
   c:[
    B("Lui demander la Mazda pour te dépanner", 'mazda_q', {t:5}),
@@ -890,27 +962,27 @@ const SCENES = {
    B("Accepter la Ruby de Katia", 'katia', {t:5}),
    B("Redescendre", 'rue', {t:10})
   ]},
- virgile_job: {p:"Les hauteurs · chez Virgile", who:'virgile',
+ virgile_job: {p:"Les hauteurs · Cormeilles", who:'virgile',
   text:S=>"« C'est un jeu vidéo ? » « Je ne peux pas t'en parler. » « Une appli ? » « Je ne peux pas t'en parler. » « Un logiciel qui lit dans les pensées ? » Il hésite une seconde. « Je ne peux pas t'en parler. » Tu as maintenant la certitude que c'est un logiciel. Virgile aussi, mais il ne le dit pas.",
   c:[
    B("Continuer à deviner", 'virgile_job', {t:5, note:"« Quelque chose avec des drones ? » Il a refermé son ordinateur sans un mot. Ça veut peut-être dire oui."}),
    B("Lui proposer un deal : plus de questions contre la Mazda", 'mazda_q', {t:5}),
    B("Arrêter là", 'virgile', {t:5})
   ]},
- virgile_heure: {p:"Les hauteurs · chez Virgile", who:'virgile',
+ virgile_heure: {p:"Les hauteurs · Cormeilles", who:'virgile',
   text:"« Je ne peux pas t'en parler. » Il répète quand tu précises que c'est juste l'heure. Katia lui arrache le téléphone : « Il est {time}, Viril. »\n\nIl te glisse une enveloppe cachetée : « À ouvrir à minuit. Ne me demande rien. »",
   c:[
    B("Prendre l'enveloppe", 'virgile', {t:5, item:'enveloppe'}),
    B("La lui rendre, ça fait peur", 'virgile', {t:5})
   ]},
- katia: {p:"Les hauteurs · chez Virgile", who:'katia',
+ katia: {p:"Les hauteurs · Cormeilles", who:'katia',
   text:"Katia te tend une Ruby déjà ouverte. « Pour moi, c'est toujours midi, mon chou. Et si JC parle de sa doro party, je veux en être. » Elle lève un doigt. « On fait une chèvre ? C'est ma quinzième de la soirée. » Elle te regarde droit dans les yeux, et refuser ne semble pas une option.",
   c:[
    B("Trinquer, une seule", 'katia_deal', {t:10, item:'ruby'}),
    B("Jouer à la chèvre avec elle", 'fin_katia', {t:30}),
    B("Refuser poliment", 'virgile', {t:5})
   ]},
- katia_deal: {p:"Les hauteurs · chez Virgile", who:'katia',
+ katia_deal: {p:"Les hauteurs · Cormeilles", who:'katia',
   text:"Katia aime les gens qui trinquent. « Tu veux les clés de la Mazda ? Elles sont au congélateur, avec les glaçons. Viril ne regarde jamais là. » Elle rit. « Prends-les, il ne les cherchera pas avant minuit. »",
   c:[
    B("Prendre les clés dans le congélateur", 'virgile', {t:5, flag:'cles', note:"Les clés sont glacées. Katia applaudit."}),
@@ -954,7 +1026,7 @@ const SCENES = {
   c:[B("Arriver à Saint-Gratien", S=>maybe(S,'saintgratien',0.3), {t:20, note:"Virgile t'a dit : « Si je te dis que ça fait cinq mois que je cherche une Mazda aussi bien… je ne peux pas t'en parler. » Il n'a rien d'autre à dire."})]},
 
  /* ---------- Parents d'Arthur et de Micka ---------- */
- parents: {p:"Deux portes côte à côte · Cormeilles",
+ parents: {p:"Les deux maisons côte à côte · Cormeilles",
   text:"À gauche, Marielle et Fabien, les parents d'Arthur. À droite, les parents de Micka. Une seule fenêtre est allumée, et tu ne sais plus laquelle.",
   c:[
    B("Sonner chez Marielle et Fabien", 'marielle', {t:5}),
@@ -1122,6 +1194,7 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Aller aux bornes de tickets", 'gare_borne', {t:5}),
    B("Parler à Chrisly", 'chrisly', {t:5}),
    B("Parler à JC", 'jc', {t:5}),
+   B("Rejoindre Quentin et Audrey, sur le parvis", 'chez_quentin', {t:5, who:['audrey','quentinm']}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
  chrisly: {p:"La gare · Cormeilles", who:'chrisly',
@@ -1551,7 +1624,32 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:"Quatre ados, un ballon, un filet cassé. « Monsieur ! Un penalty ? Si vous marquez, on vous donne un truc. Si vous ratez, vous êtes nul. »",
   c:[
    B("Tirer un penalty", S=>S.pass?'citystade_ok':'citystade_ko', {t:10, fx:S=>{ S.pass = rnd(0.5); }}),
+   B("Regarder le grand type dans les cages", 'louis', {t:5}),
    B("Refuser, tu as autre chose à faire", 'rue', {t:5})
+  ]},
+ louis: {p:"Le city-stade · Cormeilles",
+  text:"Dans les cages, un grand type immobile, bras écartés. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
+  c:[
+   B("Le défier aux penalties", 'louis_jeu', {t:15}),
+   B("Faire demi-tour", 'citystade', {t:5})
+  ]},
+ louis_jeu: {p:"Le city-stade · Cormeilles", mini:'penalty',
+  text:"Louis se frotte le crâne, qui reflète le projecteur dans tes yeux. « Choisis ton coin. » Cinq tirs, il en faut trois.",
+  c:[]},
+ louis_win: {p:"Le city-stade · Cormeilles",
+  text:S=>S.bag.indexOf('gants_louis') >= 0
+   ? "Louis te serre la main, le crâne brillant de dépit. « Tu as déjà mes gants. Tu peux me remettre une raclée si tu veux. »"
+   : "Louis enlève ses gants neufs, étiquette comprise, et te les tend avec la gravité d'un capitaine. « Tu as gagné. Prends. Ils n'ont jamais servi. »",
+  c:[
+   B("Prendre les gants et repartir", 'rue', {t:5, item:'gants_louis', need:S=>S.bag.indexOf('gants_louis') < 0}),
+   B("Repartir", 'rue', {t:5, need:S=>S.bag.indexOf('gants_louis') >= 0}),
+   B("Redemander une série", 'louis_jeu', {t:15})
+  ]},
+ louis_lose: {p:"Le city-stade · Cormeilles",
+  text:"Louis ramasse le ballon sans un mot, s'essuie le crâne d'un revers de gant et repart dans ses cages. « Il faut viser les coins. Ou prier. »",
+  c:[
+   B("Redemander une série", 'louis_jeu', {t:15}),
+   B("Repartir, la tête basse", 'rue', {t:5})
   ]},
  citystade_ok: {p:"Le city-stade · Cormeilles",
   text:"Le ballon part, trouve la lucarne. Les ados hurlent. Le plus petit vient te serrer la main avec solennité. « On vous donne notre plus beau cadeau. » Un sac de confettis.",
@@ -1987,7 +2085,7 @@ function fill(str){
   });
 }
 function val(x){ return typeof x === 'function' ? x(S) : x; }
-function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if (typeof EVA !== 'undefined') EVA.stop(); }
+function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if (typeof EVA !== 'undefined') EVA.stop(); if (typeof PEN !== 'undefined') PEN.stop(); }
 function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== id); }); }
 
 function renderStart(){
@@ -2151,7 +2249,8 @@ function showScene(id, sc){
   }
   if (sc.mini){
     const area = el('div'); box.appendChild(area);
-    S.evaGame = EVA.run(area, S.evaGame, (res, detail)=>{ pick({to: res === 'win' ? 'eva_jeux_win' : 'eva_jeux_lose', t:0, note: detail}); });
+    if (sc.mini === 'penalty') PEN.run(area, (res, detail)=>{ pick({to: res === 'win' ? 'louis_win' : 'louis_lose', t:0, note: detail}); });
+    else S.evaGame = EVA.run(area, S.evaGame, (res, detail)=>{ pick({to: res === 'win' ? 'eva_jeux_win' : 'eva_jeux_lose', t:0, note: detail}); });
     box.scrollIntoView({block:'start'});
     return;
   }
