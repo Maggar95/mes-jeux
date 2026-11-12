@@ -764,7 +764,7 @@ const MAP = (function(){
    ['virgile','Les hauteurs','C',230,216,0,"Monter dans les hauteurs","Une Mazda qui démarre quand elle veut."],
    ['cindy','Devant chez|Cindy','K',180,50,0,"Aller vers Conflans-Sainte-Honorine","Collée à Cormeilles. Un carton laissé à la voisine."],
    // La gare
-   ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, JC."],
+   ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, des voyageurs fatigués."],
    ['parvis','Le parvis','C',140,292,0,"Rester sur le parvis","Audrey, Quentin et un chauffeur très arrangeant."],
    ['quai','Le quai','C',230,292,0,"Monter sur le quai","Train supprimé, puis à l’approche, puis supprimé."],
    ['arret','L’arrêt de bus','C',320,292,0,"Attendre à l’arrêt de bus","Le bus a du retard. Comme toujours."],
@@ -778,6 +778,7 @@ const MAP = (function(){
    ['busr','Bus de|remplacement','F',90,560,0,"Prendre le bus de remplacement","Il passe, ou il ne passe pas."],
    ['mael','Chez Maël','L',268,490,0,"Traverser les voies, côté Plessis-Bouchard","Il lit, il débat, il connaît quelqu’un dans les égouts."],
    // Saint-Gratien
+   ['casino','Casino|d’Enghien','S',60,690,0,"Descendre devant le casino d’Enghien","Une pièce qui tourne, un système infaillible."],
    ['sg','Saint-Gratien','S',180,690,0,"Arriver à Saint-Gratien","Enfin."],
    ['distrib','Le distributeur','S',60,755,0,"Passer au distributeur","Il donne ou il garde."],
    ['carrefour','Carrefour City','S',180,755,0,"Entrer au Carrefour City","Les rayons, la caisse, les ruptures."],
@@ -792,14 +793,14 @@ const MAP = (function(){
   const ZM = Object.fromEntries(Z.map(z => [z[0], {id:z[0], name:z[1], r:z[2], x:z[3], y:z[4] + dy(z[2]), sec:!!z[5], go:z[6], tip:z[7]}]));
   const REG = [['K','CONFLANS-STE-HONORINE',10,14,340,88],['C','CORMEILLES-EN-PARISIS',10,14,340,412],['F','FRANCONVILLE',10,442,170,150],['L','LE PLESSIS-BOUCHARD',190,442,160,150],['S','SAINT-GRATIEN',10,640,340,222],['P','PARIS',10,878,340,82]];
   const SUB = [['LA GARE',18,258,324,76],['LE HANGAR D’ANTONIN',112,334,230,76]];
-  const EDGES = [['gare','parvis'],['parvis','quai'],['quai','arret'],['hangar','moto'],['moto','heli'],['gabie','gareFP'],['gareFP','busr'],['gareFP','mael'],['sg','distrib'],['sg','carrefour'],['sg','pavillon'],['pavillon','yann'],['mael','egouts','sewer'],['egouts','reserve','sewer'],['carrefour','reserve']];
+  const EDGES = [['gare','parvis'],['parvis','quai'],['quai','arret'],['hangar','moto'],['moto','heli'],['gabie','gareFP'],['gareFP','busr'],['gareFP','mael'],['sg','casino'],['sg','distrib'],['sg','carrefour'],['sg','pavillon'],['pavillon','yann'],['mael','egouts','sewer'],['egouts','reserve','sewer'],['carrefour','reserve']];
   
   const RULES = [
     [/^(Chez Eva|Chez toi|Le canapé|La table de jeux|Le before)/, 'eva'], [/^Cormeilles-en-Parisis$/, 'rue'],
     [/^Le (lycée|portail du lycée)/, 'lycee'], [/^Le city-stade/, 'citystade'], [/^L'épicerie/, 'epicerie'], [/^La boulangerie/, 'boulangerie'],
     [/^Part de Folie/, 'pdf'], [/^Station-service/, 'station'], [/^(Chez Marielle|Les deux maisons)/, 'marielle'], [/^(Chez les parents de Micka|Dans la rue · avec le chien)/, 'micka'],
     [/^Les hauteurs/, 'virgile'], [/^(Parvis de la gare|Devant la gare)/, 'parvis'], [/^(La gare · Cormeilles|Les bornes de tickets)/, 'gare'],
-    [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'], [/^Franconville · le quai/, 'gareFP'],
+    [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'], [/^Franconville · le quai/, 'gareFP'], [/^Devant le casino/, 'casino'],
     [/^Franconville · (bus de remplacement|dans le bus)/, 'busr'], [/^Le Plessis-Bouchard/, 'mael'], [/^Sous Le Plessis-Bouchard/, 'egouts'],
     [/^Réserve du Carrefour City/, 'reserve'], [/^Devant chez Cindy/, 'cindy'], [/^Le hangar d'Antonin/, 'hangar'], [/^Sur la moto d'Antonin/, 'moto'],
     [/^Dans l'hélicoptère/, 'heli'], [/^Saint-Gratien$/, 'sg'], [/^Le distributeur/, 'distrib'], [/^Carrefour City/, 'carrefour'],
@@ -1507,10 +1508,9 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
 
  /* ---------- Gare ---------- */
  gare: {p:"La gare · Cormeilles",
-  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, JC fait tourner une pièce entre ses doigts.",
+  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». ",
   c:[
    B("Aller aux bornes de tickets", 'gare_borne', {t:5}),
-   B("Parler à JC", 'jc', {t:5}),
    B("Rejoindre Quentin et Audrey, sur le parvis", 'chez_quentin', {t:5, who:['audrey','quentinm']}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
@@ -1635,36 +1635,36 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   c:[B("Sortir par le magasin", 'saintgratien', {t:10})]},
  fin_egout_rave: {end:'lose', h:"Le Nouvel An, c'est ailleurs",
   text:"La guirlande clignote, la pancarte te sourit. Le bourdonnement devient une basse, puis un mur de son. Le tunnel s'ouvre sur une salle voûtée remplie de lasers, de gilets fluo et de gens qui dansent les yeux fermés. Quelqu'un te pose un casque de chantier sur la tête, quelqu'un d'autre te tend un gobelet et un petit quelque chose que tu ne demandes pas. À partir de là, ton souvenir se mesure en battements par minute. À minuit, tu es debout sur une enceinte, persuadé que le DJ s'appelle Lucien. Ton téléphone vibre sous une pile de gilets : « T'es où ? » Tu réponds par une suite d'emojis. Dans cette salle, personne ne sait quelle année on est, et plus personne ne pense à Yann."},
- jc: {p:"La gare · Cormeilles", who:'jc',
+ jc: {p:"Devant le casino d'Enghien", who:'jc',
   text:"JC t'accueille comme un croupier : « Pile ou face ? Mathématiquement, je suis imbattable. » Il fait tourner sa pièce entre ses doigts, regarde à droite, à gauche. Puis, très bas : « Ce soir, il y a peut-être une doro party à Paris. Gabie en est, je crois. Je ne peux pas t'en dire plus. Prévois des chaussures confortables. »",
   c:[
    B("Parier 10 € à pile ou face", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
    B("Écouter son système", 'jc_systeme', {t:10}),
    B("Lui demander l'adresse de la doro party", 'jc_doro', {t:10}),
-   B("Retourner sur le quai", 'gare', {t:5})
+   B("Retourner vers le VTC", 'vtc_casino', {t:5})
   ]},
- jc_systeme: {p:"La gare · Cormeilles", who:'jc',
+ jc_systeme: {p:"Devant le casino d'Enghien", who:'jc',
   text:"« Si on mise toujours le double après une perte, on finit forcément gagnant. » JC sort un stylo, une feuille, une courbe. « Il suffit d'avoir un capital infini. » Il ne l'a pas.",
   c:[
    B("Dire que tu es convaincu", 'jc', {t:5}),
    B("Lui faire remarquer le problème du capital", 'jc', {t:5, note:"Il a répondu : « Justement, je cherche des investisseurs. » Il t'a regardé."})
   ]},
- jc_gagne: {p:"La gare · Cormeilles", who:'jc',
+ jc_gagne: {p:"Devant le casino d'Enghien", who:'jc',
   text:"Face. JC prend la défaite en ingénieur : « Statistiquement, ça devait arriver. » Tu as maintenant {m} en poche, et un air de joueur.",
   c:[
    B("Retenter 10 €", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), t:5, fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
-   B("Arrêter là, tu as gagné", 'gare', {t:5})
+   B("Arrêter là, tu as gagné", 'vtc_casino', {t:5})
   ]},
- jc_perd: {p:"La gare · Cormeilles", who:'jc',
-  text:"Pile. Tu avais dit face. JC, impassible : « La variance, mon ami. » Il te propose de te refaire. Il connaît un endroit, à deux pas de Saint-Gratien.",
+ jc_perd: {p:"Devant le casino d'Enghien", who:'jc',
+  text:"Pile. Tu avais dit face. JC, impassible : « La variance, mon ami. » Il te propose de te refaire. Il connaît un endroit : la porte du casino, juste derrière lui.",
   c:[
    B("Retenter 10 €", S=>S.win?'jc_gagne':'jc_perd', {who:'jc', lock:pay(10), t:5, fx:S=>{ S.win = rnd(0.5); S.m += S.win?10:-10; }}),
-   B("Suivre JC au casino d'Enghien, pour te refaire", 'fin_casino', {t:30}),
-   B("Arrêter là", 'gare', {t:5})
+   B("Suivre JC dans le casino, pour te refaire", 'fin_casino', {t:30}),
+   B("Arrêter là", 'vtc_casino', {t:5})
   ]},
  fin_casino: {end:'lose', h:"La machine à sous chante",
   text:"Le casino d'Enghien est à deux pas de Saint-Gratien, ce qui est cruel. JC a « un système ». À minuit, vous êtes devant une machine qui chante, avec 2 € et une confiance intacte. Ton téléphone vibre : Yann demande où tu es."},
- jc_doro: {p:"La gare · Cormeilles", who:'jc',
+ jc_doro: {p:"Devant le casino d'Enghien", who:'jc',
   text:"JC regarde à gauche, à droite, murmure : « Je ne peux pas te donner l'adresse. Je peux te donner un rendez-vous. Gabie nous rejoint là-bas. Dix minutes : un train, un métro, un autre train. » Il met un doigt devant sa bouche.",
   c:[
    B("Le suivre", 'fin_doro', {t:10}),
@@ -1839,10 +1839,13 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   c:[B("Lui demander de regarder la route", 'vtc_fin', {t:5})]},
  vtc_fin: {p:"Dans le VTC",
   text:"Le GPS annonce : « Tournez à droite dans cent mètres. » Le chauffeur tourne à gauche. Le GPS recalcule. Il tourne à droite. Le GPS panique.",
-  c:[B("Attendre l'arrivée", S=>rnd(0.3)?'vtc_casino':'saintgratien', {t:10})]},
- vtc_casino: {p:"Dans le VTC",
-  text:"Le chauffeur te dépose devant le casino d'Enghien, à deux pas de Saint-Gratien, « parce que le GPS a dit ». Il est très désolé. Il te remet un bon de réduction pour sa prochaine course.",
-  c:[B("Marcher jusqu'à Saint-Gratien", 'saintgratien', {t:20, flag:'essouffle'})]},
+  c:[B("Attendre l'arrivée", 'vtc_casino', {t:10})]},
+ vtc_casino: {p:"Devant le casino d'Enghien",
+  text:S=>"Le chauffeur te dépose devant le casino d'Enghien, à deux pas de Saint-Gratien, « parce que le GPS a dit ». Il est très désolé. Il te remet un bon de réduction pour sa prochaine course."+(S.player==='jc' ? "" : " Sous l'enseigne lumineuse, quelqu'un fait tourner une pièce entre ses doigts."),
+  c:[
+   B("Aller voir quelqu'un devant le casino", 'jc', {t:5}),
+   B("Marcher jusqu'à Saint-Gratien", 'saintgratien', {t:15})
+  ]},
  marche1: {p:"À pied · la route",
   text:"Tu pars à pied. Après vingt minutes, le trottoir disparaît. Tu marches sur le bord de la route, avec des voitures qui te frôlent, et une impression douloureuse que c'était une mauvaise idée.",
   c:[
