@@ -445,7 +445,7 @@ const MAP = (function(){
    ['marielle','Chez Marielle|et Fabien','C',50,216,0,"Frapper chez Marielle et Fabien","Une quiche, et Arthur qui compte des burpees."],
    ['micka','Chez les parents|de Micka','C',140,216,0,"Sonner chez les parents de Micka","Un chien, un chat, une promenade."],
    ['virgile','Les hauteurs','C',230,216,0,"Monter dans les hauteurs","Une Mazda qui démarre quand elle veut."],
-   ['cindy','Devant chez|Cindy','K',180,50,0,"Aller à Conflans","Collée à Cormeilles. Un carton laissé à la voisine."],
+   ['cindy','Devant chez|Cindy','K',180,50,0,"Aller vers Conflans-Sainte-Honorine","Collée à Cormeilles. Un carton laissé à la voisine."],
    // La gare
    ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, Chrisly et JC."],
    ['parvis','Le parvis','C',140,292,0,"Rester sur le parvis","Audrey, Quentin et un chauffeur très arrangeant."],
@@ -702,12 +702,12 @@ const SCENES = {
    B("La boulangerie du coin", S=>maybe(S,'boulangerie'), {t:10}),
    B("Part de Folie", S=>maybe(S,'partdefolie'), {t:10, who:'alexandra'}),
    B("Les hauteurs", S=>maybe(S,'virgile'), {t:20, who:['virgile','katia']}),
-   B("Les deux maisons côte à côte, chez les parents d'Arthur et de Micka", S=>maybe(S,'parents'), {t:15}),
-   B(S=>(S.player==='audrey'||S.player==='quentinm') ? "La gare" : "La gare, où Quentin et Audrey descendent du train", S=>maybe(S,'gare'), {t:15}),
+   B("Les deux maisons côte à côte", S=>maybe(S,'parents'), {t:15}),
+   B(S=>"La gare", S=>maybe(S,'gare'), {t:15}),
    B("Le lycée", S=>maybe(S,'lycee'), {t:15, who:'marco'}),
    B("Le city-stade", S=>maybe(S,'citystade'), {t:10}),
    B("Un hangar en bordure de ville", S=>maybe(S,'antonin_garage'), {t:15, who:'antonin'}),
-   B("Conflans", S=>maybe(S,'cindy_porte'), {t:10, who:'cindy'}),
+   B("Aller vers Conflans-Sainte-Honorine", S=>maybe(S,'cindy_porte'), {t:10, who:'cindy'}),
    B("Appeler un ami", 'appel', {t:0}),
    B("Chercher un petit boulot de dernière minute", 'boulot', {t:5}),
    B(S=>S.player==='yann'?"Rentrer chez toi, à Saint-Gratien":"Partir pour Saint-Gratien", 'transport', {t:0})
@@ -1624,11 +1624,11 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:"Quatre ados, un ballon, un filet cassé. « Monsieur ! Un penalty ? Si vous marquez, on vous donne un truc. Si vous ratez, vous êtes nul. »",
   c:[
    B("Tirer un penalty", S=>S.pass?'citystade_ok':'citystade_ko', {t:10, fx:S=>{ S.pass = rnd(0.5); }}),
-   B("Regarder le grand type dans les cages", 'louis', {t:5}),
+   B("Regarder les cages", 'louis', {t:5}),
    B("Refuser, tu as autre chose à faire", 'rue', {t:5})
   ]},
  louis: {p:"Le city-stade · Cormeilles",
-  text:"Dans les cages, un grand type immobile, bras écartés. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
+  text:"Dans les cages, un type de taille normale, immobile, bras écartés. Son crâne rasé brille sous le projecteur comme celui de Barthez en finale, et sa tenue est si neuve qu'elle craque : maillot repassé, short à plis, gants avec l'étiquette encore accrochée. Il te regarde sans cligner.\n\n« Louis. Cinq penalties. Tu en mets trois, je te donne quelque chose. »",
   c:[
    B("Le défier aux penalties", 'louis_jeu', {t:15}),
    B("Faire demi-tour", 'citystade', {t:5})
