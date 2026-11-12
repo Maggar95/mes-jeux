@@ -452,7 +452,7 @@ const MAP = (function(){
    ['virgile','Les hauteurs','C',230,216,0,"Monter dans les hauteurs","Une Mazda qui démarre quand elle veut."],
    ['cindy','Devant chez|Cindy','K',180,50,0,"Aller vers Conflans-Sainte-Honorine","Collée à Cormeilles. Un carton laissé à la voisine."],
    // La gare
-   ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, Chrisly et JC."],
+   ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, JC."],
    ['parvis','Le parvis','C',140,292,0,"Rester sur le parvis","Audrey, Quentin et un chauffeur très arrangeant."],
    ['quai','Le quai','C',230,292,0,"Monter sur le quai","Train supprimé, puis à l’approche, puis supprimé."],
    ['arret','L’arrêt de bus','C',320,292,0,"Attendre à l’arrêt de bus","Le bus a du retard. Comme toujours."],
@@ -487,7 +487,7 @@ const MAP = (function(){
     [/^Le (lycée|portail du lycée)/, 'lycee'], [/^Le city-stade/, 'citystade'], [/^L'épicerie/, 'epicerie'], [/^La boulangerie/, 'boulangerie'],
     [/^Part de Folie/, 'pdf'], [/^Station-service/, 'station'], [/^(Chez Marielle|Les deux maisons)/, 'marielle'], [/^(Chez les parents de Micka|Dans la rue · avec le chien)/, 'micka'],
     [/^Les hauteurs/, 'virgile'], [/^(Parvis de la gare|Devant la gare)/, 'parvis'], [/^(La gare · Cormeilles|Les bornes de tickets)/, 'gare'],
-    [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'],
+    [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'], [/^Franconville · le quai/, 'gareFP'],
     [/^Franconville · (bus de remplacement|dans le bus)/, 'busr'], [/^Le Plessis-Bouchard/, 'mael'], [/^Sous Le Plessis-Bouchard/, 'egouts'],
     [/^Réserve du Carrefour City/, 'reserve'], [/^Devant chez Cindy/, 'cindy'], [/^Le hangar d'Antonin/, 'hangar'], [/^Sur la moto d'Antonin/, 'moto'],
     [/^Dans l'hélicoptère/, 'heli'], [/^Saint-Gratien$/, 'sg'], [/^Le distributeur/, 'distrib'], [/^Carrefour City/, 'carrefour'],
@@ -581,10 +581,10 @@ const ITEMS = {
   gants_louis: {k:'s', n:"Gants neufs de Louis", s:1.5, h:"L'étiquette est encore dessus", w:"Les gants de gardien de Louis, étiquette toujours accrochée. À minuit, {Y} arrête une bouteille de champagne en plein vol et tout le monde applaudit."},
   jeu_societe: {k:'s', n:"Jeu de société d'Eva", s:2, h:"Une partie avant minuit", w:"Le jeu de société d'Eva. {Y} ouvre la boîte, lit les règles à voix haute, puis demande qui veut faire les équipes. À minuit, il y a quatre parties en cours sur la table, des cartes sous le canapé, et personne ne s'est mis d'accord sur le score."},
   bouteille_coffre: {k:'b', n:"Bouteille du coffre (sans étiquette)", s:4, h:"La bouteille du coffre", w:"{Y} essuie la poussière, déchiffre un mot au feutre : « À ouvrir pour une grande occasion. » Il hésite, regarde l'heure, regarde la bouteille. Le bouchon saute sans bruit. Un silence, puis : « Qui t'a donné ça ? » Tu réponds « un coffre ». Il ne pose pas d'autre question, il va chercher des verres plus grands."},
-  the_cindy: {k:'b', n:"Thé glacé de Singapour", s:2.5, h:"Le thé qui vient de loin", w:"Un thé glacé de Singapour, aux fleurs, dans une bouteille que {Y} ne sait pas ouvrir. Il lit l'étiquette en entier, fait semblant de comprendre, puis le verse dans les verres. À minuit, tout le monde demande où il l'a trouvé. « J'ai mes sources. »"},
-  biscuits_cindy: {k:'m', n:"Biscuits au kaya de Cindy", s:2.5, h:"Les biscuits de Singapour", w:"Des biscuits au kaya, emballés un par un, rapportés de Singapour par quelqu'un qui n'est pas censé y être. {Y} en mange un, puis trois, puis refuse de partager. « Ça, c'est Cindy, évidemment. » À minuit, la boîte est vide."},
-  biscuits_perimes: {k:'m', n:"Biscuits au kaya de Cindy", s:-2, h:"Périmés depuis 2023", w:"{Y} ouvre l'emballage, lit la date : « 2023. » Il regarde les biscuits, puis toi, puis il pense à Cindy. « Elle m'a eu à distance. » Quelqu'un ouvre une fenêtre. Tu entends le compte à rebours depuis le palier."},
-  durian: {k:'s', n:"Souvenir de Singapour (peut-être)", s:-3, kill:true, h:"Un durian dans le salon", w:"{Y} déballe le papier. L'odeur arrive avant la compréhension. Un durian entier, un vrai, rapporté de Singapour dans une valise qui ne sentira plus jamais la même chose. Quelqu'un ouvre toutes les fenêtres. Un voisin appelle la mairie. Tu es le dernier à comprendre, et le premier dehors."},
+  the_cindy: {k:'b', n:"Punch coco de Guadeloupe", s:2.5, h:"Le punch qui vient de loin", w:"Un punch coco de Guadeloupe, crémeux, parfumé à la vanille, dans une bouteille que {Y} ne sait pas ouvrir. Il lit l'étiquette en entier, fait semblant de comprendre, puis le verse dans les verres. À minuit, tout le monde demande où il l'a trouvé. « J'ai mes sources. »"},
+  biscuits_cindy: {k:'m', n:"Tourments d'amour de Cindy", s:2.5, h:"Les tourments d'amour de Guadeloupe", w:"Des tourments d'amour, ces petites tartelettes à la confiture de coco, emballées une par une, rapportées de Guadeloupe par quelqu'un qui n'est pas censé y être. {Y} en mange un, puis trois, puis refuse de partager. « Ça, c'est Cindy, évidemment. » À minuit, la boîte est vide."},
+  biscuits_perimes: {k:'m', n:"Tourments d'amour de Cindy", s:-2, h:"Périmés depuis 2023", w:"{Y} ouvre l'emballage, lit la date : « 2023. » Il regarde les tartelettes, puis toi, puis il pense à Cindy. « Elle m'a eu à distance. » Quelqu'un ouvre une fenêtre. Tu entends le compte à rebours depuis le palier."},
+  durian: {k:'s', n:"Souvenir de Guadeloupe (peut-être)", s:-3, kill:true, h:"Une morue séchée dans le salon", w:"{Y} déballe le papier. L'odeur arrive avant la compréhension. Une morue entière, salée et séchée, une vraie, rapportée de Guadeloupe dans une valise qui ne sentira plus jamais la même chose. Quelqu'un ouvre toutes les fenêtres. Un voisin appelle la mairie. Tu es le dernier à comprendre, et le premier dehors."},
   objets_trouves: {k:'s', n:"Objets trouvés du lycée", s:1.5, h:"Les objets trouvés", w:"Un sac d'objets trouvés du lycée : une calculatrice, trois clés USB, un gant sans partenaire. {Y} les étale sur la table basse et tout le monde essaie de deviner à qui ils appartiennent. À minuit, une clé USB contient une carte mentale sur Napoléon."},
   livre_mael: {k:'s', n:"Livre annoté de Maël", s:2, h:"Un livre annoté", w:"Un livre de poche annoté au stylo rouge, avec trois « faux ! » en marge. {Y} le feuillette, tombe sur une note, rit, puis lit un passage à voix haute. À minuit, tout le monde débat de la page 42, et personne n'est d'accord, ce qui est exactement ce que voulait celui qui te l'a donné."},
   vin_epicerie: {k:'b', n:"Cuvée du Patron (épicerie)", s:-2, h:"Notes de carton mouillé", w:"{Y} reçoit la Cuvée du Patron. Il la sent, la fait tourner, la sent encore. « Carton mouillé, notes de capsule, finale de désinfectant. » Il referme la porte avec un respect infini. Dégustation terminée, soirée aussi. Tu entends le compte à rebours à travers le bois."},
@@ -623,7 +623,7 @@ const ITEMS = {
   boule_neige: {k:'s', n:"Boule à neige", s:1.5, h:"La boule à neige", w:"Une boule à neige du Carrefour City. {Y} la secoue longuement, la pose à côté du vin, et en fait la mascotte de la soirée."},
   tarte: {k:'m', n:"Tarte aux cacas de Gabie et Arthur", s:2, h:"La tarte aux cacas", w:"La tarte aux cacas de Gabie et d'Arthur, signée au glaçage. {Y} la regarde longtemps, très longtemps. « C'est du chocolat ? » Il goûte. « C'est du chocolat. » Il rit, il en reprend. À minuit, il demande la recette, que personne ne veut donner."},
   fromage_mt: {k:'m', n:"Fromage de montagne, paquet kraft", s:2, h:"Le fromage tombé d'une moto", w:"Un fromage de montagne emballé dans du papier kraft, sur lequel est écrit au feutre : « Pour Yann. A. ». {Y} le renifle, ferme les yeux. « D'où ça vient ? » Tu dis la vérité : d'une moto sans phare. Il hoche la tête, il comprend, il ne pose pas d'autre question."},
-  souvenir_cindy: {k:'s', n:"Souvenir de Singapour (peut-être)", s:2.5, h:"Un souvenir qui ne vient peut-être pas de Singapour", w:"Un petit objet lourd, enveloppé dans une page de magazine en chinois. {Y} le déballe. « C'est de Cindy, non ? » Tu dis oui. « Elle est où, en ce moment ? » Personne ne sait. Il le pose au milieu de la table, et jusqu'à minuit chacun lui prête une origine différente."},
+  souvenir_cindy: {k:'s', n:"Souvenir de Guadeloupe (peut-être)", s:2.5, h:"Un souvenir qui ne vient peut-être pas de Guadeloupe", w:"Un petit objet lourd, enveloppé dans une page de journal tachée de rhum. {Y} le déballe. « C'est de Cindy, non ? » Tu dis oui. « Elle est où, en ce moment ? » Personne ne sait. Il le pose au milieu de la table, et jusqu'à minuit chacun lui prête une origine différente."},
   mystere: {k:'b', n:"Bouteille sans étiquette de l'épicier", s:0, h:"", w:""}
 };
 
@@ -792,7 +792,7 @@ const SCENES = {
    B("Le laisser sur le trottoir", S=>S.next, {t:0})
   ]},
  ev_cindy: {p:"En chemin · une voiture noire",
-  text:"Une voiture noire s'arrête à ta hauteur, la vitre descend. Cindy, valise à roulettes couverte d'étiquettes d'aéroport sur la banquette. « Je suis à Singapour jusqu'à jeudi, donc tu ne m'as pas vue. » Elle te tend un petit objet enveloppé. « Pour Yann. Ne demande pas. » La vitre remonte, la voiture repart.",
+  text:"Une voiture noire s'arrête à ta hauteur, la vitre descend. Cindy, valise à roulettes couverte d'étiquettes d'aéroport sur la banquette. « Je suis en Guadeloupe jusqu'à jeudi, donc tu ne m'as pas vue. » Elle te tend un petit objet enveloppé. « Pour Yann. Ne demande pas. » La vitre remonte, la voiture repart.",
   c:[
    B("Prendre le souvenir", S=>S.next, {t:5, item:'souvenir_cindy', note:"Tu regardes la voiture s'éloigner. Tu n'as jamais vu de voiture noire repartir aussi vite sans bruit."}),
    B("Lui demander comment elle fait", S=>S.next, {t:5, note:"Elle sourit sans répondre, et la vitre est déjà remontée."})
@@ -1104,6 +1104,9 @@ const SCENES = {
  course_a3: {p:"En route avec Arthur · la dernière ligne droite", who:'arthur',
   text:"La dernière ligne droite. Arthur s'étire sans s'arrêter. Tu vois des lumières, des guirlandes, des gens qui rient à une fenêtre. Saint-Gratien.",
   c:[B("Arriver, le souffle court", 'saintgratien', {t:15, flag:'essouffle'})]},
+ fin_teleporteur: {end:'hidden', h:"Livraison par la Guadeloupe",
+  text:S=>"Chrisly s'arrête net. Il sent l'odeur, ferme les yeux, et pendant trois secondes il a dix ans, une plage et sa grand-mère. « Ça vient de Cindy ? Alors tu as droit à ça. » Il fouille sous les chaussettes de sa valise et en sort un cylindre en laiton, étiquette « Brevet Pointe-à-Pitre, ne pas secouer ». « Mon oncle l'a bricolé. Dis le nom de la maison où tu veux aller. »\n\nTu dis « Yann ». Un coup de tonnerre, une odeur de vanille et de rhum, le quai se plie en deux comme une carte, et tu atterris "+(S.player==='yann'?"sur ton propre paillasson":"sur le paillasson de Yann")+", à minuit moins une, avec le cadeau de Cindy à la main. "+(S.player==='yann'?"Maël, qui juge ce soir, ouvre la porte, le stylo déjà sorti":"Yann ouvre en robe de chambre, le stylo du jury déjà sorti")+". « Tu n'es pas passé par la rue, ni par le jardin. Je ne sais pas si je dois te noter ou appeler quelqu'un. »\n\nDerrière toi, le téléporteur fait « pouf » et repart vers Franconville, où Chrisly mange déjà le colombo de sa mère. C'est la première fois que quelqu'un arrive chez "+(S.player==='yann'?"toi":"Yann")+" en passant par la Guadeloupe.",
+  c:[]},
  fin_burpees: {end:'lose', h:"Cinquante burpees",
   text:"Cinquante burpees, offerts par Arthur, sous le regard de Marielle, de Fabien et du cadre. À minuit, tu es au sol entre le canapé et la table basse, et le cadre te regarde. Il a gagné."},
  micka: {p:"Chez les parents de Micka · Cormeilles", who:'micka',
@@ -1194,23 +1197,23 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
 
  /* ---------- Gare ---------- */
  gare: {p:"La gare · Cormeilles",
-  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, Chrisly arrive en traînant une valise et JC fait tourner une pièce entre ses doigts.",
+  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, JC fait tourner une pièce entre ses doigts.",
   c:[
    B("Aller aux bornes de tickets", 'gare_borne', {t:5}),
-   B("Parler à Chrisly", 'chrisly', {t:5}),
    B("Parler à JC", 'jc', {t:5}),
    B("Rejoindre Quentin et Audrey, sur le parvis", 'chez_quentin', {t:5, who:['audrey','quentinm']}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
- chrisly: {p:"La gare · Cormeilles", who:'chrisly',
-  text:"Chrisly débarque sur le quai à toute allure, sa valise rebondit derrière lui. « Toulouse-Paris, trois heures, record ! Le Canada, c'est dans quelques semaines, mais le 31, ça ne se rate pas ! » Il se hisse sur la pointe des pieds pour lire le tableau des départs. « Au fait : le 100 mètres des vacances, c'est moi. Je dis ça, je dis rien. »",
+ chrisly: {p:"Franconville · le quai", who:'chrisly',
+  text:"Chrisly débarque sur le quai à toute allure, sa valise rebondit derrière lui. « Mes parents habitent à cinq minutes d'ici, ils m'attendent avec un colombo ! Toulouse-Paris, trois heures, record ! Le Canada, c'est dans quelques semaines, mais le 31, ça ne se rate pas ! » Il se hisse sur la pointe des pieds pour lire le tableau des départs. « Au fait : le 100 mètres des vacances, c'est moi. Je dis ça, je dis rien. »",
   c:[
    B("Lui proposer de courir ensemble", 'course_c1', {t:5}),
    B("Lui rappeler le 100 mètres", 'chrisly', {t:15, note:"Tu as relancé le 100 mètres. Il en a parlé quinze minutes, avec les chronos."}),
    B("L'aider avec sa valise", 'chrisly_valise', {t:10}),
-   B("Retourner sur le quai", 'gare', {t:5})
+   B(S=>"Lui offrir : "+ITEMS[cindyGift(S)].n, 'fin_teleporteur', {t:5, need:S=>!!cindyGift(S)}),
+   B("Retourner voir Marco et Gabie", 'franconville', {t:5})
   ]},
- chrisly_valise: {p:"La gare · Cormeilles", who:'chrisly',
+ chrisly_valise: {p:"Franconville · le quai", who:'chrisly',
   text:"La valise pèse trois fois ce qu'elle devrait. « Des cadeaux pour la famille avant le Canada. » Dedans, une bouteille de vin de Toulouse, qu'il hésite à te donner.",
   c:[
    B("Lui demander la bouteille", 'chrisly', {t:5, item:'rouge_cf', note:"Il hésite, puis te donne un rouge. « Pour Yann. Dis-lui que c'est de Toulouse. »"}),
@@ -1418,9 +1421,10 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   text:"Le train s'arrête. Le panneau annonçait Saint-Gratien, mais c'était avant les travaux : « Terminus, merci de descendre. » Tu descends à Franconville–Le Plessis-Bouchard, devant des immeubles que tu reconnais : le coin de l'appart de Marco.",
   c:[B("Descendre", 'franconville', {t:15})]},
  franconville: {p:"Franconville · chez Marco et Gabie", z:'f',
-  text:"Franconville–Le Plessis-Bouchard, nuit noire. D'un côté de la gare, les fenêtres de l'appartement de Marco sont allumées. De l'autre, côté Le Plessis-Bouchard, une lampe éclaire un banc où quelqu'un lit. Saint-Gratien est à quelques kilomètres : un bus de remplacement passe, peut-être.",
+  text:"Franconville–Le Plessis-Bouchard, nuit noire. Sur le quai, quelqu'un traîne une valise en chantonnant. D'un côté de la gare, les fenêtres de l'appartement de Marco sont allumées. De l'autre, côté Le Plessis-Bouchard, une lampe éclaire un banc où quelqu'un lit. Saint-Gratien est à quelques kilomètres : un bus de remplacement passe, peut-être.",
   c:[
    B("Sonner chez Marco et Gabie", 'gabie', {t:5}),
+   B("Aller voir qui traîne une valise sur le quai", 'chrisly', {t:5}),
    B("Traverser les voies, côté Le Plessis-Bouchard", 'mael', {t:10}),
    B("Aller au bus de remplacement", 'bus_remp', {t:10}),
    B("Finir à pied, c'est possible techniquement", 'marche3', {t:10, flag:'essouffle'})
@@ -1550,10 +1554,10 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   ]},
  fin_perdus: {end:'hidden', h:"Venez par là, c'est chez Yann",
   text:S=>S.player==='antonin'
-   ? "Tu quittes la route pour suivre un bruit de moteur qui n'est pas le tien. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Cindy, valise à roulettes, partage un thermos avec personne. « Je suis à Singapour, pas de commentaire. Toi aussi, tu es perdu ? » Elle monte derrière toi. À minuit, vous êtes chez Yann. Personne ne demande ce que vous apportez."
+   ? "Tu quittes la route pour suivre un bruit de moteur qui n'est pas le tien. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Cindy, valise à roulettes, partage un thermos avec personne. « Je suis en Guadeloupe, pas de commentaire. Toi aussi, tu es perdu ? » Elle monte derrière toi. À minuit, vous êtes chez Yann. Personne ne demande ce que vous apportez."
    : S.player==='cindy'
    ? "Tu quittes la route pour suivre un bruit de moteur. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Antonin, casque sur les genoux, mange un morceau de fromage. « Ah, te voilà. Venez par là, c'est chez Yann. » Tu montes derrière lui. À minuit, vous êtes chez Yann. Personne ne demande ce que vous apportez."
-   : "Tu quittes la route pour suivre un bruit de moteur. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Antonin et Cindy partagent un thermos. « Ah, te voilà. On t'attendait. » Cindy : « Je suis à Singapour, pas de commentaire. » Antonin te tend un casque : « Venez par là, c'est chez Yann. » Tu ne sais pas comment, mais à minuit tu es chez Yann, les mains vides, avec un casque et un thermos. Pour une fois, personne ne demande ce que tu apportes : on ne dit pas non à quelqu'un qui arrive avec Antonin et Cindy."},
+   : "Tu quittes la route pour suivre un bruit de moteur. Un champ, un chemin, une zone industrielle sans nom. Sur un banc, au milieu de nulle part, sous un lampadaire qui clignote, Antonin et Cindy partagent un thermos. « Ah, te voilà. On t'attendait. » Cindy : « Je suis en Guadeloupe, pas de commentaire. » Antonin te tend un casque : « Venez par là, c'est chez Yann. » Tu ne sais pas comment, mais à minuit tu es chez Yann, les mains vides, avec un casque et un thermos. Pour une fois, personne ne demande ce que tu apportes : on ne dit pas non à quelqu'un qui arrive avec Antonin et Cindy."},
  marche3: {p:"À pied · la fin du trajet",
   text:"Au loin, tu vois des guirlandes, des lumières, un panneau qui annonce Saint-Gratien. Tu ne sens plus tes chevilles. Tu y es presque.",
   c:[B("Terminer à pied", 'saintgratien', {t:20, flag:'essouffle'})]},
@@ -1669,18 +1673,18 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   c:[B("Repartir, la tête basse", 'rue', {t:10})]},
 
  /* ---------- Appels et amis conducteurs ---------- */
- cindy_appel: {p:"Un coup de fil · Singapour", who:'cindy',
-  text:"Cindy décroche à la première sonnerie, d'une voix parfaitement réveillée. « Il est cinq heures du matin ici, j'ai un thé, un café et un fou rire. Je suis à Singapour jusqu'à jeudi, donc tu ne m'appelles pas. » Derrière elle, une annonce d'aéroport et le bruit d'une valise à roulettes. « Dis-moi vite, je n'ai pas de forfait pour ça. »",
+ cindy_appel: {p:"Un coup de fil · Guadeloupe", who:'cindy',
+  text:"Cindy décroche à la première sonnerie, la voix pleine de soleil. « Ici, il est dix-sept heures, il fait vingt-huit degrés, j'ai un ti-punch dans une main et les pieds dans le sable. Je suis en Guadeloupe jusqu'à jeudi, donc tu ne m'appelles pas. » Derrière elle, des vagues et un haut-parleur de buvette qui passe du zouk. « Dis-moi vite, je n'ai pas de forfait pour ça. »",
   c:[
    B("Lui demander ce qu'aimerait {Y}", S=>S.pass?'cindy_conseil':'cindy_conseil_ko', {t:5, fx:S=>{ S.pass = rnd(0.5); }}),
    B("Lui demander de réveiller Antonin pour toi", S=>S.pass?'cindy_antonin':'cindy_antonin_ko', {t:5, fx:S=>{ S.pass = rnd(0.4); }}),
    B("Raccrocher", 'appel', {t:0})
   ]},
- cindy_conseil: {p:"Un coup de fil · Singapour", who:'cindy',
-  text:S=>"« {Y} ? Il dit qu'il aime le blanc sec, mais il boit ce qu'on lui sert. Ce qu'il adore, c'est ce qui raconte une histoire. Une bouteille avec une étiquette bizarre, un objet qu'on ne sait pas nommer, un souvenir. » Un silence, le bruit d'un café qu'on repose. « Ne dis pas que c'est moi. » Puis, plus bas : « Au fait. Quand je faisais des extras au Carrefour City de Saint-Gratien, il y avait un coffre-fort dans la réserve, derrière les palettes. Le début du code, c'est "+S.codeA+". Je ne me souviens plus de la fin. Tu ne m'as pas entendue. »",
+ cindy_conseil: {p:"Un coup de fil · Guadeloupe", who:'cindy',
+  text:S=>"« {Y} ? Il dit qu'il aime le blanc sec, mais il boit ce qu'on lui sert. Ce qu'il adore, c'est ce qui raconte une histoire. Une bouteille avec une étiquette bizarre, un objet qu'on ne sait pas nommer, un souvenir. » Un silence, le bruit d'un verre qu'on repose. « Ne dis pas que c'est moi. » Puis, plus bas : « Au fait. Quand je faisais des extras au Carrefour City de Saint-Gratien, il y avait un coffre-fort dans la réserve, derrière les palettes. Le début du code, c'est "+S.codeA+". Je ne me souviens plus de la fin. Tu ne m'as pas entendue. »",
   c:[B("Merci, bon vol", 'appel', {t:0, flag:'code_a', note:"Tu notes le début du code au stylo, dans ta paume."})]},
- cindy_conseil_ko: {p:"Un coup de fil · Singapour", who:'cindy',
-  text:"« {Y} ? Facile. Il adore la simplicité. Des chips nature, rien d'autre, c'est son péché mignon. Je te le jure sur ma valise. » Une annonce d'embarquement couvre sa voix, elle ajoute quelque chose que tu n'entends pas, puis elle raccroche. Elle avait la voix de quelqu'un qui n'a pas dormi depuis deux jours.",
+ cindy_conseil_ko: {p:"Un coup de fil · Guadeloupe", who:'cindy',
+  text:"« {Y} ? Facile. Il adore la simplicité. Des chips nature, rien d'autre, c'est son péché mignon. Je te le jure sur ma valise. » Le zouk de la buvette couvre sa voix, elle ajoute quelque chose que tu n'entends pas, puis elle raccroche. Elle avait la voix de quelqu'un qui n'a pas dormi depuis deux jours.",
   c:[B("Raccrocher, un peu inquiet", 'appel', {t:0})]},
  cindy_antonin: {p:"Un coup de fil · Cindy et Antonin", who:'antonin',
   text:"« Attends, j'appelle Antonin. » Cindy lance un appel à trois. Trois sonneries, puis une voix pleine de vent : « Allô ? Je suis dans un col. — Tu es dans ton salon, Antonin, dit Cindy. — Ah. Oui. Dans le col de mon salon. » Elle lui explique, très vite, que tu es à Cormeilles, que c'est urgent, que Yann attend. « Je prends un casque en plus », soupire-t-il. Cindy, satisfaite : « Voilà. Bonne année, je dors. »",
@@ -1697,11 +1701,11 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
  cindy_porte: {p:"Devant chez Cindy · Conflans", who:'cindy',
   text:S=>S.flags.c_pris
    ? "La voisine de Cindy te regarde par la fenêtre, le carton est vide, les volets sont toujours fermés. « Elle a dit une chose, pas deux. »"
-   : "La porte de Cindy est fermée, les volets aussi, et un autocollant d'aéroport est resté collé sur la boîte aux lettres. Sa voisine, en robe de chambre, sort sur le palier : « Cindy m'a laissé un carton pour quelqu'un qui passerait. Elle a dit : « Une seule chose, pas deux, et pas de questions. » Je n'en ai pas posé. » Dans le carton, un thé glacé de Singapour, des biscuits emballés un par un, et un objet lourd enveloppé dans une page de magazine en chinois.",
+   : "La porte de Cindy est fermée, les volets aussi, et un autocollant d'aéroport est resté collé sur la boîte aux lettres. Sa voisine, en robe de chambre, sort sur le palier : « Cindy m'a laissé un carton pour quelqu'un qui passerait. Elle a dit : « Une seule chose, pas deux, et pas de questions. » Je n'en ai pas posé. » Dans le carton, un punch coco de Guadeloupe, des tourments d'amour emballés un par un, et un objet lourd enveloppé dans une page de journal tachée de rhum.",
   c:[
    B("Demander à la voisine ce qu'il y a vraiment dedans", 'cindy_porte', {t:5, flag:'c_demande', need:S=>!S.flags.c_pris && !S.flags.c_demande, note:"« Elle a dit de ne pas ouvrir l'objet enveloppé, et de ne pas le laisser au soleil. Je n'ai pas compris. »"}),
-   B("Prendre le thé glacé", 'cindy_porte', {t:5, item:'the_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, note:"La voisine hoche la tête : « Il paraît qu'il se boit très frais. »"}),
-   B("Prendre les biscuits au kaya", 'cindy_porte', {t:5, item:'biscuits_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, fx:S=>{ if (rnd(0.4)) S.bag = S.bag.map(b=>b==='biscuits_cindy'?'biscuits_perimes':b); }, note:"« Elle en a mis trop, dit la voisine. Elle fait toujours trop. »"}),
+   B("Prendre le punch coco", 'cindy_porte', {t:5, item:'the_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, note:"La voisine hoche la tête : « Il paraît qu'il se boit très frais. »"}),
+   B("Prendre les tourments d'amour", 'cindy_porte', {t:5, item:'biscuits_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, fx:S=>{ if (rnd(0.4)) S.bag = S.bag.map(b=>b==='biscuits_cindy'?'biscuits_perimes':b); }, note:"« Elle en a mis trop, dit la voisine. Elle fait toujours trop. »"}),
    B("Prendre l'objet enveloppé", 'cindy_porte', {t:5, item:'souvenir_cindy', flag:'c_pris', need:S=>!S.flags.c_pris, fx:S=>{ if (rnd(0.5)) S.bag = S.bag.map(b=>b==='souvenir_cindy'?'durian':b); }, note:"La voisine détourne les yeux : « Je n'ai rien vu. »"}),
    B("Repartir dans la rue", 'rue', {t:5})
   ]},
@@ -1737,7 +1741,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   c:[
    B("Anaïs, avec sa grosse voiture", 'anais', {t:5}),
    B("Moizlard, voiture américaine, cheville foulée", 'moizlard', {t:5}),
-   B("Cindy, à Singapour (il est 5 h du matin là-bas)", 'cindy_appel', {who:'cindy', t:5}),
+   B("Cindy, en Guadeloupe (cinq heures de moins là-bas)", 'cindy_appel', {who:'cindy', t:5}),
    B("Antonin, qui devrait être rentré de la montagne", S=>S.antonin?'antonin':'antonin_ko', {who:'antonin', t:5, fx:S=>{ S.antonin = rnd(0.5); }}),
    B(S=>S.player==='yann'?"Maël, pour avoir des indices":"Yann, pour avoir des indices", 'appel_yann', {t:5}),
    B("Raccrocher", 'rue', {t:0})
@@ -1823,7 +1827,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Couper le son", 'saintgratien', {t:25, note:"Eliaz proteste dans le vide : « Allô ? Allô ? »"})
   ]},
  antonin: {p:"Antonin arrive", who:'antonin',
-  text:"Cindy t'a laissé un vocal depuis Singapour : « Je rentre jeudi, ne me cherche pas ! » Antonin, lui, décroche au deuxième appel : il est rentré en moto pour le Nouvel An, en road trip depuis la montagne. « T'es où ? Je prends un casque en plus. »",
+  text:"Cindy t'a laissé un vocal depuis la Guadeloupe : « Je rentre jeudi, ne me cherche pas ! » Antonin, lui, décroche au deuxième appel : il est rentré en moto pour le Nouvel An, en road trip depuis la montagne. « T'es où ? Je prends un casque en plus. »",
   c:[
    B("Monter derrière lui", 'moto1', {t:10}),
    B("Avouer que tu as peur de la moto", 'transport', {t:5})
@@ -1838,7 +1842,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:"Antonin ralentit devant une station-service. « Plein ? Je prends vingt secondes. » Il fait le plein avec la même délicatesse qu'il règle un téléski. Le pompiste lui demande : « Vous aussi, vous allez à une fête ? »",
   c:[B("Repartir vers Saint-Gratien", S=>maybe(S,'saintgratien',0.3), {t:15})]},
  antonin_ko: {p:"Un coup de fil", who:'antonin',
-  text:"Messagerie. « Je suis en train de franchir un col, je rappelle ! » Cindy, elle, est toujours à Singapour.",
+  text:"Messagerie. « Je suis en train de franchir un col, je rappelle ! » Cindy, elle, est toujours en Guadeloupe.",
   c:[B("Raccrocher", 'appel', {t:5})]},
 
  /* ---------- Saint-Gratien ---------- */
@@ -2049,6 +2053,7 @@ Object.keys(ITEMS).forEach(id=>{
 });
 
 const EVENTS = ['ev_moto','ev_cindy','ev_tarte','ev_dame','ev_livreur','ev_ados','ev_arnaque','ev_fetards','ev_meteo','ev_tiktok','ev_yann','ev_boulangere'];
+function cindyGift(S){ return ['the_cindy','biscuits_cindy','souvenir_cindy'].find(k=>S.bag.indexOf(k) >= 0) || null; }
 function maybe(S, dest, p){
   S.seen = S.seen || {};
   const SKIP = {ev_moto:'antonin', ev_cindy:'cindy'};
