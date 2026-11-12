@@ -2520,13 +2520,14 @@ function pick(c){
 }
 
 function applyChoice(c, extra){
+  const before = S.t;
   S.t += c.t || 0; S.m = Math.round((S.m + (c.m || 0))*100)/100;
   if (c.flag) S.flags[c.flag] = true;
   if (c.fx) c.fx(S);
   let to = typeof c.to === 'function' ? c.to(S) : c.to;
   S.note = (c.note ? fill(c.note) : '') + extra;
   if (S.m > 50 && !SCENES[to].end && to.indexOf('chezyann') !== 0) to = 'fin_riche';
-  if (S.t >= END_T && !SCENES[to].end && to.indexOf('eva_jeux') !== 0) to = (to.indexOf('eva') === 0 ? 'fin_eva_nuit' : 'fin_minuit');
+  if (S.t >= END_T && !SCENES[to].end && !(to === 'eva_jeux' && before < END_T) && to !== 'eva_jeux_win' && to !== 'eva_jeux_lose') to = (to.indexOf('eva') === 0 ? 'fin_eva_nuit' : 'fin_minuit');
   goTo(to);
 }
 
