@@ -921,6 +921,7 @@ const ITEMS = {
   rouge_cf: {k:'b', n:"Rouge du Carrefour City", s:1.5, h:"On en a bu pire", w:"Un rouge du Carrefour City. {Y} le regarde, hausse les épaules : « On en a bu pire. » Il le range à droite des bouteilles sérieuses. Mais tu es dans la soirée."},
   cidre: {k:'b', n:"Cidre brut de la dame", s:2, h:"Un peu de campagne", w:"Le cidre brut d'une dame croisée dans la rue. {Y} hésite, le goûte, rit : « Ça, c'est une vraie histoire. » Il le sert en premier, dans de grands verres à vin, parce qu'il a décidé que c'était chic."},
   quiche: {k:'m', n:"Quiche de Marielle", s:2, h:"La quiche de Marielle", w:"La quiche de Marielle, encore tiède malgré le trajet. {Y} en reprend trois fois avant minuit. Marielle sera citée à la fin de toutes les phrases jusqu'à l'aube."},
+  buche_moreau: {k:'m', n:"Bûche géante de M. Moreau", s:-5, kill:true, heavy:true, h:"La bûche de Monsieur Moreau", w:"{Y} ouvre la porte et voit d'abord une bûche à trois étages qui te cache le visage, puis un père Noël en sucre, puis toi. Derrière lui, un homme costaud se lève de table, la montre au poignet, le regard fixe. « C'est ma bûche. » Monsieur Moreau, invité de la soirée, l'avait commandée pour 19 h. Il pose son verre, sans se presser, et te rappelle ce que c'est qu'un retard. À minuit, tu comptes à rebours depuis le jardin, allongé près du portillon, avec de la crème au beurre dans les cheveux. Yann, chirurgien, jette un œil à ton œil : « Rien de grave. Mais je ne recouds pas ce soir. »"},
   buche: {k:'m', n:"Mini-bûche", s:2, h:"La bûche de dernière minute", w:"Une mini-bûche, un peu écrasée par le voyage. {Y} la trouve « parfaite pour un 31 » et la coupe en dix parts minuscules, avec une précision chirurgicale."},
   confettis: {k:'s', n:"Confettis des ados du city-stade", s:1.5, h:"Une pluie de confettis", w:"Un sac de confettis offert par des ados du city-stade. À minuit, {Y} en balance une poignée sur la pièce et tout le monde en retrouvera dans ses chaussures jusqu'en mars."},
   blanc_epi: {k:'b', n:"Blanc sec de l'épicier", s:3, h:"Le blanc de l'épicier", w:"Un blanc sec de la cave de l'épicier, frais comme une promesse. {Y} lit l'étiquette, le goûte, ferme les yeux. « C'est exactement ce qu'il me fallait. Tu l'as trouvé où ? » Tu réponds : « Dans une épicerie pas chère. » Il te regarde avec un respect nouveau."},
@@ -1201,9 +1202,17 @@ const SCENES = {
    : "La dernière fournée du 31 : pains au chocolat, galettes, une pile de mini-bûches en vitrine. La boulangère, farine jusqu'aux coudes, te regarde par-dessus son comptoir.",
   c:[
    B("Acheter une mini-bûche (6 €)", 'rue', {t:5, m:-6, item:'buche', lock:pay(6), need:S=>S.t<120}),
+   B("Regarder la grosse bûche posée sur le comptoir", 'boulangerie_moreau', {t:5, need:S=>S.t<120 && !S.flags.moreau}),
    B("Demander un conseil pour un cadeau", 'boulanger_conseil', {t:5, need:S=>S.t<120}),
    B("Frapper à la vitre", S=>S.pass?'boulangerie_ouvre':'boulangerie_non', {t:5, need:S=>S.t>=120, fx:S=>{ S.pass = rnd(0.45); }}),
    B("Ressortir", 'rue', {t:5})
+  ]},
+ boulangerie_moreau: {p:"La boulangerie du coin · le comptoir",
+  text:"Sur le comptoir, à côté de la caisse, trône une bûche gigantesque : trois étages de crème au beurre, un père Noël en sucre, une étiquette « MOREAU — 31/12 — 19 h ». La boulangère soupire. « Il ne l'a jamais récupérée. Il m'a dit qu'il était invité à une soirée à Saint-Gratien, qu'il passerait en venant, et puis plus rien. » Elle regarde la bûche, puis toi. « Je ne la remettrai pas en vitrine. »",
+  c:[
+   B("La prendre, la boulangère a les yeux ailleurs", 'boulangerie', {t:5, item:'buche_moreau', flag:'moreau', note:"« Je n'ai rien vu », dit la boulangère en regardant la caisse."}),
+   B("La payer, 25 €", 'boulangerie', {t:5, m:-25, item:'buche_moreau', flag:'moreau', lock:pay(25), note:"« S'il râle, c'est vous qui lui expliquerez », dit la boulangère en te tendant le carton."}),
+   B("Laisser la bûche à M. Moreau", 'boulangerie', {t:5})
   ]},
  boulanger_conseil: {p:"La boulangerie du coin",
   text:"« Pour un copain chirurgien ? Quelque chose de fait maison. Les gens sont toujours plus touchés qu'on s'imagine. Et pas de gâteau trop sucré, ils gardent un estomac fragile après les gardes. »",
@@ -2486,7 +2495,7 @@ function askDrop(id, bag, cb){
   const box = $('scene'); box.textContent = '';
   box.appendChild(el('div','place','Ton sac est plein'));
   const txt = el('div','txt');
-  txt.appendChild(el('p',null,"Tu portes déjà trois choses. Pour prendre « "+ITEMS[id].n+" », tu dois en lâcher une. Laquelle ?"));
+  txt.appendChild(el('p',null,(bag.some(b=>ITEMS[b].heavy) ? "Tu portes déjà « "+ITEMS[bag[0]].n+" », qui prend toute la place." : "Tu portes déjà trois choses.")+" Pour prendre « "+ITEMS[id].n+" », tu dois en lâcher une. Laquelle ?"));
   box.appendChild(txt);
   const list = el('div','choices');
   bag.forEach((b,k)=>{
@@ -2510,7 +2519,8 @@ function pick(c){
   (function step(i){
     if (i >= ni.length){ S.bag = bag; return applyChoice(c, notes); }
     const id = ni[i];
-    if (bag.length < 3){ bag.push(id); return step(i+1); }
+    if (ITEMS[id].heavy){ if (bag.length) notes += " Elle est si grosse que tu dois tout lâcher pour la porter."; bag.length = 0; bag.push(id); return step(i+1); }
+    if (bag.length < 3 && !bag.some(b=>ITEMS[b].heavy)){ bag.push(id); return step(i+1); }
     askDrop(id, bag, k=>{
       if (k < 0) notes += " Tu laisses « "+ITEMS[id].n+" » où il est.";
       else { notes += " Tu lâches « "+ITEMS[bag[k]].n+" » pour prendre « "+ITEMS[id].n+" »."; bag.splice(k,1); bag.push(id); }
