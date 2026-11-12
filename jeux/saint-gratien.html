@@ -556,7 +556,7 @@ const SCENES = {
   c:[
    B("Parler à Eva, qui arbitre la partie en cours", 'eva_cuisine', {t:5}),
    B("Faire le tour du before", 'eva_salon', {t:10}),
-   B("Jouer une partie de jeu de société avec Eva", 'eva_jeux', {t:60}),
+   B("Jouer une partie de jeu de société avec Eva", 'eva_jeux', {hid:1, t:60}),
    B("Sortir tout de suite", 'rue', {t:5}),
    B("Se reposer un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }})
   ]},
@@ -564,7 +564,7 @@ const SCENES = {
   text:"20h. C'est ton before, ta cuisine, et ta table croule sous les jeux. Ton téléphone vibre : Yann. « Si tu n'apportes rien qui me plaise, tu ne rentres pas. » Tu as déjà un reste de plat sous cellophane dans les mains, par réflexe.",
   c:[
    B("Sortir avec le plat", 'rue', {t:5, item:'plat_eva'}),
-   B("Rejouer une partie de société, puis emporter le jeu", 'eva_self', {t:60, item:'jeu_societe', note:"Tu as perdu à ton propre jeu, devant tes propres invités. Tu emportes la boîte quand même."}),
+   B("Rejouer une partie de société, puis emporter le jeu", 'eva_self', {hid:1, t:60, item:'jeu_societe', note:"Tu as perdu à ton propre jeu, devant tes propres invités. Tu emportes la boîte quand même."}),
    B("Se reposer un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }})
   ]},
  eva_repos: {p:"Le canapé · Cormeilles",
@@ -599,16 +599,16 @@ const SCENES = {
    : "Eva referme la boîte d'un coup sec et te la met dans les mains. « Bien joué. Emporte-la, elle ne sert qu'à Noël de toute façon. »",
   c:[
    B("Prendre le jeu et retourner au before", 'eva', {t:0, item:'jeu_societe', need:S=>S.bag.indexOf('jeu_societe') < 0}),
-   B("Prendre le jeu et demander une autre partie", 'eva_jeux', {t:60, item:'jeu_societe', need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Prendre le jeu et demander une autre partie", 'eva_jeux', {hid:1, t:60, item:'jeu_societe', need:S=>S.bag.indexOf('jeu_societe') < 0}),
    B("Laisser le jeu et retourner au before", 'eva', {t:0, need:S=>S.bag.indexOf('jeu_societe') < 0}),
-   B("Laisser le jeu et demander une autre partie", 'eva_jeux', {t:60, need:S=>S.bag.indexOf('jeu_societe') < 0}),
-   B("Demander une autre partie", 'eva_jeux', {t:60, need:S=>S.bag.indexOf('jeu_societe') >= 0}),
+   B("Laisser le jeu et demander une autre partie", 'eva_jeux', {hid:1, t:60, need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Demander une autre partie", 'eva_jeux', {hid:1, t:60, need:S=>S.bag.indexOf('jeu_societe') >= 0}),
    B("Retourner au before", 'eva', {t:0, need:S=>S.bag.indexOf('jeu_societe') >= 0})
   ]},
  eva_jeux_lose: {p:"La table de jeux · Cormeilles", who:'eva',
   text:"Eva range les pièces avec un sourire de championne. « Un autre jeu ? » Elle a déjà sorti la boîte suivante. Autour de la table, on ne voit plus l'heure passer.",
   c:[
-   B("Un autre jeu, oui", 'eva_jeux', {t:60}),
+   B("Un autre jeu, oui", 'eva_jeux', {hid:1, t:60}),
    B("Non merci, retourner au before", 'eva', {t:0})
   ]},
  eva_salon: {p:"Le before · Cormeilles",
@@ -2160,7 +2160,7 @@ function showScene(id, sc){
     const b = el('button','choice'); b.type = 'button';
     b.appendChild(el('span','lab',fill(val(c.l))));
     const bits = [];
-    if (c.t) bits.push('+'+c.t+' min');
+    if (c.t && !c.hid) bits.push('+'+c.t+' min');
     if (c.m) bits.push((c.m>0?'+':'−')+eur(Math.abs(c.m)));
     const lock = c.lock ? c.lock(S) : null;
     if (lock) bits.push(lock);
