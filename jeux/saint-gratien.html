@@ -2524,7 +2524,7 @@ function applyChoice(c, extra){
   let to = typeof c.to === 'function' ? c.to(S) : c.to;
   S.note = (c.note ? fill(c.note) : '') + extra;
   if (S.m > 50 && !SCENES[to].end && to.indexOf('chezyann') !== 0) to = 'fin_riche';
-  if (S.t >= END_T && !SCENES[to].end) to = (to.indexOf('eva') === 0 ? 'fin_eva_nuit' : 'fin_minuit');
+  if (S.t >= END_T && !SCENES[to].end && to.indexOf('eva_jeux') !== 0) to = (to.indexOf('eva') === 0 ? 'fin_eva_nuit' : 'fin_minuit');
   goTo(to);
 }
 
