@@ -1,6 +1,6 @@
-# Mes petits jeux
+# La salle de jeux
 
-Site de petits jeux avec classements, jouable sans compte.
+Site de petits jeux de révision avec classements, jouable sans compte.
 
 ## Contenu
 
