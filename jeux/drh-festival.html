@@ -1558,7 +1558,8 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
         : (win ? "Michel te tend 10 k€ en pièces, en billets et en bons de réduction pour la friterie. Il jure de se refaire à la prochaine édition."
         : "Michel encaisse en dansant sur la table. Gérard soupire en regardant son tableur : « Je l'avais dit. »");
       var bet = document.getElementById("bet"); if (bet) bet.innerHTML = "";
-      document.getElementById("fb").innerHTML = '<div class="fb ' + (win ? "ok" : (refused ? "" : "ko")) + '"><h3>' + title + "</h3><p>" + esc(txt) + "</p>" + chips(dd) + lowWarn() + goBtn() + "</div>";
+      document.getElementById("fb").innerHTML = '<div class="fb ' + (win ? "ok" : (refused ? "" : "ko")) + '"><h3>' + title + "</h3><p>" + esc(txt) + "</p>" + chips(dd) + lowWarn() + (S.demo ? '<p class="hint">Mode essai : rien n\'est enregistré.</p><button class="btn" id="go">Rejouer</button>' : goBtn()) + "</div>";
+      if (S.demo) { document.getElementById("go").onclick = function () { location.reload(); }; return; }
       bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
     document.getElementById("no").onclick = function () { result(false, true); };
@@ -1697,6 +1698,14 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     el.innerHTML = h + '<p class="hint" style="margin:8px 0 0">Calculé sur toutes les parties de la classe sélectionnée.</p>';
   }
 
+  /* Raccourci pour essayer un mini-jeu : jeux/drh-festival.html?mini=pong (ou stop, simon). Rien n'est enregistré. */
+  (function () {
+    var m = (location.search.match(/[?&]mini=(pong|stop|simon)/) || [])[1];
+    if (!m) return;
+    newGame("Essai M.", ""); S.demo = true;
+    var i = steps.findIndex(function (s) { return s.k === "scene" && s.sc.ty === "bet" && s.sc.g === m; });
+    S.i = i;
+  })();
   render();
 })();
 </script>
