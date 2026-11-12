@@ -1,10 +1,11 @@
 /* Rubriques et liste des jeux du site.
    Pour ajouter un jeu : un fichier dans /jeux et une entrée dans MESJEUX_GAMES.
+   Une rubrique peut avoir des sous-catégories (champ subs) ; un jeu choisit la sienne avec le champ sub.
    Les codes ne sont jamais écrits en clair : on garde leur empreinte (SHA-256).
    Pour changer un code, demande à Claude de recalculer l'empreinte. */
 window.MESJEUX_SECTIONS = [
   { id: "premiere", title: "Première", classes: ["1STMG1"] },
-  { id: "terminale", title: "Terminale", classes: ["TSTMG1"] },
+  { id: "terminale", title: "Terminale", classes: ["TSTMG1"], subs: [{ id: "msdgn", title: "MSDGN" }, { id: "rhc", title: "RHC" }] },
   { id: "bts", title: "BTS", classes: ["BTS MCO JV1"] },
   { id: "perso", title: "Perso", digits: 4, codeHash: "b78d125addc643d00a0fc62475ec89306f435505efd996a34bdfbd725b7fa637" }
 ];
@@ -30,6 +31,7 @@ window.MESJEUX_GAMES = [
     id: "drh-festival",
     codeHash: "2821f874c084f2c7ac2429fa2303f377242ab09b99e84b1bbb3e4ee375d3818b",
     section: "terminale",
+    sub: "rhc",
     title: "Le DRH du Festival",
     file: "jeux/drh-festival.html",
     blurb: "Tu deviens DRH d'un festival de musique et tu dois le faire tourner pendant trois éditions : recrutements, contrats, entretiens. Trésorerie, ambiance et conformité : si l'une tombe à zéro, c'est la fin du concert.",

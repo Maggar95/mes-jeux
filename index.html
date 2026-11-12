@@ -166,7 +166,17 @@
       if (!Access.sectionOpen(s)) { wrap.appendChild(lockBlock(s)); return; }
       var list = Access.games.filter(function (g) { return g.section === s.id; });
       if (!list.length) { var p = document.createElement("p"); p.className = "soon"; p.textContent = "Bientôt des jeux ici."; wrap.appendChild(p); return; }
-      list.forEach(function (g) { wrap.appendChild(gameBlock(g)); toLoad.push(g); });
+      var add = function (g) { wrap.appendChild(gameBlock(g)); toLoad.push(g); };
+      if (s.subs && s.subs.length) {
+        /* Sous-catégories (ex. Terminale : MSDGN, RHC) ; les jeux sans sous-catégorie passent en premier */
+        list.filter(function (g) { return !g.sub; }).forEach(add);
+        s.subs.forEach(function (sub) {
+          var h = document.createElement("h3"); h.className = "sub-title"; h.textContent = sub.title; wrap.appendChild(h);
+          var inSub = list.filter(function (g) { return g.sub === sub.id; });
+          if (!inSub.length) { var q = document.createElement("p"); q.className = "soon"; q.textContent = "Bientôt des jeux ici."; wrap.appendChild(q); }
+          inSub.forEach(add);
+        });
+      } else list.forEach(add);
       if (s.id === "perso" && window.MESJEUX_CODES) wrap.appendChild(codesBlock());
     });
     if (!MesJeux.ready()) {

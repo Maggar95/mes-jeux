@@ -57,6 +57,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--ink); outline-o
 .rubrique { margin-top: 84px; }
 .rubrique-title { font-weight: 800; font-size: 36px; line-height: 56px; color: var(--ink); border-bottom: 2px solid var(--ink); }
 .soon { margin: 28px 0 0; color: var(--muted); }
+.sub-title { margin: 28px 0 8px; font-weight: 800; font-size: 20px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.sub-title + .soon { margin-top: 4px; }
 .lock { margin-top: 28px; }
 .codeform { display: flex; gap: 12px; flex-wrap: wrap; margin: 0; }
 .codeform input { font: 800 24px/46px var(--f-display); letter-spacing: .3em; text-align: center; width: 9em; max-width: 100%; padding: 0 12px; border: 2px solid var(--ink); border-radius: 3px; background: var(--card); color: var(--text); }

@@ -76,6 +76,6 @@ Le joueur saisit d'abord **son prénom** (il apparaît dans le classement et ser
 ## Ajouter un jeu
 
 1. Déposer le fichier du jeu dans `jeux/`.
-2. Ajouter une entrée dans `js/games.js`, avec sa rubrique (`section`) et, si besoin, `codeHash`.
+2. Ajouter une entrée dans `js/games.js`, avec sa rubrique (`section`) et, si besoin, `codeHash`. En Terminale, ajouter aussi `sub: "msdgn"` ou `sub: "rhc"` pour le ranger dans la bonne matière (les sous-catégories sont déclarées dans `subs` de la rubrique).
 3. Dans la page du jeu, charger `games.js` et `access.js`, et déclarer `window.MESJEUX_GAME = "identifiant"`.
 4. À la fin de la partie, appeler `MesJeux.save("identifiant", pseudo, score, details)`.
