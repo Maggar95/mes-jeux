@@ -28,6 +28,7 @@ window.MESJEUX_GAMES = [
   },
   {
     id: "drh-festival",
+    codeHash: "2821f874c084f2c7ac2429fa2303f377242ab09b99e84b1bbb3e4ee375d3818b",
     section: "terminale",
     title: "Le DRH du Festival",
     file: "jeux/drh-festival.html",
