@@ -51,6 +51,27 @@ h2 { font-size: clamp(30px, 8vw, 40px); }
 button { font: inherit; }
 button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
+
+/* Mini-jeux d'Eva */
+.mg { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; padding: 14px; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; }
+.mg-title { font-family: var(--font-display); font-size: 28px; margin: 2px 0 4px; line-height: 1.05; }
+.mg-pegs { display: flex; gap: 8px; }
+.mg-peg { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: var(--panel); padding: 0; display: inline-block; cursor: pointer; }
+.mg-peg.sm { width: 28px; height: 28px; cursor: default; }
+.mg-peg.c0 { background: #e0483e; } .mg-peg.c1 { background: #3b82d6; } .mg-peg.c2 { background: #2fa36b; } .mg-peg.c3 { background: #e0b02f; } .mg-peg.c4 { background: #9b5fd0; }
+.mg-peg:disabled { opacity: .45; cursor: default; }
+.mg-hist { display: flex; flex-direction: column; gap: 6px; }
+.mg-line { display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 14px; }
+.mg-track { position: relative; height: 56px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
+.mg-zone { position: absolute; top: 0; bottom: 0; background: var(--good); opacity: .85; }
+.mg-mark { position: absolute; top: -2px; bottom: -2px; width: 6px; margin-left: -3px; background: var(--accent); border-radius: 3px; }
+.mg canvas { width: 100%; max-width: 100%; height: auto; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); touch-action: manipulation; }
+.mg-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mg-cards button { aspect-ratio: 1; font-size: 30px; padding: 0; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; min-height: 56px; }
+.mg-cards button.up, .mg-cards button.done { background: var(--panel2); } .mg-cards button.done { border-color: var(--good); }
+.mg-die { font-family: var(--font-display); font-size: 96px; font-weight: 700; text-align: center; line-height: 1; padding: 8px 0; }
+.mg-big { min-height: 64px; font-size: 20px; }
+
 /* Départ */
 .who-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
 .who-btn {
@@ -164,6 +185,139 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 <script>
 /*DATA_START*/
 const END_T = 240;
+/* ---------- Mini-jeux d'Eva (tirés au hasard) ---------- */
+const EVA = (function(){
+  const rint = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+  const shuf = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j = rint(0,i); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+  function h(tag, attrs, ...kids){
+    const e = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs||{})){
+      if (k === 'class') e.className = v; else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
+      else if (v === true) e.setAttribute(k,''); else if (v !== false && v != null) e.setAttribute(k,v);
+    }
+    kids.flat().forEach(c => { if (c == null || c === false) return; e.append(c.nodeType ? c : document.createTextNode(c)); });
+    return e;
+  }
+  let root = null, done = null, cleanup = () => {}, over = false;
+  function stop(){ cleanup(); cleanup = () => {}; over = true; }
+  function show(...nodes){ cleanup(); cleanup = () => {}; root.textContent = ''; nodes.flat().forEach(n => n && root.append(n)); }
+  function finish(res, detail){ if (over) return; stop(); done(res, detail); }
+  function head(title, rule){ return h('div', null, h('div', {class:'eyebrow'}, 'À la table d’Eva'), h('h3', {class:'mg-title'}, title), h('p', {class:'small'}, rule)); }
+  const wrapc = (...k) => h('div', {class:'mg'}, k);
+
+  function mastermind(){
+    const N = 4, COLORS = 5, MAX = 6, NAMES_C = ['rouge','bleu','vert','jaune','violet'];
+    const secret = Array.from({length:N}, () => rint(0,COLORS-1)); let cur = [], hist = [];
+    const draw = () => {
+      const pal = h('div', {class:'mg-pegs'}, Array.from({length:COLORS}, (_,c) => h('button', {type:'button', class:'mg-peg c'+c, 'aria-label':NAMES_C[c], disabled:cur.length>=N, onclick:()=>{ cur.push(c); draw(); }})));
+      const slots = h('div', {class:'mg-pegs'}, Array.from({length:N}, (_,i) => h('span', {class:'mg-peg '+(cur[i]!==undefined?'c'+cur[i]:'')})));
+      show(wrapc(head("Le Mastermind d’Eva", "Trouve la combinaison de 4 couleurs en 6 essais. Bien placé : bonne couleur, bon endroit. Mal placé : bonne couleur, mauvais endroit."),
+        h('div', {class:'mg-hist'}, hist.map(r => h('div', {class:'mg-line'}, h('div', {class:'mg-pegs'}, r.g.map(c => h('span', {class:'mg-peg sm c'+c}))), h('b', null, r.b+' bien placé'+(r.b>1?'s':'')+' · '+r.w+' mal placé'+(r.w>1?'s':''))))),
+        h('div', {class:'small'}, 'Essai '+(hist.length+1)+' sur '+MAX), slots, pal,
+        h('div', {class:'row'}, h('button', {type:'button', class:'btn ghost', disabled:!cur.length, onclick:()=>{ cur.pop(); draw(); }}, 'Effacer'), h('button', {type:'button', class:'btn', disabled:cur.length<N, onclick:submit}, 'Valider'))));
+    };
+    const submit = () => {
+      let b = 0; const sc = [], gc = [];
+      cur.forEach((c,i) => { if (c === secret[i]) b++; else { sc.push(secret[i]); gc.push(c); } });
+      let w = 0; gc.forEach(c => { const k = sc.indexOf(c); if (k >= 0){ w++; sc.splice(k,1); } });
+      hist.push({g:cur.slice(), b, w}); const n = hist.length; cur = [];
+      if (b === N) return finish(n <= 4 ? 'win' : 'near', 'Mastermind : combinaison trouvée en '+n+' essai'+(n>1?'s':'')+(n<=4?'.':', trop tard pour convaincre Eva.'));
+      if (n >= MAX) return finish('lose', 'Mastermind perdu. La combinaison était : '+secret.map(c => NAMES_C[c]).join(', ')+'.');
+      draw();
+    };
+    draw();
+  }
+
+  function pion(){
+    let round = 0, hits = 0; const ROUNDS = 3;
+    const next = () => {
+      if (round >= ROUNDS) return finish(hits === 3 ? 'win' : hits >= 1 ? 'near' : 'lose', 'Le pion : '+hits+' arrêt'+(hits>1?'s':'')+' dans la zone sur '+ROUNDS+'.');
+      const width = [24,17,11][round], speed = [0.9,1.3,1.8][round];
+      const zl = rint(10, 90-width), mark = h('div', {class:'mg-mark'});
+      const track = h('div', {class:'mg-track'}, h('div', {class:'mg-zone', style:'left:'+zl+'%;width:'+width+'%'}), mark);
+      const info = h('p', {class:'small', 'aria-live':'polite'}, 'Manche '+(round+1)+' sur '+ROUNDS+' · réussies : '+hits);
+      let pos = rint(0,100), dir = 1, raf, t0 = performance.now(), stopped = false;
+      const tick = t => { const dt = Math.min(50, t-t0); t0 = t; pos += dir*speed*dt*0.08; if (pos>=100){ pos = 100; dir = -1; } if (pos<=0){ pos = 0; dir = 1; } mark.style.left = pos+'%'; if (!stopped) raf = requestAnimationFrame(tick); };
+      const btn = h('button', {type:'button', class:'btn mg-big', onclick:()=>{
+        if (stopped) return; stopped = true; cancelAnimationFrame(raf);
+        const ok = pos >= zl && pos <= zl+width; if (ok) hits++; round++;
+        btn.disabled = true; info.textContent = ok ? 'Dans la zone !' : 'Raté, à côté de la zone.'; info.style.color = ok ? 'var(--good)' : 'var(--bad)';
+        setTimeout(() => { if (!over) next(); }, 900);
+      }}, 'STOP');
+      show(wrapc(head("Le pion d’Eva", "Un pion file sur le plateau. Appuie sur STOP quand il est dans la zone verte. La zone rétrécit et le pion accélère."), track, info, btn));
+      cleanup = () => { stopped = true; cancelAnimationFrame(raf); };
+      raf = requestAnimationFrame(t => { t0 = t; tick(t); });
+    };
+    next();
+  }
+
+  function tour(){
+    const W = 300, H = 380, BH = 22, TARGET = 12; const cv = h('canvas', {width:W, height:H, 'aria-label':'Tour de blocs à empiler'}); const g = cv.getContext('2d');
+    const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#ffc629';
+    const colors = ['#e0483e','#3b82d6','#2fa36b','#e0b02f','#9b5fd0'];
+    let stack = [{x:90, w:120}], cur = {x:0, w:120}, dir = 1, speed = 2.2, raf, ended = false;
+    const info = h('p', {class:'small', 'aria-live':'polite'}, 'Étage 1 sur '+TARGET);
+    const draw = () => {
+      g.clearRect(0,0,W,H); const base = H-10;
+      stack.forEach((b,i) => { g.fillStyle = colors[i%5]; g.fillRect(b.x, base-(i+1)*BH, b.w, BH-2); });
+      if (!ended){ g.fillStyle = css('--accent'); g.fillRect(cur.x, base-(stack.length+1)*BH, cur.w, BH-2); }
+    };
+    const tick = () => { cur.x += dir*speed; if (cur.x+cur.w>=W){ cur.x = W-cur.w; dir = -1; } if (cur.x<=0){ cur.x = 0; dir = 1; } draw(); if (!ended) raf = requestAnimationFrame(tick); };
+    const drop = () => {
+      if (ended) return; const top = stack[stack.length-1]; const l = Math.max(cur.x, top.x), r = Math.min(cur.x+cur.w, top.x+top.w), w = r-l;
+      if (w <= 4){ ended = true; cancelAnimationFrame(raf); draw(); return setTimeout(() => finish(stack.length >= TARGET ? 'win' : stack.length >= 8 ? 'near' : 'lose', 'La tour : '+stack.length+' étage'+(stack.length>1?'s':'')+' empilés.'), 700); }
+      stack.push({x:l, w}); cur = {x:dir>0?0:W-w, w}; speed += 0.2;
+      info.textContent = 'Étage '+stack.length+' sur '+TARGET;
+      if (stack.length >= TARGET){ ended = true; cancelAnimationFrame(raf); draw(); setTimeout(() => finish('win', 'La tour : '+stack.length+' étages, un monument.'), 700); }
+    };
+    show(wrapc(head("La tour d’Eva", "Un bloc glisse. Appuie pour le poser sur la tour : la partie qui dépasse tombe. Arrive à 12 étages."), cv, info, h('button', {type:'button', class:'btn mg-big', onclick:drop}, 'POSER')));
+    cv.addEventListener('pointerdown', drop); cleanup = () => { ended = true; cancelAnimationFrame(raf); }; draw(); raf = requestAnimationFrame(tick);
+  }
+
+  function memoire(){
+    const SYM = ['🏅','🚁','🥔','🍾'], MAXT = 9; let deck = shuf([...SYM, ...SYM]), open = [], found = new Set(), tries = 0, lock = false;
+    const info = h('p', {class:'small', 'aria-live':'polite'}); const grid = h('div', {class:'mg-cards'});
+    const draw = () => {
+      grid.textContent = ''; deck.forEach((s,i) => { const up = open.includes(i) || found.has(i); grid.append(h('button', {type:'button', class:up?(found.has(i)?'done':'up'):'', 'aria-label':up?s:'Carte cachée '+(i+1), disabled:lock||up, onclick:()=>flip(i)}, up?s:'?')); });
+      info.textContent = 'Tentatives : '+tries+' sur '+MAXT+' · paires trouvées : '+found.size/2;
+    };
+    const flip = i => {
+      open.push(i); draw(); if (open.length < 2) return; tries++; lock = true; const [a,b] = open;
+      setTimeout(() => {
+        if (over) return;
+        if (deck[a] === deck[b]){ found.add(a); found.add(b); } open = []; lock = false; draw();
+        if (found.size === deck.length) return finish(tries <= 6 ? 'win' : 'near', 'Mémoire : toutes les paires en '+tries+' tentatives.');
+        if (tries >= MAXT) finish('lose', 'Mémoire : plus de tentatives, '+found.size/2+' paire(s) trouvée(s).');
+      }, 800);
+    };
+    show(wrapc(head("La mémoire d’Eva", "Retrouve les 4 paires (médaille, hélicoptère, chips, crémant) en 9 tentatives maximum."), grid, info)); draw();
+  }
+
+  function de(){
+    let throws = 0, best = 0, timer, v = 1, running = false; const ROUNDS = 3;
+    const dieEl = h('div', {class:'mg-die', 'aria-live':'polite'}, '?'); const info = h('p', {class:'small'}); const btn = h('button', {type:'button', class:'btn mg-big'}, 'LANCER');
+    const set = () => { info.textContent = 'Lancer '+Math.min(throws+1, ROUNDS)+' sur '+ROUNDS+' · meilleur score : '+(best || '-'); };
+    btn.addEventListener('click', () => {
+      if (!running){ running = true; btn.textContent = 'STOP'; timer = setInterval(() => { v = rint(1,6); dieEl.textContent = v; }, 70-throws*10); return; }
+      clearInterval(timer); running = false; throws++; best = Math.max(best, v); set();
+      if (v === 6 || throws >= ROUNDS){ btn.disabled = true; return setTimeout(() => finish(best === 6 ? 'win' : best >= 4 ? 'near' : 'lose', 'Le dé : meilleur lancer '+best+'.'), 900); }
+      btn.textContent = 'Relancer';
+    });
+    set(); show(wrapc(head("Le dé d’Eva", "Le dé tourne. Appuie sur STOP pour le figer. Trois lancers : un 6 gagne."), dieEl, info, btn));
+    cleanup = () => clearInterval(timer);
+  }
+
+  const GAMES = [['mastermind', mastermind], ['pion', pion], ['tour', tour], ['memoire', memoire], ['de', de]];
+  return {
+    stop,
+    run(container, lastName, cb){
+      root = container; done = cb; over = false; cleanup = () => {};
+      const pool = GAMES.filter(g => g[0] !== lastName); const g = pool[rint(0, pool.length-1)];
+      g[1](); return g[0];
+    }
+  };
+})();
+
 const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
 function pad(n){ return String(n).padStart(2,'0'); }
 function clockParts(t){ const n = 20*60+t; return [Math.floor(n/60)%24, n%60]; }
@@ -183,6 +337,7 @@ function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AV
 const ITEMS = {
   plat_eva: {k:'m', n:"Plat d'Eva sous cellophane", s:2, h:"Le plat d'Eva", w:"Le plat d'Eva, sous cellophane, passe de main en main. {Y} n'a presque rien avalé de la journée : le plat est vide à 23h50 et tout le monde remercie Eva à distance."},
   jeu_societe: {k:'s', n:"Jeu de société d'Eva", s:2, h:"Une partie avant minuit", w:"Le jeu de société d'Eva. {Y} ouvre la boîte, lit les règles à voix haute, puis demande qui veut faire les équipes. À minuit, il y a quatre parties en cours sur la table, des cartes sous le canapé, et personne ne s'est mis d'accord sur le score."},
+  bouteille_coffre: {k:'b', n:"Bouteille du coffre (sans étiquette)", s:4, h:"La bouteille du coffre", w:"{Y} essuie la poussière, déchiffre un mot au feutre : « À ouvrir pour une grande occasion. » Il hésite, regarde l'heure, regarde la bouteille. Le bouchon saute sans bruit. Un silence, puis : « Qui t'a donné ça ? » Tu réponds « un coffre ». Il ne pose pas d'autre question, il va chercher des verres plus grands."},
   the_cindy: {k:'b', n:"Thé glacé de Singapour", s:2.5, h:"Le thé qui vient de loin", w:"Un thé glacé de Singapour, aux fleurs, dans une bouteille que {Y} ne sait pas ouvrir. Il lit l'étiquette en entier, fait semblant de comprendre, puis le verse dans les verres. À minuit, tout le monde demande où il l'a trouvé. « J'ai mes sources. »"},
   biscuits_cindy: {k:'m', n:"Biscuits au kaya de Cindy", s:2.5, h:"Les biscuits de Singapour", w:"Des biscuits au kaya, emballés un par un, rapportés de Singapour par quelqu'un qui n'est pas censé y être. {Y} en mange un, puis trois, puis refuse de partager. « Ça, c'est Cindy, évidemment. » À minuit, la boîte est vide."},
   biscuits_perimes: {k:'m', n:"Biscuits au kaya de Cindy", s:-2, h:"Périmés depuis 2023", w:"{Y} ouvre l'emballage, lit la date : « 2023. » Il regarde les biscuits, puis toi, puis il pense à Cindy. « Elle m'a eu à distance. » Quelqu'un ouvre une fenêtre. Tu entends le compte à rebours depuis le palier."},
@@ -236,7 +391,7 @@ const SCENES = {
   c:[
    B("Parler à Eva, qui arbitre la partie en cours", 'eva_cuisine', {t:5}),
    B("Faire le tour du before", 'eva_salon', {t:10}),
-   B("Jouer une partie de société", 'eva_jeux', {t:60}),
+   B("Jouer une partie de jeu de société avec Eva", 'eva_jeux', {t:60}),
    B("Sortir tout de suite", 'rue', {t:5}),
    B("Se reposer un peu", 'eva_repos', {t:30, fx:S=>{ S.rest = (S.rest||0)+1; }})
   ]},
@@ -265,33 +420,39 @@ const SCENES = {
   c:[
    B("Accepter le plat sous cellophane", 'eva', {t:5, item:'plat_eva', note:"Eva t'embrasse sur les deux joues : « Tu me dis si Yann aime, et tu reviens perdre contre moi. »"}),
    B(S=>S.player==='yann'?"Lui demander ce qu'il faut rapporter":"Lui demander ce que Yann aime", 'eva_yann', {t:5}),
-   B("Accepter une manche de plus, Eva insiste", 'eva_trop', {t:25}),
    B("Retourner dans le salon", 'eva', {t:5})
   ]},
  eva_yann: {p:"Chez Eva · Cormeilles", who:'eva',
   text:S=>S.player==='yann' ? "Eva réfléchit en s'essuyant les mains. « Maël ? C'est lui qui te juge ce soir. Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive le premier quelque part. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »" : "Eva réfléchit en s'essuyant les mains. « Yann ? Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive de garde. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »",
   c:[B("Merci Eva", 'eva', {t:5})]},
- eva_jeux: {p:"La table de jeux · Cormeilles", who:'eva',
-  text:"Quelqu'un sort un jeu, puis un deuxième, puis les cartes. Il y a toujours une partie de plus, des règles qu'on relit à voix haute et un pion qui a disparu sous le canapé. Au bout de la troisième manche, Eva te met une boîte dans les mains : « Emporte-la, elle ne sert qu'à Noël de toute façon. »",
+ eva_jeux: {p:"La table de jeux · Cormeilles", who:'eva', mini:true,
+  text:"Eva fait glisser une boîte vers toi, puis une autre, en secouant la tête. « Je choisis, tu joues. Si tu gagnes, la boîte est à toi. »",
+  c:[]},
+ eva_jeux_win: {p:"La table de jeux · Cormeilles", who:'eva',
+  text:S=>S.bag.indexOf('jeu_societe') >= 0
+   ? "Eva hausse un sourcil en te voyant gagner une deuxième fois. « Tu as déjà ma boîte, champion. Mais je veux bien perdre encore. »"
+   : "Eva referme la boîte d'un coup sec et te la met dans les mains. « Bien joué. Emporte-la, elle ne sert qu'à Noël de toute façon. »",
   c:[
-   B("Prendre le jeu et retourner au before", 'eva', {t:0, item:'jeu_societe'}),
-   B("Laisser le jeu et retourner au before", 'eva', {t:0})
+   B("Prendre le jeu et retourner au before", 'eva', {t:0, item:'jeu_societe', need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Prendre le jeu et demander une autre partie", 'eva_jeux', {t:60, item:'jeu_societe', need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Laisser le jeu et retourner au before", 'eva', {t:0, need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Laisser le jeu et demander une autre partie", 'eva_jeux', {t:60, need:S=>S.bag.indexOf('jeu_societe') < 0}),
+   B("Demander une autre partie", 'eva_jeux', {t:60, need:S=>S.bag.indexOf('jeu_societe') >= 0}),
+   B("Retourner au before", 'eva', {t:0, need:S=>S.bag.indexOf('jeu_societe') >= 0})
+  ]},
+ eva_jeux_lose: {p:"La table de jeux · Cormeilles", who:'eva',
+  text:"Eva range les pièces avec un sourire de championne. « Un autre jeu ? » Elle a déjà sorti la boîte suivante. Autour de la table, on ne voit plus l'heure passer.",
+  c:[
+   B("Un autre jeu, oui", 'eva_jeux', {t:60}),
+   B("Non merci, retourner au before", 'eva', {t:0})
   ]},
  eva_salon: {p:"Le before · Cormeilles",
   text:"Dans le salon, il reste quelques amis qui rient, un plateau de tapas à moitié vide et une enceinte qui crache de la musique. On te glisse des tuyaux sans que tu demandes : « Alexandra est rentrée du Portugal avec des sacs. » « JC et Gabie parlent d'une doro party, mais personne ne sait où. » « Audrey cache un crémant que Quentin ne doit pas trouver. » « Virgile vend sa Mazda, Katia veut qu'il s'en sépare. » « Moizlard a une voiture énorme et une cheville foulée. »",
   c:[B("Retourner voir Eva", 'eva', {t:5})]},
- eva_trop: {p:"Chez Eva · Cormeilles", who:'eva',
-  text:"Quatrième manche. Eva dit « la dernière » pour la troisième fois, en redistribuant les cartes avec un sourire de championne. Elle est tellement enthousiaste qu'on se sent mal de refuser.",
-  c:[
-   B("Accepter la revanche, par politesse", 'fin_eva', {t:60}),
-   B("Te lever pour de vrai, avant qu'elle ne revienne", 'eva', {t:10})
-  ]},
  fin_riche: {end:'lose', h:"Trop riche pour la fête",
   text:"Tu regardes ton portefeuille : {m}. Plus que ce que Yann attend de toi, plus que ce que tu espérais. Tu te dis que tu peux bien t'offrir une soirée, une vraie, sans serviette en papier ni chips nature. Tu entres dans le premier restaurant ouvert, tu commandes des fruits de mer « pour le principe ». À minuit, tu portes un toast avec le serveur et un couple d'inconnus. Ton téléphone vibre : « T'es où ? » Tu réponds : « Au chaud. » C'est vrai, et tu n'as aucun regret.\n\nSaint-Gratien compte à rebours sans toi, mais tu es en bonne compagnie, et ta note est déjà payée."},
  fin_eva_nuit: {end:'lose', h:"Le before qui ne finit jamais",
   text:S=>"Tu t'es dit « je me repose cinq minutes », et tu l'as dit toute la soirée. À minuit, tu es toujours dans le salon "+(S.player==='eva'?"de chez toi":"d'Eva")+", un verre à la main, au milieu des boîtes de jeux ouvertes. Dehors, Saint-Gratien compte à rebours sans toi. Ici, on compte aussi, plus fort et plus faux, devant une partie que personne n'a finie.\n\nTon téléphone vibre : Yann. « T'es où ? » Tu réponds : « Chez Eva. » Il répond : « Évidemment. » Il y a pire comme façon de passer le 31."},
- fin_eva: {end:'lose', h:"Une dernière manche",
-  text:"Tu as dit oui à une dernière revanche, puis à la suivante. À minuit, tu es toujours à la table d'Eva, un plaid sur les épaules, à perdre avec dignité. Elle te laisse les règles « pour t'entraîner ». Impossible de lui en vouloir."},
 
  /* ---------- Cormeilles ---------- */
  rue: {p:"Cormeilles-en-Parisis",
@@ -762,8 +923,8 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Le traîner par la poignée, en râlant", 'audrey_ko', {t:10, flag:'sacs'})
   ]},
  audrey_ok: {p:"Parvis de la gare · Cormeilles", who:'audrey',
-  text:"« Merci, vraiment, tu me sauves. » Audrey te sourit, soulagée. Elle fouille dans le sac, en sort une bouteille de crémant. « Tiens. Pour Yann. Il m'a fait promettre de bien choisir, et je crois que tu l'as mérité. »",
-  c:[B("Remercier Audrey", 'chez_quentin', {t:5, item:'cremant'})]},
+  text:S=>"« Merci, vraiment, tu me sauves. » Audrey te sourit, soulagée. Elle fouille dans le sac, en sort une bouteille de crémant. « Tiens. Pour Yann. Il m'a fait promettre de bien choisir, et je crois que tu l'as mérité. » Elle hésite, puis ajoute, en fouillant encore : « Ah, et l'objet qui cliquette, c'est un cadenas que m'a donné l'ancien gérant du Carrefour City de Saint-Gratien, Jérôme. Il m'a dit que le coffre de sa réserve finissait par "+S.codeB+". Je ne sais pas pourquoi il me raconte ça. Je suppose qu'il avait besoin d'en parler. »",
+  c:[B("Remercier Audrey", 'chez_quentin', {t:5, item:'cremant', flag:'code_b', note:"Tu notes la fin du code au stylo, dans ta paume."})]},
  audrey_ko: {p:"Parvis de la gare · Cormeilles", who:'audrey',
   text:"Audrey te regarde traîner son sac, puis te regarde, puis éclate de rire. « Tu es adorable, mais donne. » Elle le soulève d'une main en s'excusant presque. Quentin applaudit lentement. Elle te tend tout de même un crémant, avec un sourire : « Pour Yann. Pour la peine. »",
   c:[B("Prendre le crémant et filer", 'chez_quentin', {t:10, item:'cremant'})]},
@@ -894,7 +1055,26 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Prendre un plateau de sushis invendu", 'egout_sortie', {t:5, item:'sushis', flag:'r_pris', need:S=>!S.flags.r_pris, note:"Il hoche la tête : « Il date d'aujourd'hui. À peu près. »"}),
    B("Prendre une bouteille de crémant", 'egout_sortie', {t:5, item:'cremant_cf', flag:'r_pris', need:S=>!S.flags.r_pris, note:"Il la glisse dans un sac plastique : « Je n'ai rien vu. »"}),
    B("Prendre une mini-bûche", 'egout_sortie', {t:5, item:'buche', flag:'r_pris', need:S=>!S.flags.r_pris, note:"« Elle est un peu écrasée, dit-il. Comme moi. »"}),
+   B("Regarder le coffre-fort derrière les palettes", 'coffre', {t:5, need:S=>!S.flags.coffre_ouvert && !S.flags.alarme}),
    B("Ne rien prendre et sortir", 'saintgratien', {t:10})
+  ]},
+ coffre: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
+  text:S=>"Derrière les palettes, un coffre-fort gris, plus vieux que le magasin, avec un petit clavier à quatre chiffres. L'employé fixe son téléphone avec une concentration suspecte. « Moi, je n'ai jamais rien vu, et je ne connais pas le code. »"+((S.flags.code_a||S.flags.code_b)?" Dans ta paume, au stylo : « "+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··')+" »":""),
+  c:[
+   B(S=>"Taper le code : "+S.codeA+S.codeB, 'coffre_ouvert', {t:5, flag:'coffre_ouvert', need:S=>S.flags.code_a&&S.flags.code_b}),
+   B("Taper le début du code et deviner la fin", S=>S.pass?'coffre_ouvert':'coffre_alarme', {t:5, need:S=>S.flags.code_a&&!S.flags.code_b, fx:S=>{ S.pass = rnd(0.01); if (S.pass) S.flags.coffre_ouvert = true; }}),
+   B("Taper la fin du code et deviner le début", S=>S.pass?'coffre_ouvert':'coffre_alarme', {t:5, need:S=>S.flags.code_b&&!S.flags.code_a, fx:S=>{ S.pass = rnd(0.01); if (S.pass) S.flags.coffre_ouvert = true; }}),
+   B("Essayer 1-2-3-4, « ça marche toujours »", 'coffre_alarme', {t:5, need:S=>!S.flags.code_a&&!S.flags.code_b}),
+   B("Laisser le coffre tranquille", 'egout_reserve', {t:5})
+  ]},
+ coffre_alarme: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
+  text:"Le clavier clignote en rouge, puis une sirène remplit la réserve. L'employé lâche son paquet de chips : « Je ne connais pas cet homme ! » Il te pousse dehors par la porte de service, passe vingt minutes au téléphone avec son chef, et te regarde avec la lassitude de quelqu'un qui va devoir tout expliquer. Il ne te donnera plus rien.",
+  c:[B("Sortir en faisant profil bas", 'egout_sortie', {t:25, flag:'r_pris'+'', fx:S=>{ S.flags.alarme = true; }})]},
+ coffre_ouvert: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
+  text:"Un clic net, un bruit de pêne. Le coffre s'ouvre sur une bouteille couverte de poussière, sans étiquette, avec un mot au feutre : « À ouvrir pour une grande occasion. » L'employé lève enfin les yeux de son téléphone : « Ah. Il marchait donc. Moi, je n'ai rien vu. »",
+  c:[
+   B("Prendre la bouteille", 'egout_reserve', {t:5, item:'bouteille_coffre', flag:'coffre_ouvert'}),
+   B("La remettre et refermer", 'egout_reserve', {t:5, flag:'coffre_ouvert'})
   ]},
  egout_sortie: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
   text:"L'employé te fait un petit signe vers la porte du magasin. « Par là. Fais comme si tu étais entré normalement. »",
@@ -1224,8 +1404,8 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Raccrocher", 'appel', {t:0})
   ]},
  cindy_conseil: {p:"Un coup de fil · Singapour", who:'cindy',
-  text:"« {Y} ? Il dit qu'il aime le blanc sec, mais il boit ce qu'on lui sert. Ce qu'il adore, c'est ce qui raconte une histoire. Une bouteille avec une étiquette bizarre, un objet qu'on ne sait pas nommer, un souvenir. » Un silence, le bruit d'un café qu'on repose. « Ne dis pas que c'est moi. »",
-  c:[B("Merci, bon vol", 'appel', {t:0})]},
+  text:S=>"« {Y} ? Il dit qu'il aime le blanc sec, mais il boit ce qu'on lui sert. Ce qu'il adore, c'est ce qui raconte une histoire. Une bouteille avec une étiquette bizarre, un objet qu'on ne sait pas nommer, un souvenir. » Un silence, le bruit d'un café qu'on repose. « Ne dis pas que c'est moi. » Puis, plus bas : « Au fait. Quand je faisais des extras au Carrefour City de Saint-Gratien, il y avait un coffre-fort dans la réserve, derrière les palettes. Le début du code, c'est "+S.codeA+". Je ne me souviens plus de la fin. Tu ne m'as pas entendue. »",
+  c:[B("Merci, bon vol", 'appel', {t:0, flag:'code_a', note:"Tu notes le début du code au stylo, dans ta paume."})]},
  cindy_conseil_ko: {p:"Un coup de fil · Singapour", who:'cindy',
   text:"« {Y} ? Facile. Il adore la simplicité. Des chips nature, rien d'autre, c'est son péché mignon. Je te le jure sur ma valise. » Une annonce d'embarquement couvre sa voix, elle ajoute quelque chose que tu n'entends pas, puis elle raccroche. Elle avait la voix de quelqu'un qui n'a pas dormi depuis deux jours.",
   c:[B("Raccrocher, un peu inquiet", 'appel', {t:0})]},
@@ -1641,7 +1821,7 @@ function fill(str){
   });
 }
 function val(x){ return typeof x === 'function' ? x(S) : x; }
-function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } }
+function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if (typeof EVA !== 'undefined') EVA.stop(); }
 function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== id); }); }
 
 function renderStart(){
@@ -1695,7 +1875,7 @@ function renderStart(){
 }
 
 function newGame(p, pseudo){
-  S = {player:p, pseudo:pseudo || NAMES[p], t:0, m:20, bag:[], flags:{}, note:'', best:null, win:false, antonin:false, pass:false, ticket:null, seen:{}, stock:newStock(), mys:false, next:'rue', kb:0, tries:0, yq:0};
+  S = {player:p, pseudo:pseudo || NAMES[p], codeA:'03', codeB:'37', t:0, m:20, bag:[], flags:{}, note:'', best:null, win:false, antonin:false, pass:false, ticket:null, seen:{}, stock:newStock(), mys:false, next:'rue', kb:0, tries:0, yq:0};
   showOnly('game');
   goTo('eva');
 }
@@ -1764,6 +1944,7 @@ function updateBoard(sc){
   const bits = S.bag.map(b=>ITEMS[b].n);
   if (S.ticket === 'cheap') bits.push('Ticket Franconville');
   if (S.ticket === 'full') bits.push('Ticket Saint-Gratien');
+  if (S.flags.code_a || S.flags.code_b) bits.push('Code du coffre : '+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··'));
   $('bag').textContent = bits.length ? bits.join(' · ') : 'rien';
   const ks = {};
   S.bag.forEach(b=>{ const s = (b === 'mystere') ? 1 : ITEMS[b].s; if (s > 0) ks[ITEMS[b].k] = true; });
@@ -1800,6 +1981,12 @@ function showScene(id, sc){
     const bar = el('div','timer'); const i = el('i'); i.style.animationDuration = sc.timer+'s'; bar.appendChild(i);
     bar.setAttribute('role','presentation'); box.appendChild(bar);
     timerId = setTimeout(()=>pick({to:sc.tt, t:5, note:"Le temps est écoulé."}), sc.timer*1000);
+  }
+  if (sc.mini){
+    const area = el('div'); box.appendChild(area);
+    S.evaGame = EVA.run(area, S.evaGame, (res, detail)=>{ pick({to: res === 'win' ? 'eva_jeux_win' : 'eva_jeux_lose', t:0, note: detail}); });
+    box.scrollIntoView({block:'start'});
+    return;
   }
   const list = el('div','choices');
   visibleChoices(sc).forEach(c=>{
