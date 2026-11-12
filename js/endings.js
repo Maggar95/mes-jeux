@@ -24,7 +24,8 @@
     });
   }
 
-  var CSS = ".en-name{background:none;border:0;padding:0;font:inherit;font-weight:600;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}" +
+  var CSS = ".en-place{margin:0 0 12px;padding:10px 12px;border-left:4px solid currentColor;background:rgba(127,127,127,.12);border-radius:0 8px 8px 0;line-height:1.5}" +
+    ".en-name{background:none;border:0;padding:0;font:inherit;font-weight:600;color:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}" +
     ".en-name:focus-visible{outline:3px solid currentColor;outline-offset:3px}" +
     ".en-detail td{padding:6px 10px 14px!important;font-size:14px;line-height:22px}" +
     ".en-detail ul{margin:6px 0 4px;padding-left:20px}.en-detail p{margin:0 0 4px!important;max-width:none}";
@@ -37,6 +38,20 @@
     rows.forEach(function (r) { var t = r.details && r.details.total; if (t > total) total = t; });
     box.textContent = "";
     if (!list.length) { var p = document.createElement("p"); p.className = "note small"; p.textContent = "Aucune fin découverte pour l’instant."; box.appendChild(p); return; }
+    /* Phrase de synthèse : place du joueur et écart avec la place au-dessus */
+    if (opt.me) {
+      var mi = -1;
+      list.forEach(function (o, k) { if (o.player.toLowerCase() === String(opt.me).toLowerCase()) mi = k; });
+      if (mi >= 0) {
+        var me = list[mi], t = "Tu as trouvé " + me.count + (total ? " fin" + (me.count > 1 ? "s" : "") + " sur " + total : " fin" + (me.count > 1 ? "s" : "")) + ". Tu es " + (mi === 0 ? "1ᵉʳ" : (mi + 1) + "ᵉ") + " sur " + list.length + " joueur" + (list.length > 1 ? "s" : "") + ".";
+        if (mi === 0) t += " Tu es en tête du classement !";
+        else {
+          var d = list[mi - 1].count - me.count;
+          t += d > 0 ? " " + list[mi - 1].player + " est devant toi de " + d + " fin" + (d > 1 ? "s" : "") + "." : " Égalité avec " + list[mi - 1].player + ", qui a trouvé son dernier chemin avant toi.";
+        }
+        var sp = document.createElement("p"); sp.className = "en-place"; sp.textContent = t; box.appendChild(sp);
+      }
+    }
     var table = document.createElement("table"); table.className = opt.cls || "board";
     table.innerHTML = '<thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Fins</th></tr></thead>';
     var body = document.createElement("tbody"); table.appendChild(body);

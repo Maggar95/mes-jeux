@@ -105,6 +105,7 @@ h3.sec { margin: 0 0 10px; font-size: 13px; font-family: var(--font-mono); text-
 .chip { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-variant-numeric: tabular-nums; }
 .chip.up { color: var(--good); border-color: var(--good); }
 .chip.down { color: var(--bad); border-color: var(--bad); }
+.place { margin: 0 0 12px; padding: 10px 12px; border-left: 4px solid var(--accent); background: rgba(31,79,191,.08); border-radius: 0 8px 8px 0; line-height: 1.5; }
 .btn { display: inline-block; margin-top: 16px; padding: 11px 20px; border-radius: 8px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
 .btn:hover { filter: brightness(1.08); }
 .btn:disabled { opacity: .5; cursor: default; }
@@ -953,6 +954,23 @@ var P5 = [
   }
   function bindPicker() { var p = document.getElementById("bc"); if (p) p.onchange = function () { boardClass = this.value; redraw(); }; }
 
+  function ordinal(n) { return n === 1 ? "1ᵉʳ" : n + "ᵉ"; }
+  /* Phrase de fin de partie : place dans le classement affiché et écart avec la place au-dessus */
+  function placeNote(rows, me, meTs, state) {
+    if (state !== "saved") return "";
+    var i = -1;
+    rows.forEach(function (r, k) { if (r.name === me && r.ts === meTs) i = k; });
+    if (i < 0) return "";
+    var pts = function (r) { return r.final != null ? r.final : r.score; };
+    var t = "<b>Votre note : " + esc(pts(rows[i])) + " points.</b> Vous êtes " + ordinal(i + 1) + " sur " + rows.length + " partie" + (rows.length > 1 ? "s" : "") + (boardClass ? " en " + esc(boardClass) : "") + ".";
+    if (i === 0) t += " Vous êtes en tête du classement !";
+    else {
+      var d = pts(rows[i - 1]) - pts(rows[i]);
+      t += d > 0 ? " " + esc(rows[i - 1].name) + " est devant vous de " + d + " point" + (d > 1 ? "s" : "") + "." : " Égalité de points avec " + esc(rows[i - 1].name) + ", qui a terminé avant vous.";
+    }
+    return '<p class="place">' + t + "</p>";
+  }
+
   function drawBoard(rows, me, state) {
     var el = document.getElementById("board"); if (!el) return;
     rows = rows.slice().sort(function (a, b) { return ((b.final != null ? b.final : b.score) - (a.final != null ? a.final : a.score)) || (b.cash - a.cash) || (a.ts - b.ts); });
@@ -960,7 +978,7 @@ var P5 = [
     if (state === "readonly") note = '<p class="hint" style="margin:0 0 10px">Votre résultat n\'a pas pu être enregistré (connexion indisponible). Il sera renvoyé à la prochaine ouverture du jeu. Gardez le code de résultat.</p>';
     if (!rows.length) { el.innerHTML = classPicker() + note + '<p class="hint" style="margin:0">Aucun résultat pour l\'instant. Le premier à finir ouvre le classement.</p>'; bindPicker(); return; }
     var meTs = Math.max.apply(null, rows.filter(function (r) { return r.name === me; }).map(function (r) { return r.ts; }).concat([0]));
-    var h = classPicker() + note + '<div class="tbl"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Droit</th><th class="num">Trés.</th><th class="num">Note</th></tr></thead><tbody>';
+    var h = classPicker() + note + placeNote(rows, me, meTs, state) + '<div class="tbl"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Droit</th><th class="num">Trés.</th><th class="num">Note</th></tr></thead><tbody>';
     rows.slice(0, 30).forEach(function (r, i) {
       h += '<tr class="' + (r.name === me && r.ts === meTs ? "me" : "") + '"><td class="rk">' + (i + 1) + '</td><td><span class="nm">' + esc(r.name || "?") + "</span>" + (r.cls ? ' <span class="cls">' + esc(r.cls) + "</span>" : "") + '</td><td class="num">' + esc(r.good) + "/" + esc(r.total) + ' <span class="cls">(' + esc(r.score) + ' %)</span></td><td class="num">' + esc(r.cash) + " k€</td><td class=\"num\"><b>" + esc(r.final != null ? r.final : r.score) + "</b></td></tr>";
     });

@@ -1653,35 +1653,38 @@ function renderStart(){
   box.appendChild(el('h1',null,'Direction Saint-Gratien'));
   box.appendChild(el('p','lead',"Tu pars du before chez Eva, à Cormeilles. Yann t'attend à Saint-Gratien, à 7 ou 8 km, pour le Nouvel An. Sa règle est simple : si tu n'apportes rien qui lui plaise, tu ne rentres pas. Quelque chose à boire, quelque chose à manger, une surprise : les trois, c'est le grand jeu."));
   box.appendChild(el('p','lead',"Entre les deux : des amis, des inconnus, un contrôleur, des mauvaises idées, une horloge qui ne s'arrête pas et un budget de 20 €. Minuit, lui, n'attendra personne."));
-  box.appendChild(el('h2',null,'Qui joues-tu ?'));
-  box.appendChild(el('p','small',"Choisis ton prénom : tu ne te croiseras pas toi-même dans l'histoire."));
-  const grid = el('div','who-grid');
+  const norm = t => String(t||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const keys = Object.keys(NAMES).sort((a,b)=> a==='autre' ? 1 : b==='autre' ? -1 : NAMES[a].localeCompare(NAMES[b],'fr'));
   let chosen = store('dsg-player'); if (!NAMES[chosen]) chosen = null;
   const pseudoWrap = el('div','pseudo');
-  const pseudoLab = el('label',null,'Ton prénom pour le classement'); pseudoLab.htmlFor = 'pseudo';
+  const pseudoLab = el('label',null,'Ton prénom (c\'est lui qui apparaît dans le classement)'); pseudoLab.htmlFor = 'pseudo';
   const pseudo = el('input'); pseudo.id = 'pseudo'; pseudo.maxLength = 24; pseudo.autocomplete = 'given-name';
-  pseudo.value = store('dsg-pseudo') || (chosen && chosen !== 'autre' ? NAMES[chosen] : '');
+  pseudo.value = store('dsg-pseudo') || '';
   pseudoWrap.appendChild(pseudoLab); pseudoWrap.appendChild(pseudo);
+  box.appendChild(pseudoWrap);
+  box.appendChild(el('h2',null,'Qui joues-tu ?'));
+  box.appendChild(el('p','small',"Tu peux jouer ton propre personnage ou quelqu'un d'autre : ton prénom, lui, reste le tien dans le classement. Tu ne croiseras pas le personnage que tu joues dans l'histoire."));
+  const grid = el('div','who-grid');
   const go = el('button','btn','Partir de chez Eva');
   const ready = ()=>{ go.disabled = !(chosen && pseudo.value.trim().length >= 2); };
-  pseudo.addEventListener('input', ready);
+  const btns = {};
+  const pick = k=>{
+    chosen = k; store('dsg-player',k);
+    keys.forEach(x=>btns[x].setAttribute('aria-pressed', String(x === k)));
+    ready();
+  };
+  /* Si personne n'a encore choisi de personnage, celui qui porte son prénom est proposé */
+  pseudo.addEventListener('input', ()=>{
+    if (!chosen){ const m = keys.find(x=>x!=='autre' && norm(NAMES[x]) === norm(pseudo.value)); if (m){ chosen = m; keys.forEach(x=>btns[x].setAttribute('aria-pressed', String(x === m))); } }
+    ready();
+  });
   keys.forEach(k=>{
     const b = el('button','who-btn',NAMES[k]); b.type = 'button';
     b.setAttribute('aria-pressed', String(k === chosen));
-    b.addEventListener('click',()=>{
-      const prev = chosen; chosen = k; store('dsg-player',k);
-      grid.querySelectorAll('.who-btn').forEach(x=>x.setAttribute('aria-pressed','false'));
-      b.setAttribute('aria-pressed','true');
-      const cur = pseudo.value.trim();
-      if (k !== 'autre' && (!cur || (prev && cur === NAMES[prev]))) pseudo.value = NAMES[k];
-      if (k === 'autre' && prev && cur === NAMES[prev]) pseudo.value = '';
-      ready();
-    });
-    grid.appendChild(b);
+    b.addEventListener('click',()=>pick(k));
+    btns[k] = b; grid.appendChild(b);
   });
   box.appendChild(grid);
-  box.appendChild(pseudoWrap);
   ready();
   go.addEventListener('click',()=>{ const p = pseudo.value.trim().replace(/\s+/g,' '); if (chosen && p.length >= 2){ store('dsg-pseudo', p); newGame(chosen, p); } });
   box.appendChild(go);

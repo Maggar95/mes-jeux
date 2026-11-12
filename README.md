@@ -46,6 +46,10 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 | Le DRH du Festival | score en points (jusqu'à environ 2 000) : bonnes décisions et gestion des trois jauges (trésorerie, ambiance, conformité) ; une jauge à zéro, ou le renvoi par le conseil d'administration, arrête la partie et fige le score |
 | Direction Saint-Gratien | pas de points : classement au nombre de **fins différentes découvertes** (à égalité, le premier arrivé). Un clic sur son prénom affiche ses fins, uniquement depuis l'appareil où il a joué (liste gardée dans son navigateur) |
 
+### Fin de partie
+
+À la fin d'une partie, Le Franchisé et Le DRH du Festival affichent le score en points, la place dans le classement (de la classe sélectionnée) et l'écart avec le joueur juste devant. Direction Saint-Gratien fait de même avec le nombre de fins découvertes.
+
 ## Le DRH du Festival (Terminale)
 
 Jeu à choix sur les trois premiers chapitres de RHC (besoin en recrutement, relations de travail, évaluation) : trois éditions de festival, des dilemmes, des entretiens à mener. Le scénario et le moteur sont dans `jeux/drh-festival.html` (les scènes sont dans le tableau `EDITIONS`). Protégé par un code d'accès (seule son empreinte est dans le dépôt).
@@ -64,6 +68,10 @@ Le fichier `.github/workflows/sauvegarde.yml` copie chaque lundi la table `score
 ## Classes
 
 Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : 1STMG1, TSTMG1, BTS MCO JV1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.
+
+## Direction Saint-Gratien : prénom et personnage
+
+Le joueur saisit d'abord **son prénom** (il apparaît dans le classement et sert à retrouver ses fins), puis choisit **le personnage qu'il incarne**, qui peut être quelqu'un d'autre. Le choix du personnage ne change jamais le prénom saisi. Le prénom et le dernier personnage choisi sont mémorisés sur l'appareil. Si aucun personnage n'a encore été choisi et que le prénom tapé correspond à l'un d'eux, celui-ci est proposé automatiquement.
 
 ## Ajouter un jeu
 
