@@ -53,6 +53,14 @@ Jeu à choix sur les trois premiers chapitres de RHC (besoin en recrutement, rel
 - **Variantes** : cinq scènes existent en deux versions (tableau `ALT`), tirées au hasard à chaque partie, pour que deux parties ne se ressemblent pas.
 - **Le pari de Michel** : avant chaque recette de festival, Michel propose un pari facultatif de 10 de trésorerie. S'il est accepté, un mini-jeu se lance (Pong, jauge à arrêter dans le vert, mélodie à retenir). Gagner : +10 de trésorerie et +20 points ; perdre : −10 de trésorerie (jamais jusqu'à la faillite) ; refuser : rien. Pour essayer un mini-jeu sans jouer toute la partie : ajouter `?mini=pong`, `?mini=stop` ou `?mini=simon` à l'adresse du jeu (mode essai, rien n'est enregistré). Ces points ne comptent pas dans le score maximal, donc ils n'abaissent pas le palier atteint.
 
+### Connexion qui coupe
+
+Si l'envoi d'un score échoue, le site réessaie deux fois (après 2 s puis 5 s). Si ça échoue encore, le score est gardé dans le navigateur du joueur et renvoyé automatiquement dès que la connexion revient (et toutes les minutes tant que la page est ouverte).
+
+### Sauvegarde
+
+Le fichier `.github/workflows/sauvegarde.yml` copie chaque lundi la table `scores` dans un fichier JSON, récupérable sur GitHub (onglet **Actions** > « Sauvegarde des scores » > la dernière exécution > fichier en bas de page), conservé 90 jours. Cette lecture régulière évite aussi la mise en pause du projet Supabase gratuit. On peut la lancer à la main avec « Run workflow ».
+
 ## Classes
 
 Chaque rubrique a sa classe, définie dans `js/games.js` (champ `classes`) : 1STMG1, TSTMG1, BTS MCO JV1. Dans Le Franchisé, l'élève choisit sa classe et saisit son prénom suivi de l'initiale de son nom (jamais le nom complet). Les classements se filtrent par classe.

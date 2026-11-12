@@ -48,8 +48,16 @@
     score = Number(score);
     if (!player || !isFinite(score)) return Promise.resolve({ ok: false, reason: "data" });
     var row = { game: game, player: player, score: score, details: details || null };
-    return post(row).then(function () { flush(); return { ok: true }; },
-                          function () { queue(row); return { ok: false, reason: "network" }; });
+    /* Jusqu'à 3 essais (à 0 s, 2 s puis 5 s) avant de mettre le score en attente */
+    function attempt(n) {
+      return post(row).catch(function (e) {
+        if (n >= 2) throw e;
+        return new Promise(function (res) { setTimeout(res, n === 0 ? 2000 : 3000); })
+          .then(function () { return attempt(n + 1); });
+      });
+    }
+    return attempt(0).then(function () { flush(); return { ok: true }; },
+                           function () { queue(row); return { ok: false, reason: "network" }; });
   }
 
   /* Toutes les parties d'un jeu, meilleurs scores d'abord */
@@ -80,6 +88,10 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+
+  /* Renvoi automatique des scores en attente : dès que la connexion revient, puis toutes les minutes */
+  try { window.addEventListener("online", function () { flush(); }); } catch (e) { /* ignoré */ }
+  setInterval(flush, 60000);
 
   window.MesJeux = { ready: ready, save: save, list: list, bestPerPlayer: bestPerPlayer, flush: flush, esc: esc };
   flush();

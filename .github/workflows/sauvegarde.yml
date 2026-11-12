@@ -1,0 +1,26 @@
+# Sauvegarde hebdomadaire des scores.
+# Chaque lundi, le site lit la table « scores » de Supabase et en garde une copie (fichier JSON,
+# conservée 90 jours dans l'onglet Actions du dépôt). Cette lecture régulière évite aussi que le
+# projet Supabase gratuit soit mis en pause pour inactivité.
+name: Sauvegarde des scores
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+jobs:
+  sauvegarde:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exporter les scores
+        run: |
+          URL=$(sed -n 's/.*supabaseUrl: *"\([^"]*\)".*/\1/p' js/config.js)
+          KEY=$(sed -n 's/.*supabaseKey: *"\([^"]*\)".*/\1/p' js/config.js)
+          curl -fsS --retry 3 -H "apikey: $KEY" \
+            "$URL/rest/v1/scores?select=*&order=created_at.asc&limit=100000" -o scores-sauvegarde.json
+          echo "Lignes sauvegardées : $(python3 -c 'import json;print(len(json.load(open("scores-sauvegarde.json"))))')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scores-${{ github.run_id }}
+          path: scores-sauvegarde.json
+          retention-days: 90
