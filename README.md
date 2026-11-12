@@ -43,7 +43,12 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 | Jeu | Score sur 100 |
 | --- | --- |
 | Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale |
+| Le DRH du Festival | score en points (jusqu'à environ 2 000) : bonnes décisions et gestion des trois jauges (trésorerie, ambiance, conformité) ; une jauge à zéro, ou le renvoi par le conseil d'administration, arrête la partie et fige le score |
 | Direction Saint-Gratien | pas de points : classement au nombre de **fins différentes découvertes** (à égalité, le premier arrivé). Un clic sur son prénom affiche ses fins, uniquement depuis l'appareil où il a joué (liste gardée dans son navigateur) |
+
+## Le DRH du Festival (Terminale)
+
+Jeu à choix sur les trois premiers chapitres de RHC (besoin en recrutement, relations de travail, évaluation) : trois éditions de festival, des dilemmes, des entretiens à mener. Le scénario et le moteur sont dans `jeux/drh-festival.html` (les scènes sont dans le tableau `EDITIONS`). Pas de code d'accès pour l'instant.
 
 ## Classes
 

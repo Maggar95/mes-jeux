@@ -1,0 +1,1409 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Le DRH du Festival</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Concept : une affiche de festival. Nuit violette, néons rose / jaune / cyan. */
+:root {
+  --bg: #120b24; --surface: #1f1440; --surface-2: #2a1c52; --ink: #f6f1ff; --muted: #b9acdc; --line: #43326f;
+  --pink: #ff3d81; --yellow: #ffd23f; --cyan: #38e8ee;
+  --good: #3ddc97; --good-bg: #0f3a2c; --bad: #ff7a7a; --bad-bg: #40151f;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-title: "Bungee", "Arial Black", Impact, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; color: var(--ink); font: 16px/1.5 var(--font-body);
+  background:
+    radial-gradient(900px 520px at 90% -10%, rgba(255, 61, 129, .24), transparent 60%),
+    radial-gradient(700px 520px at -10% 8%, rgba(56, 232, 238, .15), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  padding: 0 max(16px, env(safe-area-inset-right)) 56px max(16px, env(safe-area-inset-left));
+}
+.wrap { max-width: 700px; margin: 0 auto; }
+.back { margin: 12px 0 0; font-size: 14px; }
+.back a { color: var(--cyan); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+/* En-tête : les trois jauges et le score */
+.top { position: sticky; top: 0; z-index: 9; margin-top: 8px; padding: 10px 0 10px; background: rgba(18, 11, 36, .94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand { font-family: var(--font-title); font-size: 15px; letter-spacing: .02em; color: var(--yellow); }
+.score { font-family: var(--font-title); font-size: 17px; color: var(--cyan); font-variant-numeric: tabular-nums; }
+.score small { font-family: var(--font-body); font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-right: 6px; }
+.meters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 700; color: var(--muted); }
+.meter-val { font-variant-numeric: tabular-nums; color: var(--ink); }
+.bar { height: 9px; border-radius: 5px; background: var(--surface-2); margin-top: 4px; overflow: hidden; border: 1px solid var(--line); }
+.bar > i { display: block; height: 100%; border-radius: 5px; transition: width .5s ease; }
+.m-cash > i { background: var(--yellow); }
+.m-mood > i { background: var(--pink); }
+.m-law > i { background: var(--cyan); }
+.meter.low .bar { border-color: var(--bad); }
+.meter.low .meter-val { color: var(--bad); }
+.eds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 9px; }
+.ed { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ed .dots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin-top: 3px; }
+.ed .dots i { height: 4px; border-radius: 2px; background: var(--line); }
+.ed .dots i.done { background: var(--ink); }
+.ed .dots i.now { background: var(--pink); }
+.ed.now { color: var(--ink); }
+
+/* Cartes */
+main { padding-top: 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.card + .card { margin-top: 16px; }
+.band { margin: 0 0 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(100deg, var(--pink), #ff7a3d); color: #1a0a2e; }
+.band b { display: block; font-family: var(--font-title); font-size: 21px; line-height: 1.15; }
+.band span { display: block; font-size: 13.5px; font-weight: 700; margin-top: 4px; }
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--cyan); border: 1.5px solid var(--cyan); border-radius: 5px; padding: 2px 8px; margin: 0 0 12px; transform: rotate(-1deg); }
+h1, h2 { margin: 0; font-family: var(--font-title); font-weight: 400; line-height: 1.12; letter-spacing: .01em; text-wrap: balance; }
+h1 { font-size: 34px; color: var(--yellow); }
+h2 { font-size: 24px; color: var(--yellow); }
+h3.sec { margin: 0 0 10px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.lead { color: var(--muted); margin: 12px 0 0; max-width: 62ch; }
+.hint { color: var(--muted); font-size: 14px; }
+.who { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+.av { width: 46px; height: 46px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 25px; background: var(--surface-2); border: 2px solid var(--pink); }
+.who b { display: block; line-height: 1.2; }
+.who i { display: block; font-style: normal; font-size: 13px; color: var(--muted); }
+.ctx { background: var(--surface-2); border-radius: 10px; padding: 14px 16px; margin: 0 0 16px; max-width: 68ch; }
+.ctx p { margin: 0 0 8px; }
+.ctx p:last-child { margin: 0; }
+.q { font-size: 19px; font-weight: 700; line-height: 1.3; margin: 0 0 14px; text-wrap: balance; }
+.opts { display: grid; gap: 10px; }
+.opt { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; transition: border-color .15s, background .15s; }
+.opt:hover:not(:disabled) { border-color: var(--pink); }
+.opt:disabled { cursor: default; }
+.opt .k { font-weight: 700; width: 26px; height: 26px; border: 1.5px solid var(--line); border-radius: 6px; display: grid; place-items: center; font-size: 13px; color: var(--muted); }
+.opt.sel { border-color: var(--yellow); background: var(--surface-2); }
+.opt.sel .k { background: var(--yellow); border-color: var(--yellow); color: #1a0a2e; }
+.opt.right { border-color: var(--good); background: var(--good-bg); }
+.opt.right .k { background: var(--good); border-color: var(--good); color: #0b2a20; }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt.wrong .k { background: var(--bad); border-color: var(--bad); color: #2a0b10; }
+.opt.dim { opacity: .5; }
+.opt small { display: block; color: var(--muted); font-size: 13px; }
+.fb { margin-top: 18px; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); background: var(--surface-2); }
+.fb.ok { border-color: var(--good); background: var(--good-bg); }
+.fb.ko { border-color: var(--bad); background: var(--bad-bg); }
+.fb h3 { margin: 0 0 6px; font-size: 16px; }
+.fb.ok h3 { color: var(--good); }
+.fb.ko h3 { color: var(--bad); }
+.fb p { margin: 0 0 10px; max-width: 66ch; }
+.fb ul { margin: 0 0 10px; padding-left: 20px; }
+.rule { background: var(--surface); border: 1px dashed var(--yellow); border-radius: 8px; padding: 10px 12px; margin: 12px 0 0; font-size: 14.5px; }
+.rule .ref { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--yellow); margin-bottom: 3px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.chip { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-variant-numeric: tabular-nums; }
+.chip.up { color: var(--good); border-color: var(--good); }
+.chip.down { color: var(--bad); border-color: var(--bad); }
+.btn { display: inline-block; margin-top: 16px; padding: 11px 22px; border-radius: 10px; border: 0; background: var(--pink); color: #1a0a2e; font-weight: 700; }
+.btn:hover { filter: brightness(1.1); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Formulaire */
+.form { display: grid; gap: 12px; margin-top: 18px; max-width: 420px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.field input, .field select { width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.err { color: var(--bad); font-size: 14px; min-height: 20px; margin: 0; }
+.rules { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.rules li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 15px; }
+
+/* Profil de poste */
+.crit { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.crit:first-of-type { border-top: 0; }
+.crit b { display: block; }
+.crit small { color: var(--muted); }
+.step { display: inline-flex; align-items: center; gap: 8px; }
+.step button { width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface-2); font-weight: 700; font-size: 18px; line-height: 1; }
+.step button:hover:not(:disabled) { border-color: var(--pink); }
+.step button:disabled { opacity: .35; cursor: default; }
+.step output { min-width: 108px; text-align: center; font-size: 13.5px; font-weight: 700; }
+.pts-left { font-weight: 700; margin: 0 0 6px; }
+.pts-left span { color: var(--yellow); font-size: 20px; font-family: var(--font-title); }
+.cmp { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0 0; }
+.cmp th, .cmp td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); }
+.cmp th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.cmp td.num, .cmp th.num { text-align: center; }
+.cmp .okc { color: var(--good); font-weight: 700; }
+.cmp .koc { color: var(--bad); font-weight: 700; }
+
+/* Tri */
+.sortcard { background: var(--surface-2); border: 1.5px dashed var(--line); border-radius: 10px; padding: 18px 16px; margin: 0 0 14px; font-size: 18px; font-weight: 500; min-height: 78px; display: flex; align-items: center; }
+.count { font-size: 12.5px; color: var(--muted); margin: 0 0 8px; font-weight: 700; }
+.buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.bucket { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px; font-weight: 700; text-align: center; }
+.bucket:hover:not(:disabled) { border-color: var(--pink); }
+.bucket:disabled { cursor: default; }
+.bucket.right { border-color: var(--good); background: var(--good-bg); }
+.bucket.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.bucket.dim { opacity: .5; }
+
+/* Événement */
+.event { border: 1.5px dashed var(--cyan); border-radius: 12px; padding: 16px; background: var(--surface-2); }
+.event b { display: block; font-family: var(--font-title); font-size: 18px; color: var(--cyan); font-weight: 400; margin-bottom: 6px; }
+
+/* Fin */
+.bigscore { font-family: var(--font-title); font-size: 52px; color: var(--cyan); margin: 8px 0 0; font-variant-numeric: tabular-nums; line-height: 1; }
+.endtitle { font-family: var(--font-title); font-size: 28px; line-height: 1.12; color: var(--yellow); margin: 6px 0 0; }
+.mast { display: grid; grid-template-columns: 150px 1fr 56px; gap: 10px; align-items: center; margin: 8px 0; font-size: 14.5px; }
+.mast .bar { margin: 0; }
+.mast .bar > i { background: var(--good); }
+.mast.low .bar > i { background: var(--bad); }
+.mast span:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.review { margin-top: 12px; display: grid; gap: 10px; }
+.miss { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; font-size: 15px; }
+.miss b { display: block; margin-bottom: 2px; color: var(--yellow); }
+.tbl { overflow-x: auto; }
+table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.board th, .board td { padding: 8px 8px; border-top: 1px solid var(--line); text-align: left; }
+.board th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-top: 0; }
+.board .num { text-align: right; font-variant-numeric: tabular-nums; }
+.board .rk { width: 32px; color: var(--muted); }
+.board tr.me td { background: rgba(255, 210, 63, .12); }
+.board .cls { color: var(--muted); font-size: 12.5px; }
+.tag-row { display: grid; grid-template-columns: 1fr 70px; gap: 10px; align-items: center; margin: 7px 0; font-size: 14.5px; }
+.tag-bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.tag-bar > i { display: block; height: 100%; background: var(--bad); }
+
+@media (max-width: 520px) {
+  h1 { font-size: 27px; } h2 { font-size: 21px; } .card { padding: 16px; } .q { font-size: 18px; }
+  .meters { gap: 8px; } .meter-head { font-size: 11px; } .mast { grid-template-columns: 110px 1fr 52px; }
+  .step output { min-width: 84px; font-size: 12.5px; } .endtitle { font-size: 23px; } .bigscore { font-size: 42px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="back"><a href="../index.html">Tous les jeux</a></p>
+  <header class="top">
+    <div class="top-row">
+      <span class="brand">Le DRH du Festival</span>
+      <span class="score"><small>Score</small><span id="scoreVal">0</span></span>
+    </div>
+    <div class="meters">
+      <div class="meter m-cash" id="mCash"><div class="meter-head"><span>Trésorerie</span><span class="meter-val" id="cashVal">60</span></div><div class="bar"><i id="cashBar" style="width:60%"></i></div></div>
+      <div class="meter m-mood" id="mMood"><div class="meter-head"><span>Ambiance</span><span class="meter-val" id="moodVal">60</span></div><div class="bar"><i id="moodBar" style="width:60%"></i></div></div>
+      <div class="meter m-law" id="mLaw"><div class="meter-head"><span>Conformité</span><span class="meter-val" id="lawVal">60</span></div><div class="bar"><i id="lawBar" style="width:60%"></i></div></div>
+    </div>
+    <div class="eds" id="eds" aria-label="Progression sur trois éditions"></div>
+  </header>
+  <main id="main" aria-live="polite"></main>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/games.js"></script>
+<script src="../js/scores.js"></script>
+<script>window.MESJEUX_GAME = "drh-festival";</script>
+<script src="../js/access.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ================================================================== */
+  /*  PERSONNAGES                                                        */
+  /* ================================================================== */
+  var W = {
+    T: { n: "M. Tambour", e: "🥁", r: "Directeur du festival, ex-batteur" },
+    G: { n: "Gérard", e: "🧮", r: "Directeur financier, ennemi du café" },
+    K: { n: "Kévin", e: "📱", r: "Stagiaire communication" },
+    P: { n: "Mme Pérignon", e: "✊", r: "Déléguée du personnel" },
+    L: { n: "Luigi", e: "🍕", r: "Chef des bars, roi de la cooptation" },
+    B: { n: "Inspectrice Bertoli", e: "🕵️", r: "Inspection du travail" },
+    N: { n: "Nadia", e: "🎟️", r: "Responsable accueil et billetterie" },
+    Th: { n: "Théo", e: "🎚️", r: "Technicien son" },
+    I: { n: "Inès", e: "💡", r: "Régisseuse lumière" },
+    Le: { n: "Léa", e: "📣", r: "Ambassadrice indépendante" },
+    Ka: { n: "Karim B.", e: "🦺", r: "Candidat, responsable sécurité" },
+    D: { n: "Dylan", e: "🕶️", r: "Ambassadeur indépendant" }
+  };
+
+  /* ================================================================== */
+  /*  LES TROIS ÉDITIONS                                                 */
+  /*  ch : 1 = besoin en recrutement, 2 = relations de travail,          */
+  /*       3 = évaluation. d = [trésorerie, ambiance, conformité].       */
+  /* ================================================================== */
+  var EDITIONS = [
+
+    /* ---------------------------------------------------------------- */
+    /*  ÉDITION 1                                                        */
+    /* ---------------------------------------------------------------- */
+    {
+      title: "Édition 1 · Premiers pas",
+      intro: [
+        "Bienvenue au Décibel Festival : trois jours, 25 000 festivaliers, 40 permanents, 300 saisonniers et un directeur, M. Tambour, qui prend encore les frigos pour des grosses caisses.",
+        "Tu es son nouveau DRH. Ta mission : que la boîte tourne trois éditions de suite. Chaque décision fait bouger la trésorerie, l'ambiance et la conformité au droit. Si l'une des trois tombe à zéro, c'est la fin du concert."
+      ],
+      quarters: [
+        { label: "T1 · Hiver", chap: "Le besoin en recrutement",
+          blurb: "Le festival est enneigé, Gérard a éteint le chauffage « pour la cause ». Un poste clé se libère.",
+          scenes: [
+            { ty: "profile", ch: 1, tag: "Profil de poste", who: "T",
+              ctx: ["Gilbert, notre régisseur général, part à la retraite dans six mois. Dix-huit ans à monter des scènes sous la pluie. Il pilote la production technique : montage, sécurité du site et une soixantaine de techniciens.",
+                    "À toi de bâtir le profil de poste, le portrait idéal du candidat. Chaque critère se note de 1 (souhaitable) à 3 (indispensable). Tu disposes de 14 points à répartir, pas un de plus.",
+                    "Gérard : « Mets 3 partout, ça ne coûte rien ! » (Il se trompe.)"],
+              q: "Comment pondères-tu les critères ?", budget: 14,
+              crit: [
+                { n: "Niveau de qualification", sub: "Diplôme demandé", ideal: 1, w: 1 },
+                { n: "Expérience", sub: "Années sur des postes comparables", ideal: 2, w: 2 },
+                { n: "Connaissance du spectacle vivant", sub: "Scènes, artistes, contraintes techniques", ideal: 2, w: 2 },
+                { n: "Maîtrise de la sécurité du site", sub: "Normes, évacuation, foule", ideal: 3, w: 3 },
+                { n: "Management d'équipe", sub: "Diriger une soixantaine de personnes", ideal: 3, w: 3 },
+                { n: "Gestion du stress", sub: "Orage, panne, headliner en retard", ideal: 3, w: 3 },
+                { n: "Sens du relationnel", sub: "Artistes, prestataires, bénévoles", ideal: 2, w: 2 }
+              ],
+              rule: { ref: "Le profil de poste", text: "Portrait idéal du candidat : il reprend la définition du poste et pondère les compétences requises (1 souhaitable, 2 important, 3 indispensable). Il sert à trier les candidatures puis à évaluer les candidats." } },
+
+            { ty: "choice", ch: 1, tag: "Interne ou externe", who: "T",
+              ctx: ["Deux candidats sérieux. Sandrine, cheffe de plateau depuis 4 ans : l'équipe l'adore, mais elle n'a jamais dirigé plus de 15 personnes. Hector, tour manager passé par trois festivals géants : regard neuf, idées à la pelle, mais 8 k€ de plus par an et aucune idée d'où sont les toilettes.",
+                    "Gérard : « Prends Hector, il a un blouson en cuir, ça rassure les sponsors. »"],
+              q: "Qui nommes-tu régisseur général ?",
+              opts: [
+                { t: "Sandrine, avec un parcours de formation au management", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
+                  fb: "Promouvoir en interne motive toute la troupe (« un jour ce sera moi ») et Sandrine connaît déjà la culture : intégration express. À toi de combler son manque d'expérience avec de la formation." },
+                { t: "Hector, le tour manager au blouson en cuir", d: [-8, -6, 0], pts: 30, flag: "externe",
+                  fb: "Un regard neuf et un signal de dynamisme vers l'extérieur. Mais salaire plus élevé, intégration plus longue, et Sandrine regarde désormais son badge d'un air sombre. Défendable, mais ça se paie." },
+                { t: "Hector, mais sans prévenir Sandrine : elle l'apprendra bien assez tôt", d: [-8, -15, 0], pts: -10, ok: false,
+                  fb: "Kévin a posté la photo d'accueil d'Hector avant que tu parles à Sandrine. Elle l'apprend en story. Le climat social tombe dans la fosse." }
+              ],
+              rule: { ref: "Recrutement interne ou externe", text: "Interne : intégration simplifiée, fidélisation, motivation des équipes, mais profils limités et risque de routine. Externe : regard neuf, nouvelles idées, image dynamique, mais coût plus élevé, intégration plus longue et tension possible en interne." } }
+          ] },
+
+        { label: "T2 · Printemps", chap: "Les relations de travail",
+          blurb: "Les bourgeons bourgeonnent, les demandes de contrats aussi. Chaque besoin a son contrat.",
+          scenes: [
+            { ty: "choice", ch: 2, tag: "CDD ou CDI", who: "G",
+              ctx: ["Chantal, de la billetterie, part en congé maternité pour six mois. Il faut quelqu'un au guichet pendant son absence, et ça ne peut pas attendre."],
+              q: "Quel contrat proposes-tu ?",
+              opts: [
+                { t: "Un CDD de remplacement", d: [-3, 3, 0], pts: 60, ok: true,
+                  fb: "Remplacer un salarié absent est l'un des cas où la loi autorise le CDD. Contrat écrit, qui prend fin à la date prévue ou au retour de Chantal. Gérard hoche la tête, ce qui lui arrive deux fois par an." },
+                { t: "Un CDI : on est une famille !", d: [-10, 1, -3], pts: -10, ok: false,
+                  fb: "Un contrat sans date de fin pour un besoin de six mois : au retour de Chantal, tu auras deux personnes pour un seul guichet. Gérard fait une syncope en rouge et jaune." },
+                { t: "Un intérimaire via une agence", d: [-6, 0, 0], pts: 30,
+                  fb: "Possible aussi (remplacement d'un absent), mais tu passes par une entreprise de travail temporaire qui prend sa commission, et le contrat se fait à trois. Plus cher que le CDD direct." },
+                { t: "Un stagiaire, c'est gratuit !", d: [2, -4, -14], pts: -30, ok: false,
+                  fb: "Un stage est une période de formation, pas un moyen de remplacer un salarié absent. L'inspectrice Bertoli en a entendu parler. Le stagiaire est son informateur préféré." }
+              ],
+              rule: { ref: "CDI et CDD", text: "Le CDI est la forme normale et générale de la relation de travail : pas de date de fin. Le CDD n'est possible que pour une tâche précise et temporaire, dans les cas prévus par la loi (remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers…). Il est écrit et prend fin à la date fixée ou à la réalisation de son objet." } },
+
+            { ty: "choice", ch: 2, tag: "Besoin durable", who: "G",
+              ctx: ["Il nous faut un comptable toute l'année : paie, factures, remboursements de pass perdus. Un besoin permanent.",
+                    "Gérard, amoureux des contrats courts : « On enchaîne des CDD de trois mois, c'est souple ! »"],
+              q: "Que décides-tu ?",
+              opts: [
+                { t: "Un CDI : le poste est permanent", d: [-4, 5, 2], pts: 60, ok: true,
+                  fb: "Un emploi permanent se pourvoit par un CDI, la forme normale du contrat de travail. Ton comptable pourra même planifier ses vacances à l'avance, un luxe." },
+                { t: "Des CDD de trois mois renouvelés sans fin", d: [2, -6, -12], pts: -20, ok: false,
+                  fb: "Un CDD sert une tâche précise et temporaire, pas un besoin durable. Enchaîner les CDD sur un poste permanent expose à une requalification en CDI, et le comptable fait ses valises à chaque trimestre." },
+                { t: "Un intérimaire reconduit mois après mois", d: [-5, -4, -10], pts: -20, ok: false,
+                  fb: "Le contrat de travail temporaire ne peut pas servir à pourvoir durablement un emploi lié à l'activité normale et permanente de l'entreprise. L'agence te remercie néanmoins de ses commissions." }
+              ],
+              rule: { ref: "Emploi permanent", text: "Un besoin durable relève du CDI. CDD et intérim sont réservés à des tâches ponctuelles : ils ne peuvent pas pourvoir durablement un emploi permanent de l'entreprise." } },
+
+            { ty: "choice", ch: 2, tag: "Pic d'activité", who: "T",
+              ctx: ["Pour les trois jours du festival, il me faut 120 personnes aux bars, à l'accueil et au ménage. Après le dimanche soir, plus personne, évidemment."],
+              q: "Comment les recrutes-tu ?",
+              opts: [
+                { t: "En CDD (emplois saisonniers, accroissement d'activité)", d: [-8, 2, 0], pts: 60, ok: true,
+                  fb: "Pic d'activité et emplois saisonniers : deux motifs prévus par la loi pour le CDD. Contrat écrit, date de fin connue. Luigi organise déjà le plan de table des bars." },
+                { t: "En intérim, avec une agence", d: [-12, 0, 0], pts: 35,
+                  fb: "Ça marche aussi pour un pic d'activité, et l'agence gère l'administratif. Mais elle prend sa part : le CDD direct coûte moins cher et fidélise mieux." },
+                { t: "120 CDI, pour récompenser la fidélité du public", d: [-25, 2, -2], pts: -25, ok: false,
+                  fb: "Tu embauches pour la vie des gens qui servent trois jours par an. Gérard envoie un message vocal de 4 minutes entièrement en majuscules." },
+                { t: "Que des bénévoles (gratuit !)", d: [4, -4, -12], pts: -20, ok: false,
+                  fb: "Les bénévoles sont précieux en complément. Mais si leur activité ressemble à un vrai travail encadré, payé en tickets-boisson, l'inspection du travail s'y intéresse de très près." }
+              ],
+              rule: { ref: "Motifs de CDD", text: "Remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers : ces cas permettent le CDD. L'intérim répond au même type de besoin ponctuel, mais via une entreprise de travail temporaire." } }
+          ] },
+
+        { label: "T3 · Été", chap: "Le festival !",
+          blurb: "Les scènes sont montées, les gobelets consignés, les orages ont été prévus par personne.",
+          scenes: [
+            { ty: "event" },
+            { ty: "choice", ch: 2, tag: "Dilemme", who: "G",
+              ctx: ["Jeudi, 22 h : un orage coupe le site pour trois heures. Les 120 saisonniers, embauchés à l'heure, attendent sous les barnums.",
+                    "Gérard sort sa calculette : « On les renvoie sans les payer, ils n'ont rien fait ! »"],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Je les paie, et je fais servir de la soupe de Luigi", d: [-6, 10, 3], pts: 40, ok: true,
+                  fb: "Ils étaient à ta disposition, sous contrat : ces heures se paient. La soupe de Luigi fait le reste. L'orage passe, la réputation de la boîte aussi, en bien." },
+                { t: "Je les paie, point", d: [-3, 0, 0], pts: 25,
+                  fb: "Tu respectes le contrat, c'est l'essentiel. Sans un mot gentil, personne ne s'en souviendra, mais personne ne t'en voudra." },
+                { t: "Je les renvoie sans rémunération", d: [6, -15, -12], pts: -25, ok: false,
+                  fb: "Tu économises sur le dos de ceux qui font tourner le site. Mme Pérignon arrive avec des affiches et une chaîne de télévision locale." }
+              ],
+              rule: { ref: "Climat social et conformité", text: "Une décision qui économise à court terme peut coûter cher en climat social (motivation, fidélité, image employeur) et en risque juridique. Il faut peser les deux." } },
+            { ty: "revenue" }
+          ] },
+
+        { label: "T4 · Automne", chap: "L'évaluation professionnelle",
+          blurb: "Les feuilles tombent, les objectifs aussi. C'est la saison des entretiens.",
+          scenes: [
+            { ty: "choice", ch: 3, tag: "Choisir le bon entretien", who: "G",
+              ctx: ["Nadia, responsable accueil et billetterie, a terminé l'édition avec les résultats suivants.",
+                    "Attente aux portiques inférieure à 4 minutes : 3 min 12, objectif atteint. Taux d'erreurs de scan inférieur à 1 % : 0,8 %, objectif atteint. Ventes de pass VIP en hausse de 10 % : +6 %, partiellement atteint.",
+                    "Elle attend son rendez-vous avec toi."],
+              q: "Quel type d'entretien organises-tu ?",
+              opts: [
+                { t: "Un entretien périodique", d: [0, 4, 0], pts: 60, ok: true, flag: "periodique",
+                  fb: "Des résultats chiffrés comparés à des objectifs fixés : c'est l'objet de l'entretien périodique. Il n'est imposé par aucun texte de loi, mais l'entreprise est libre de le mettre en place." },
+                { t: "Un entretien professionnel", d: [0, -2, 0], pts: 10, ok: false,
+                  fb: "Il est obligatoire tous les 2 ans, mais il sert à parler d'évolution et de formation, pas à comparer des résultats à des objectifs. Tu le feras plus tard, mais là, Nadia attendait ses chiffres." },
+                { t: "Un bilan de compétences", d: [0, -6, -4], pts: -15, ok: false,
+                  fb: "Le bilan de compétences se fait à l'initiative du salarié et son contenu est confidentiel : tu ne peux pas le convoquer, ni t'en servir pour juger ses résultats." }
+              ],
+              rule: { ref: "Les trois objets d'évaluation", text: "L'évaluation porte sur les résultats (ce qui a été produit), les compétences (ce que le salarié sait faire) ou le potentiel (ce qu'il pourrait faire demain). Chaque objet appelle ses outils : l'entretien périodique est celui des résultats." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 1/3", who: "N",
+              ctx: ["Vous êtes face à face, avec des cafés (pas de Gérard dans les parages). Nadia, un peu tendue : « Alors, verdict ? »"],
+              q: "Comment commences-tu ?",
+              opts: [
+                { t: "Je compare ses résultats aux objectifs fixés, un par un", d: [0, 4, 0], pts: 40, ok: true,
+                  fb: "Atteint, atteint, partiellement atteint : factuel, lisible, sans surprise. Nadia sait exactement où elle en est." },
+                { t: "« Globalement, c'est plutôt pas mal, quoi. »", d: [0, -4, 0], pts: -5, ok: false,
+                  fb: "Aucun objectif cité, aucune information utile. Nadia ressort aussi avancée qu'elle est entrée, mais un peu plus inquiète." },
+                { t: "« Tom, lui, fait mieux que toi sur les VIP. »", d: [0, -10, 0], pts: -15, ok: false,
+                  fb: "On évalue par rapport aux objectifs fixés, pas par rapport à un collègue. Nadia vient de te répondre par un silence qui a duré trois siècles." }
+              ],
+              rule: { ref: "Entretien périodique · 1er temps", text: "Premier temps : les résultats de la période écoulée sont comparés aux objectifs fixés." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 2/3", who: "N",
+              ctx: ["Nadia : « Mes ventes VIP ont reculé, mais on a perdu deux vendeurs en mars et ils n'ont pas été remplacés. »"],
+              q: "Que réponds-tu ?",
+              opts: [
+                { t: "« Je note. On analyse les causes et on en tient compte pour la suite. »", d: [0, 5, 0], pts: 40, ok: true,
+                  fb: "Tu distingues ce qui dépend d'elle de ce qui n'en dépend pas, et tu prépares de nouveaux objectifs réalistes. Nadia respire pour la première fois depuis mars." },
+                { t: "« Les excuses, ce n'est pas mon sujet. »", d: [0, -8, 0], pts: -10, ok: false,
+                  fb: "Écouter les causes ne revient pas à excuser. Tu viens de transformer un entretien en tribunal." },
+                { t: "« Tu as raison, objectif annulé, tout va bien ! »", d: [0, 3, -2], pts: 5,
+                  fb: "Sympa, mais l'entretien perd son sens si les objectifs ne comptent plus. Nadia est contente, l'entreprise un peu moins." }
+              ],
+              rule: { ref: "Comprendre les écarts", text: "L'entretien ne se limite pas à constater : il permet de comprendre pourquoi un objectif est atteint ou non, comme le dit un salarié, afin de repartir sur de bonnes bases." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 3/3", who: "N",
+              ctx: ["Dernier temps du rendez-vous : l'année prochaine. Nadia, prudente : « Et pour la suite ? Je trouve dommage qu'on ne parle presque que de chiffres. »"],
+              q: "Comment conclus-tu ?",
+              opts: [
+                { t: "On fixe ensemble de nouveaux objectifs clairs et réalistes, et je lui propose de parler évolution lors de l'entretien professionnel", d: [0, 6, 2], pts: 50, ok: true,
+                  fb: "Deuxième temps de l'entretien périodique : définir les nouveaux objectifs. Et tu complètes avec l'entretien professionnel, légalement tous les 2 ans, où elle pourra parler compétences et envies d'évolution. Bien joué." },
+                { t: "Je lui impose +50 % de ventes VIP, point.", d: [0, -10, 0], pts: -15, ok: false,
+                  fb: "Un objectif irréaliste imposé sans discussion est le meilleur moyen de démotiver. Nadia réfléchit à un CDD chez Mégawatt." },
+                { t: "On ne fixe rien : on se revoit l'an prochain.", d: [0, -4, 0], pts: -10, ok: false,
+                  fb: "Sans nouveaux objectifs, la moitié de l'entretien manque. Personne ne saura quoi viser, même pas toi." }
+              ],
+              rule: { ref: "Entretien périodique · 2e temps", text: "Entretien individuel d'environ une heure, non obligatoire : 1) bilan des résultats comparés aux objectifs ; 2) définition des nouveaux objectifs. Sa limite : il porte surtout sur les chiffres, d'où l'intérêt de le compléter par l'entretien professionnel." } }
+          ] }
+      ]
+    },
+
+    /* ---------------------------------------------------------------- */
+    /*  ÉDITION 2                                                        */
+    /* ---------------------------------------------------------------- */
+    {
+      title: "Édition 2 · Ça grossit",
+      intro: [
+        "Le Décibel Festival a doublé son public. Les sponsors t'envoient des paniers garnis, Mégawatt, le festival rival, t'envoie des regards noirs.",
+        "Cette année, M. Tambour veut un réseau d'« Ambassadeurs », un nouveau cadre pour la sécurité et, accessoirement, qu'on arrête de lui poser des questions sur les contrats."
+      ],
+      quarters: [
+        { label: "T1 · Hiver", chap: "Les relations de travail",
+          blurb: "L'idée de Tambour : des ambassadeurs qui vendent nos pass lors de soirées playlist chez des particuliers.",
+          scenes: [
+            { ty: "choice", ch: 2, tag: "Salarié ou indépendant", who: "T",
+              ctx: ["Léa veut devenir ambassadrice. Elle veut garder son emploi de jour, choisir ses soirées et ne dépendre de personne.",
+                    "Deux statuts existent chez nous : les conseillers VRP, salariés, et les VDI, vendeurs à domicile indépendants."],
+              q: "Quel statut lui proposes-tu ?",
+              opts: [
+                { t: "VDI : indépendante, sous contrat de distribution et à la commission", d: [3, 4, 0], pts: 50, ok: true,
+                  fb: "Autonomie, horaires libres, activité en plus d'un emploi principal : le statut VDI colle à Léa. Pour toi : pas de salaire fixe, pas de charges de salarié." },
+                { t: "VRP salariée en CDI à temps plein", d: [-8, 0, 0], pts: 10,
+                  fb: "Sécurité d'un CDI, évolution possible dans la maison. Mais Léa veut garder son emploi : temps plein incompatible. Beau contrat, mauvaise personne pour ce contrat." },
+                { t: "Indépendante… mais avec horaires imposés, uniforme et présence obligatoire le lundi", d: [4, -8, -14], pts: -25, ok: false,
+                  fb: "Indépendante sur le papier, salariée dans les faits. À force de tout imposer, tu te retrouves avec les contraintes de l'un et les risques de l'autre. L'inspectrice Bertoli adore les contrats qui mentent." }
+              ],
+              rule: { ref: "Salarié ou indépendant", text: "Salarié (VRP) : contrat de travail, revenu plus stable, perspectives d'évolution dans l'entreprise. Indépendant (VDI) : mandataire sous contrat de distribution, pas de salaire fixe, autonomie, pas d'horaires imposés ; peut cumuler avec un emploi principal et vendre pour d'autres entreprises non concurrentes directes." } },
+
+            { ty: "choice", ch: 2, tag: "Rémunération variable", who: "G",
+              ctx: ["Combien payer ces ambassadeurs ? Ils seront rémunérés à la commission sur le chiffre d'affaires hors taxes des pass vendus, et ils définissent eux-mêmes leurs objectifs."],
+              q: "Quel système de rémunération retiens-tu ?",
+              opts: [
+                { t: "Commission progressive : 10 % du CA HT, jusqu'à 15 % selon les performances", d: [-2, 8, 0], pts: 50, ok: true,
+                  fb: "Rémunération variable, proportionnelle à l'investissement : les ambassadeurs gagnent à chaque pass vendu, et le palier motive. Gérard approuve car ça ne coûte que ce que ça rapporte." },
+                { t: "Commission plate de 3 %", d: [2, -6, 0], pts: 5,
+                  fb: "Pas cher… et pas motivant. Les ambassadeurs vont vendre des pass à leur mamie et s'arrêter là." },
+                { t: "Un fixe de 1 800 € pour chacun, sans commission", d: [-18, 0, 0], pts: -10, ok: false,
+                  fb: "Cent personnes payées sans lien avec leurs ventes, et sans contrat de travail pour les cadrer. Tu as inventé le salaire sans salariés." }
+              ],
+              rule: { ref: "Rémunération des indépendants", text: "Les VDI sont rémunérés à la commission : leur revenu est variable, proportionnel à leur investissement. C'est un levier de motivation, mais il rend le revenu incertain." } },
+
+            { ty: "pick", ch: 2, tag: "Attirer les indépendants", who: "K", n: 3,
+              ctx: ["Kévin rédige la page de recrutement des Ambassadeurs. Il a 8 slogans, dont certains lui ont paru « super marrants ». Tu n'en gardes que 3."],
+              q: "Quels arguments choisis-tu ?",
+              items: [
+                { t: "« Gère ton temps : tu choisis tes jours et tes soirées »", pts: 20, why: "Autonomie et souplesse : un vrai argument pour un indépendant." },
+                { t: "« Tu es formé(e) et tu peux évoluer »", pts: 20, why: "Formation au démarrage puis tout au long du parcours : rassure et fidélise." },
+                { t: "« Une rémunération motivante : plus tu vends, plus tu gagnes »", pts: 20, why: "Rémunération variable, conforme à la réalité du statut." },
+                { t: "« Des cadeaux et des challenges : pass VIP et goodies à gagner »", pts: 15, why: "Les challenges stimulent et récompensent : bon argument de motivation." },
+                { t: "« Revenu garanti de 3 000 € par mois dès le premier mois ! »", d: [0, 0, -12], pts: -30, why: "Faux : le revenu est variable. Une promesse trompeuse est une faute, et un beau cadeau pour l'inspectrice Bertoli." },
+                { t: "« Deviens millionnaire en trois soirées ! »", d: [0, -4, -8], pts: -25, why: "Personne n'y croit, sauf les juristes qui ont déjà préparé la plainte." },
+                { t: "« Aucune formation : débrouille-toi ! »", d: [0, -6, 0], pts: -10, why: "Un argument qui fait fuir, et surtout une promesse qui ne se tient pas." },
+                { t: "« Luigi te paie un verre quand tu veux »", pts: 5, why: "Sympa et inoffensif, mais pas un argument de partenariat." }
+              ],
+              rule: { ref: "Attirer des partenaires indépendants", text: "Les arguments d'une entreprise pour attirer des indépendants : souplesse d'organisation, formation et évolution, rémunération motivante, avantages et challenges. Ils doivent rester honnêtes : promettre un revenu garanti serait trompeur." } }
+          ] },
+
+        { label: "T2 · Printemps", chap: "Le besoin en recrutement",
+          blurb: "Gilbert est en pêche à Capri, Sandrine aussi (en pensée). Il faut un responsable sécurité et logistique.",
+          scenes: [
+            { ty: "pick", ch: 1, tag: "Canaux de recrutement", who: "G", budget: 5, ctxCands: true,
+              ctx: ["Poste à pourvoir : responsable sécurité et logistique (profil : sécurité, management, gestion du stress indispensables). Gérard t'accorde un budget de 5 jetons de communication, pas un de plus.",
+                    "Chaque canal coûte un certain nombre de jetons et ramène plus ou moins de candidatures."],
+              q: "Où publies-tu l'offre ?",
+              items: [
+                { t: "Annonce sur un site d'emploi", sub: "2 jetons · large audience", cost: 2, cands: 12, pts: 25, why: "Large audience et candidatures ciblées sur un profil précis. Valeur sûre." },
+                { t: "Page « Rejoignez-nous » et candidatures spontanées", sub: "gratuit · vivier motivé", cost: 0, cands: 3, pts: 15, why: "Gratuit et alimenté par des personnes motivées qui s'adressent à toi de leur propre initiative." },
+                { t: "Talent Day : concours de la meilleure carbonara de régie", sub: "3 jetons · rencontres et image", cost: 3, cands: 8, d: [0, 3, 0], pts: 25, why: "Rencontres rapides et image employeur dynamique, mais coûteux en organisation." },
+                { t: "Cooptation : les salariés recommandent des connaissances", sub: "1 jeton · rapide et peu cher", cost: 1, cands: 4, pts: 20, why: "Candidats déjà informés de la culture, peu coûteux. Attention à ne pas tout confier aux cousins de Luigi." },
+                { t: "Affichage sur 200 abribus de la région", sub: "4 jetons · visible mais ruineux", cost: 4, cands: 10, pts: -10, why: "Très visible, très cher, très mal ciblé : tu paies pour des candidatures de boulangers." },
+                { t: "Un post de Kévin avec 14 émojis", sub: "gratuit · flou", cost: 0, cands: 2, pts: 5, why: "Gratuit, mais tu récoltes 40 candidatures qui n'ont aucun rapport avec le poste." }
+              ],
+              bonus: { count: 3, pts: 10, msg: "Multiplier les canaux t'a permis de toucher des publics différents : bonus." },
+              rule: { ref: "Les canaux de recrutement", text: "Annonce sur des sites spécialisés, candidatures spontanées, Talent Day, cooptation : une entreprise multiplie les canaux pour toucher des profils variés, accroître le nombre de candidatures et valoriser son image employeur, dans la limite de son budget." } },
+
+            { ty: "choice", ch: 1, tag: "Tri des CV", who: "G",
+              ctx: ["42 candidatures. Le profil de poste (sécurité, management, gestion du stress indispensables) te sert à trier. Trois CV en haut de la pile.",
+                    "Karim B., 38 ans, habite à Garges : 8 ans de responsable sécurité dans un grand parc d'attractions, 12 personnes encadrées. Un trou de 6 mois en 2022 (congé parental).",
+                    "Brice V., « visionnaire » : 10 ans d'expérience annoncés, mais les dates ne collent pas et son poste de « directeur monde » était dans une société de deux personnes.",
+                    "Josiane M., 59 ans, habite à 140 km : 20 ans de sécurité événementielle, 40 personnes encadrées.",
+                    "Gérard : « Josiane est trop âgée et trop loin, Karim a un trou, prends Brice, il est motivé. »"],
+              q: "Qui invites-tu en entretien ?",
+              opts: [
+                { t: "Karim et Josiane : ils collent au profil. Le trou et la distance, on en parlera si besoin", d: [0, 2, 3], pts: 60, ok: true,
+                  fb: "Tu tries sur le profil de poste, pas sur l'âge, le lieu de résidence ou la situation de famille. Josiane et Karim cochent les cases indispensables." },
+                { t: "Brice : audacieux, ça fait rêver", d: [-4, 0, 0], pts: -15, ok: false,
+                  fb: "Le premier tri sert à vérifier la cohérence du CV avec le profil. Les dates de Brice ne collent pas, et il ne coche aucune compétence indispensable." },
+                { t: "J'écarte Josiane (âge, distance) et Karim (trou de 6 mois)", d: [0, -3, -16], pts: -30, ok: false, flag: "discrimCV",
+                  fb: "Écarter un candidat à cause de son âge, de son lieu de résidence ou de sa situation de famille est interdit. Tu viens de te constituer un beau dossier pour l'inspectrice Bertoli." }
+              ],
+              rule: { ref: "Article L. 1132-1 du Code du travail", text: "Aucune personne ne peut être écartée d'une procédure de recrutement en raison de son origine, de son sexe, de son âge, de sa situation de famille ou de sa grossesse, de son apparence physique, de son nom de famille, de son lieu de résidence, de son état de santé ou de son handicap, de ses opinions politiques, de ses activités syndicales ou de ses convictions religieuses." } },
+
+            { ty: "pick", ch: 1, tag: "Questions d'entretien", who: "K", n: 4,
+              ctx: ["Entretien de Karim demain. Kévin a trouvé une liste de questions « super » sur un forum. Choisis-en quatre : tu n'en poseras pas plus."],
+              q: "Quelles questions poses-tu ?",
+              items: [
+                { t: "« Parlez-moi de votre expérience en sécurité d'événements. »", pts: 20, why: "Lien direct avec le poste : vérifie l'expérience requise." },
+                { t: "« Que feriez-vous si un mouvement de foule se produisait devant la scène principale ? »", pts: 20, why: "Mise en situation : teste la gestion du stress, compétence indispensable ici." },
+                { t: "« Qu'est-ce qui vous attire dans notre festival ? »", pts: 15, why: "Teste la motivation et la connaissance de l'entreprise." },
+                { t: "« Êtes-vous disponible les week-ends de juillet ? »", pts: 15, why: "Lié aux conditions réelles du poste : légitime." },
+                { t: "« Avez-vous des enfants ou prévoyez-vous d'en avoir ? »", d: [0, 0, -12], pts: -25, flag: "illegalQ", why: "Situation de famille, grossesse : interdit. Aucun lien avec les capacités professionnelles." },
+                { t: "« Avez-vous des problèmes de santé ? »", d: [0, 0, -12], pts: -25, flag: "illegalQ", why: "L'état de santé n'a pas à être demandé en entretien d'embauche." },
+                { t: "« Êtes-vous syndiqué(e) ? »", d: [0, 0, -12], pts: -25, flag: "illegalQ", why: "Les activités syndicales sont protégées : question prohibée. Mme Pérignon l'a lu sur son agenda." },
+                { t: "« D'où vient votre nom de famille, au juste ? »", d: [0, -3, -12], pts: -25, flag: "illegalQ", why: "L'origine et le nom de famille ne peuvent pas fonder une sélection : discrimination." }
+              ],
+              rule: { ref: "Questions licites en entretien", text: "Les questions doivent avoir un lien direct avec le poste et les capacités professionnelles du candidat. Origine, situation de famille, grossesse, santé, activités syndicales, opinions ou convictions n'ont pas leur place dans un entretien de recrutement (art. L. 1132-1)." } },
+
+            { ty: "choice", ch: 1, tag: "Entretien de recrutement", who: "Ka",
+              ctx: ["À la question « quel est votre principal défaut ? », Karim sourit : « Euh… mon perfectionnisme. »"],
+              q: "Comment relances-tu ?",
+              opts: [
+                { t: "« Un exemple précis où cela vous a posé problème ? Qu'avez-vous fait ? »", d: [0, 0, 0], pts: 30, ok: true,
+                  fb: "Un fait concret fait sortir de la réponse toute faite et te permet de juger la lucidité du candidat. Karim répond avec un exemple de plan d'évacuation. Du solide." },
+                { t: "« Très bien, passons à la suite. »", d: [0, 0, 0], pts: 5,
+                  fb: "Tu valides une réponse que tout le monde donne. Tu n'apprends rien de plus sur Karim, mais tu gagnes trois minutes." },
+                { t: "« Menteur, tout le monde dit ça ! »", d: [0, -3, 0], pts: -10, ok: false,
+                  fb: "Agressif, inutile, et un peu drôle pour tout le monde sauf Karim. L'entretien sert aussi au candidat à évaluer l'entreprise." }
+              ],
+              rule: { ref: "Rôle de l'entretien", text: "L'entretien de recrutement permet à l'entreprise de vérifier l'adéquation du candidat au poste et sa motivation, et au candidat de découvrir l'entreprise et le poste." } },
+
+            { ty: "choice", ch: 1, tag: "Cooptation", who: "L",
+              ctx: ["Karim est embauché. Luigi se gratte la moustache : « Pour le renfort sécurité, je coopte mon cousin Enzo. Trois mois de vigile… dans un cirque. »"],
+              q: "Que réponds-tu à Luigi ?",
+              opts: [
+                { t: "Enzo passe le même processus de sélection que tout le monde", d: [0, 2, 2], pts: 40, ok: true,
+                  fb: "Tu gardes le bénéfice de la cooptation (candidat déjà informé, rapide, peu coûteux) sans la rancœur des autres. Enzo arrive en troisième, Luigi est fier de lui." },
+                { t: "Enzo est embauché direct : c'est la famille", d: [-3, -8, -2], pts: -10, ok: false, flag: "enzo",
+                  fb: "Un passe-droit pour un candidat qui ne coche pas le profil : tu risques de le regretter. Les autres candidats aussi." },
+                { t: "Je supprime toute cooptation à partir de maintenant", d: [0, -4, 0], pts: 5,
+                  fb: "Tu te prives d'un canal rapide et peu cher. Luigi boude, il fait la tête dans sa sauce tomate." }
+              ],
+              rule: { ref: "La cooptation", text: "Les salariés recommandent des connaissances de leur réseau pour pourvoir un poste vacant. Avantages : canal rapide, peu coûteux, candidats déjà informés de la culture de l'entreprise. Limite : le risque de recruter sans objectivité." } }
+          ] },
+
+        { label: "T3 · Été", chap: "Le festival !",
+          blurb: "Les ambassadeurs sillonnent la région. Les ennuis aussi.",
+          scenes: [
+            { ty: "event" },
+            { ty: "choice", ch: 2, tag: "Animer le réseau", who: "Le",
+              ctx: ["Léa t'avoue entre deux sandwichs : « Je n'ai vendu que 3 pass en 6 semaines. Je ne comprends pas bien les trois formules, et mes soirées sont tristes. »",
+                    "Elle est indépendante. Mais elle est aussi notre ambassadrice."],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Formation produit, accompagnement par un responsable de secteur sur ses premières soirées, et challenge de l'été", d: [-3, 6, 0], pts: 50, ok: true,
+                  fb: "Formation, accompagnement, challenge : des outils complémentaires. Le responsable de secteur anime l'équipe, la formation apporte la maîtrise des produits, le challenge relance la motivation. Léa vend 14 pass le week-end suivant." },
+                { t: "Lui imposer un planning de 20 soirées par mois", d: [0, -8, -10], pts: -20, ok: false,
+                  fb: "Imposer des horaires et des objectifs à une indépendante, c'est la traiter comme une salariée sans le contrat. La différence se paie chez l'inspectrice Bertoli." },
+                { t: "La laisser se débrouiller : c'est une indépendante", d: [0, -4, 0], pts: 5,
+                  fb: "Autonome ne veut pas dire abandonnée : sans formation ni suivi, tu perds en ventes, en motivation et en fidélité." }
+              ],
+              rule: { ref: "Motiver et fidéliser les indépendants", text: "Rencontres régulières, accompagnement par le responsable de secteur, formation continue, organisation souple, challenges : des dispositifs complémentaires. Risques d'un recours aux indépendants : moindre maîtrise, fidélité plus faible, risque de requalification si l'on contrôle trop." } },
+
+            { ty: "choice", ch: 2, tag: "Dilemme", who: "P",
+              ctx: ["Mme Pérignon pose un dossier sur ton bureau : « Sofiane, 22 ans, « bénévole » depuis mai : 40 heures par semaine à la régie, contre des tickets-boisson. Il est excellent. Il demande un contrat. »",
+                    "Gérard, depuis le fond de la pièce : « Gardons-le gratuit, c'est parfait ! »"],
+              q: "Que décides-tu ?",
+              opts: [
+                { t: "Je lui propose un CDD saisonnier rémunéré", d: [-4, 8, 4], pts: 40, ok: true,
+                  fb: "Une activité régulière, encadrée, qui occupe un vrai poste est du travail : elle doit être rémunérée sous contrat. Sofiane est ravi, Mme Pérignon te salue d'un clin d'œil rare." },
+                { t: "Je continue comme ça : c'est gratuit", d: [3, -8, -14], pts: -25, ok: false,
+                  fb: "Tu économisais 4 k€, tu t'exposes à bien davantage. Du travail déguisé en bénévolat, c'est exactement ce que cherche l'inspection du travail." },
+                { t: "Je le remercie : il devient gênant", d: [0, -10, -6], pts: -20, ok: false,
+                  fb: "Tu perds un excellent élément et tu envoies un message glacial à toute la régie. Les bénévoles cherchent déjà un festival plus sympa." }
+              ],
+              rule: { ref: "Bénévolat et travail", text: "Le bénévolat est un engagement libre et gratuit. Une activité régulière, encadrée, qui tient lieu d'un poste et se paie en avantages relève du travail : elle doit être rémunérée sous contrat." } },
+            { ty: "revenue" }
+          ] },
+
+        { label: "T4 · Automne", chap: "L'évaluation professionnelle",
+          blurb: "Fin de l'année : on regarde qui peut grandir.",
+          scenes: [
+            { ty: "choice", ch: 3, tag: "Choisir le bon entretien", who: "T",
+              ctx: ["Théo, technicien son depuis 6 ans, ne rate jamais un branchement. Tambour : « Il m'a dit un soir, sans musique de fond : « Je rêve de devenir régisseur son. » Et il n'a pas eu d'entretien depuis plus de deux ans ! »"],
+              q: "Quel entretien organises-tu ?",
+              opts: [
+                { t: "Un entretien professionnel", d: [0, 4, 3], pts: 60, ok: true,
+                  fb: "Perspectives d'évolution, formations : c'est le cœur de l'entretien professionnel, obligatoire tous les 2 ans pour tous les salariés. Tambour a raison de s'inquiéter." },
+                { t: "Un entretien périodique", d: [0, -2, 0], pts: 10, ok: false,
+                  fb: "Faire le point sur ses résultats alors que Théo parle d'évolution : à côté. Tu ne remplis pas non plus l'obligation légale." },
+                { t: "Un bilan de compétences", d: [0, -3, -3], pts: -10, ok: false,
+                  fb: "Il relève de l'initiative du salarié et son contenu est confidentiel : tu ne peux pas l'imposer à Théo." }
+              ],
+              rule: { ref: "L'entretien professionnel (art. L. 6315-1)", text: "Obligatoire pour tous les salariés, quelle que soit la taille de l'entreprise, tous les 2 ans : perspectives d'évolution professionnelle, qualifications, emploi et formations qui peuvent y contribuer. Il donne lieu à un compte rendu écrit." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 1/3", who: "Th",
+              ctx: ["Théo, les mains dans les poches : « Moi, ce que j'aimerais, c'est piloter une régie. Mais je ne sais pas si c'est possible. »"],
+              q: "Que réponds-tu ?",
+              opts: [
+                { t: "« Je note ton souhait, on regarde les formations déjà suivies et celles qui te manquent. »", d: [0, 6, 0], pts: 40, ok: true,
+                  fb: "Tu recueilles le souhait et tu fais le point sur le parcours : c'est exactement l'objet de l'entretien professionnel." },
+                { t: "« Régisseur ? Tu es technicien, restons-en là. »", d: [0, -10, 0], pts: -15, ok: false,
+                  fb: "Tu éteins en une phrase six ans de loyauté. Théo ira bientôt chercher un régisseur à embaucher chez Mégawatt." },
+                { t: "« On verra, je ne promets rien. »", d: [0, -3, 0], pts: 0,
+                  fb: "Ni oui, ni non, ni suite. Théo repart avec un sourire poli et zéro information." }
+              ],
+              rule: { ref: "Entretien professionnel · souhait d'évolution", text: "L'entretien professionnel recueille le souhait d'évolution du salarié et fait le point sur les formations suivies depuis le dernier entretien." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 2/3", who: "G",
+              ctx: ["Gérard se glisse dans le couloir : « Pas de formation, ça coûte ! » Théo demande quelles suites peuvent être envisagées."],
+              q: "Que lui proposes-tu ?",
+              opts: [
+                { t: "Une formation complémentaire en gestion d'équipe", d: [-6, 8, 2], pts: 45, ok: true,
+                  fb: "Une suite concrète qui prépare son évolution. Pour l'entreprise : un régisseur son en interne, et un budget formation qui sert vraiment." },
+                { t: "« Tu seras régisseur dès l'an prochain, promis. »", d: [0, 4, -2], pts: -10, ok: false,
+                  fb: "Tu promets ce que tu ne maîtrises pas. Théo adore la promesse… jusqu'au jour où il la rappelle." },
+                { t: "Rien : le budget formation est gelé", d: [3, -8, -4], pts: -15, ok: false,
+                  fb: "L'entretien professionnel porte aussi sur les formations qui peuvent contribuer à l'évolution du salarié. Gérard est content ; Théo, non." }
+              ],
+              rule: { ref: "Entretien professionnel · suites", text: "L'entretien débouche sur des suites concrètes (formation, évolution possible) : le compte rendu en garde la trace, avec un point d'étape prévu." } },
+
+            { ty: "choice", ch: 3, tag: "Mener l'entretien · 3/3", who: "Th",
+              ctx: ["Fin d'entretien. Il reste à conclure. Théo : « Et pour la suite, ça se passe comment ? »"],
+              q: "Comment formalises-tu l'entretien ?",
+              opts: [
+                { t: "Un compte rendu écrit : souhait, formations, suites, et point d'étape dans 12 mois", d: [0, 3, 5], pts: 40, ok: true,
+                  fb: "Le compte rendu écrit est obligatoire. Théo repart avec une trace claire de ce qui a été dit et promis, toi avec une obligation légale respectée." },
+                { t: "Rien d'écrit, on se fait confiance", d: [0, 0, -10], pts: -20, ok: false,
+                  fb: "L'entretien professionnel donne obligatoirement lieu à un compte rendu écrit. Sans lui, l'entreprise ne peut pas prouver qu'elle a respecté son obligation." },
+                { t: "Un compte rendu qui note surtout ses résultats chiffrés de l'année", d: [0, -2, 0], pts: 10,
+                  fb: "Tu mélanges avec l'entretien périodique : les résultats ne sont pas l'objet de l'entretien professionnel, centré sur l'évolution et les compétences." }
+              ],
+              rule: { ref: "Deux entretiens à ne pas confondre", text: "Entretien périodique : centré sur les résultats, à l'initiative de l'entreprise, sans cadre légal précis. Entretien professionnel : centré sur l'évolution et les compétences, imposé par la loi tous les 2 ans, avec compte rendu écrit." } }
+          ] }
+      ]
+    },
+
+    /* ---------------------------------------------------------------- */
+    /*  ÉDITION 3                                                        */
+    /* ---------------------------------------------------------------- */
+    {
+      title: "Édition 3 · Le grand final",
+      intro: [
+        "Dernière édition. Mégawatt a débauché la moitié du paysage, le sponsor principal commence à regarder le plafond, et M. Tambour dit qu'il partira « après le dernier rappel ».",
+        "Tout ce que tu as semé va revenir : bons choix, mauvais choix, questions d'entretien qu'on aurait mieux fait de ne pas poser. Bonne chance."
+      ],
+      quarters: [
+        { label: "T1 · Hiver", chap: "Le besoin en recrutement",
+          blurb: "Karim, ton nouveau responsable sécurité, arrive lundi. Il va falloir l'accueillir.",
+          scenes: [
+            { ty: "pick", ch: 1, tag: "Accueillir et intégrer", who: "T", n: 3,
+              ctx: ["Karim arrive lundi. Tambour : « Fais-lui un accueil au top, je me souviens encore de mon premier jour : j'ai eu un sandwich et une clé de la mauvaise porte. »",
+                    "Tu peux mettre en place trois actions d'accueil et d'intégration."],
+              q: "Lesquelles retiens-tu ?",
+              items: [
+                { t: "Accueil par le manager le jour J : présentation de l'équipe et du site", pts: 20, why: "Le jour J compte : accueil humain, présentation de l'organisation, de l'équipe et du poste." },
+                { t: "Plateforme d'intégration en ligne (histoire, valeurs, procédures) avant l'arrivée", pts: 20, why: "Découvrir la culture de l'entreprise avant même d'arriver : un bon outil d'onboarding." },
+                { t: "Parcours de formation et points réguliers avec le manager pendant plusieurs mois", pts: 20, why: "L'intégration dure dans le temps : suivi régulier et formations pour installer le salarié." },
+                { t: "Un parrain ou une marraine dans l'équipe", pts: 15, why: "Un repère humain facilite le lien avec l'équipe." },
+                { t: "Un dossier papier de 300 pages à lire seul dans un bureau", d: [0, -4, 0], pts: -10, why: "Inefficace et déprimant : Karim a lu la page 2 et s'est endormi." },
+                { t: "Un café sur le bureau, puis réunion toute la journée sans lui", d: [0, -4, 0], pts: -15, why: "Un café ne fait pas un accueil. Il découvre l'entreprise par les toilettes." },
+                { t: "Rien : il est grand, il se débrouillera", d: [0, -6, 0], pts: -20, why: "Un salarié mal accueilli met plus de temps à s'engager et part plus vite." }
+              ],
+              rule: { ref: "L'onboarding", text: "Processus qui facilite l'arrivée d'un nouveau salarié : créer des liens avec l'équipe, se familiariser avec l'environnement, prendre son poste sereinement et avec engagement. Une plateforme en ligne ne suffit pas : l'accueil humain par le manager est indispensable." } },
+
+            { ty: "choice", ch: 1, tag: "Fidéliser", who: "T",
+              ctx: ["Mégawatt propose à Karim un salaire supérieur de 10 %. Tambour s'étrangle. « Fidéliser, c'est important, hein ? Dis-moi pourquoi. »"],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Lui offrir des perspectives (formation, évolution), pas seulement un chèque", d: [-3, 6, 0], pts: 40, ok: true,
+                  fb: "Fidéliser un salarié compétent évite de payer un nouveau recrutement, une nouvelle formation et une nouvelle intégration. Perspectives d'évolution et reconnaissance pèsent aussi dans la balance." },
+                { t: "Surenchérir de 15 %", d: [-9, 3, 0], pts: 15,
+                  fb: "Ça marche pour un temps, mais ça coûte cher et ça crée un précédent. Un salaire seul ne fidélise pas durablement." },
+                { t: "Le laisser partir : on recrutera quelqu'un d'autre", d: [-6, -6, 0], pts: -10, ok: false,
+                  fb: "Recruter, former et intégrer un remplaçant coûte plus cher que de garder un salarié compétent. Et l'équipe retient surtout le message." }
+              ],
+              rule: { ref: "Fidéliser les compétences", text: "Fidéliser un salarié compétent limite les coûts de recrutement, de formation et d'intégration, conserve les savoir-faire et améliore le climat social." } }
+          ] },
+
+        { label: "T2 · Printemps", chap: "Les relations de travail",
+          blurb: "Le renfort, les artisans, les consultants : tout le monde veut un contrat.",
+          scenes: [
+            { ty: "choice", ch: 2, tag: "Portage salarial", who: "T",
+              ctx: ["Les équipes se disputent : je veux une consultante en management pour trois mois, Mme Faucher. Elle n'a pas de contrat de travail avec nous : elle est salariée de Portalya, une société de portage salarial."],
+              q: "Comment contractualises-tu ?",
+              opts: [
+                { t: "Contrat de prestation avec Portalya, qui emploie Mme Faucher", d: [-5, 3, 2], pts: 50, ok: true,
+                  fb: "Relation tripartite : Mme Faucher est salariée de la société de portage, qui facture sa prestation à l'entreprise cliente. Tu n'as pas à signer de contrat de travail avec elle." },
+                { t: "Lui faire signer un CDD chez nous", d: [-7, 0, 0], pts: 20,
+                  fb: "Possible, mais lourd pour une expertise de trois mois, et tu perds l'avantage du portage (experte autonome, administratif géré par la société de portage)." },
+                { t: "Un CDI : une consultante, ça fidélise !", d: [-10, 0, -3], pts: -15, ok: false,
+                  fb: "Un CDI pour une mission de 3 mois : bravo pour la générosité, Gérard a besoin d'un verre d'eau." }
+              ],
+              rule: { ref: "Le portage salarial", text: "Relation contractuelle tripartite : un salarié lié par un contrat de travail à une société de portage effectue une prestation pour le compte d'une entreprise cliente. Ce salarié est un expert, notamment en communication, formation, coaching, ressources humaines ou informatique." } },
+
+            { ty: "choice", ch: 2, tag: "Qui pour les travaux ?", who: "G",
+              ctx: ["Le backstage est vétuste et pas accessible aux personnes handicapées. Deux devis te sont soumis : Roger Ferrand, peintre micro-entrepreneur, spécialiste depuis 6 ans ; ou l'association intermédiaire Trait d'Union, qui emploie 12 personnes en insertion et vend leurs services aux entreprises."],
+              q: "À qui fais-tu appel ?",
+              opts: [
+                { t: "Roger Ferrand, micro-entrepreneur : contrat de prestation avec lui", d: [-6, 0, 0], pts: 40, ok: true,
+                  fb: "Un indépendant spécialiste : la relation s'établit entre le festival et lui. Compétence pointue, pas de salarié à gérer. Roger apporte aussi son pinceau fétiche." },
+                { t: "L'association intermédiaire Trait d'Union : contrat avec l'association, qui emploie les salariés", d: [-5, 8, 2], pts: 40, ok: true,
+                  fb: "Mission d'insertion sociale et professionnelle : l'association emploie ses salariés et vend leurs services. Contrat entre le festival et l'association. Bon pour l'image et pour le climat social." },
+                { t: "Roger, mais payé en billets, sans facture", d: [3, -2, -16], pts: -30, ok: false,
+                  fb: "Travail non déclaré : l'inspectrice Bertoli adore les surprises. Cette fois, elle a même apporté des gâteaux." }
+              ],
+              rule: { ref: "Autres relations de travail", text: "Micro-entrepreneur : travailleur indépendant qui contracte directement avec le client. Association intermédiaire : elle emploie des personnes sans emploi pour favoriser leur insertion et vend leurs services aux entreprises, associations ou particuliers." } },
+
+            { ty: "choice", ch: 2, tag: "Intérim durable", who: "G",
+              ctx: ["Jordan, intérimaire, est présent depuis 14 mois « en attendant ». Il tient le poste de gestionnaire de stocks, un emploi permanent. L'agence Interim'Aire a prolongé son contrat six fois."],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Lui proposer un CDI et arrêter l'intérim", d: [-3, 6, 4], pts: 45, ok: true,
+                  fb: "Le contrat de travail temporaire ne peut pas servir à pourvoir durablement un emploi permanent. Tu régularises, et Jordan découvre le bonheur d'un contrat sans date de fin." },
+                { t: "Continuer à prolonger : c'est confortable", d: [2, -4, -12], pts: -20, ok: false,
+                  fb: "C'est le contraire de ce que permet l'intérim : tâches ponctuelles et temporaires. Le risque juridique grossit à chaque renouvellement." },
+                { t: "Le remplacer par un autre intérimaire", d: [-3, -6, -8], pts: -20, ok: false,
+                  fb: "Tu changes la personne, pas le problème : un emploi permanent ne se pourvoit pas durablement avec de l'intérim." }
+              ],
+              rule: { ref: "Travail intérimaire", text: "L'entreprise de travail temporaire embauche et rémunère l'intérimaire, qui est mis à disposition de l'entreprise cliente. Le contrat ne peut pas pourvoir durablement un emploi lié à l'activité normale et permanente de l'entreprise." } },
+
+            { ty: "sort", ch: 2, tag: "Le bon contrat", who: "P",
+              ctx: ["Mme Pérignon, à la machine à café : « Un petit contrôle de connaissances avant l'été. À chaque situation, son contrat. »"],
+              buckets: ["CDD", "Intérim", "Portage salarial", "Indépendant (micro-entrepreneur, VDI)"],
+              items: [
+                { t: "Remplacer Marie, absente trois mois, en la recrutant directement.", b: 0, why: "Remplacement d'un salarié absent : cas typique du CDD." },
+                { t: "Une agence met à disposition un salarié pour trois semaines de pic en billetterie ; l'agence le rémunère.", b: 1, why: "Entreprise de travail temporaire et entreprise cliente : l'intérim." },
+                { t: "Une consultante experte, salariée d'une société tierce, intervient deux mois chez toi.", b: 2, why: "Relation tripartite avec une société de portage : le portage salarial." },
+                { t: "Un peintre qui a sa propre entreprise facture sa prestation.", b: 3, why: "Travailleur indépendant qui contracte directement : micro-entrepreneur." },
+                { t: "Un vendeur de pass à domicile, mandataire, rémunéré à la commission, sans horaires imposés.", b: 3, why: "Vendeur à domicile indépendant (VDI) : travailleur indépendant." },
+                { t: "Un saisonnier embauché pour les trois jours du festival.", b: 0, why: "Emploi saisonnier : cas de recours au CDD." }
+              ],
+              per: 10,
+              dGood: [0, 4, 3], dBad: [-4, 0, -6],
+              rule: { ref: "Les formes de relation de travail", text: "CDD : tâche précise et temporaire. Intérim : entreprise de travail temporaire qui met un salarié à disposition. Portage : salarié d'une société de portage qui intervient chez une entreprise cliente. Indépendant : travailleur qui contracte sans lien de salarié." } },
+
+            { ty: "choice", ch: 2, tag: "Les risques de l'indépendance", who: "K",
+              ctx: ["Dylan, ambassadeur indépendant, vend aussi des pass pour Mégawatt, le festival voisin et concurrent direct, le même week-end. Son contrat de distribution l'interdit : on peut vendre pour d'autres entreprises, pas pour un concurrent direct.",
+                    "Dylan, lunettes noires sur le nez : « Je suis indépendant, je fais ce que je veux ! »"],
+              q: "Que fais-tu ?",
+              opts: [
+                { t: "Lui rappeler la clause du contrat de distribution et lui demander de choisir", d: [0, 0, 3], pts: 40, ok: true,
+                  fb: "Il est libre… dans le cadre du contrat qu'il a signé. Tu agis sur le terrain contractuel, pas disciplinaire. Dylan réfléchit, et choisit Décibel (la commission est meilleure)." },
+                { t: "Le licencier comme un salarié (lettre, préavis, entretien)", d: [-2, -3, -8], pts: -15, ok: false,
+                  fb: "Dylan n'est pas salarié : pas de licenciement, mais une rupture du contrat de distribution selon ce que prévoit le contrat. Tu viens d'appliquer le mauvais statut." },
+                { t: "Ne rien faire : c'est un grand garçon", d: [-8, 0, 0], pts: 0,
+                  fb: "Tu laisses un ambassadeur vendre les pass du rival pendant ton week-end. L'un des risques de passer par des indépendants, c'est de les voir partir ailleurs." }
+              ],
+              rule: { ref: "Risques liés aux indépendants", text: "Le recours à des indépendants offre de la souplesse mais réduit le contrôle : fidélité plus faible, qualité moins maîtrisée, concurrence possible. Le contrat de distribution en fixe les limites (concurrents directs interdits)." } }
+          ] },
+
+        { label: "T3 · Été", chap: "Le festival !",
+          blurb: "Dernier été. Les décisions du passé reviennent en coulisses.",
+          scenes: [
+            { ty: "event" },
+            { ty: "echo", ch: 1, tag: "Écho · tes questions d'entretien",
+              test: function (f) { return !!f.illegalQ; },
+              bad: { title: "Un courrier de Maître Chassagne", text: "Un candidat écarté a retrouvé la liste de questions que tu avais posées : enfants, santé, syndicat… Il a saisi l'inspection du travail. Tu passes trois jours à écrire des mails commençant par « Suite à votre courrier ». Karim rit jaune.", d: [-6, -3, -14], pts: -20 },
+              good: { title: "Zéro réclamation", text: "Les questions que tu avais posées étaient toutes liées au poste. Pas de courrier, pas de contrôle. L'inspectrice Bertoli te sourit : c'est rare, et un peu inquiétant.", d: [0, 2, 5], pts: 10 } },
+            { ty: "echo", ch: 1, tag: "Écho · tes CV écartés",
+              test: function (f) { return !!f.discrimCV; },
+              bad: { title: "Josiane ne s'est pas laissée faire", text: "Josiane M., 59 ans, a saisi l'inspection du travail. Elle sait très bien pourquoi elle n'a pas été invitée. Résultat : un contrôle, des justificatifs, des soupirs.", d: [-5, -3, -12], pts: -20 },
+              good: null },
+            { ty: "echo", ch: 1, tag: "Écho · ton profil de poste",
+              test: function (f) { return !!f.weakProfile; },
+              bad: { title: "Un responsable sécurité dépassé", text: "Ton profil de poste n'avait pas pondéré les compétences indispensables : le candidat retenu tient mal la sécurité ou le management. Trois incidents sur le site avant minuit. Le secouriste en chef pleure.", d: [-8, -6, 0], pts: -20 },
+              good: { title: "Karim gère", text: "Orage, évacuation express de la grande scène, 25 000 personnes sous les capes de pluie : Karim est applaudi. Ton profil de poste pondéré a fait ses preuves.", d: [0, 8, 0], pts: 10 } },
+            { ty: "echo", ch: 1, tag: "Écho · la cooptation",
+              test: function (f) { return !!f.enzo; },
+              bad: { title: "Enzo et la friteuse", text: "Enzo, embauché sans passer le processus, a branché la friteuse sur la régie son. DJ Nanard a joué en silence pendant 4 minutes avant que quelqu'un le remarque.", d: [-6, -6, 0], pts: -15 },
+              good: null },
+
+            { ty: "choice", ch: 2, tag: "Dilemme", who: "G",
+              ctx: ["Le sponsor principal se retire : il manque 40 k€. Gérard déroule une liste de 8 personnes à licencier « vite fait, avant le week-end ». Mme Pérignon, derrière lui, le regarde comme un orage regarde un parapluie."],
+              q: "Que décides-tu ?",
+              opts: [
+                { t: "Licencier les 8 dès lundi, point final", d: [14, -20, -10], pts: -10, ok: false,
+                  fb: "Du cash immédiat. Mais un licenciement se justifie et se déroule dans le respect d'une procédure ; sans cela, les prud'hommes se régalent. Et l'ambiance, déjà fragile, s'effondre." },
+                { t: "Plan de départs volontaires, gel des recrutements, renégociation des prestataires", d: [8, -4, 0], pts: 45, ok: true,
+                  fb: "Tu économises sans casser la boîte : départs volontaires, effort partagé, dialogue avec Mme Pérignon. C'est moins spectaculaire mais bien plus durable." },
+                { t: "Couper les formations et les entretiens pour économiser", d: [4, -8, -6], pts: -5, ok: false,
+                  fb: "Tu économises un peu et tu perds de la compétence. Et l'entretien professionnel, tous les 2 ans, reste une obligation légale." },
+                { t: "Ne rien changer et croire aux miracles", d: [-14, 0, 0], pts: -10, ok: false,
+                  fb: "Les miracles sont rares au Décibel Festival, mais les factures, elles, arrivent toujours." }
+              ],
+              rule: { ref: "Gérer les compétences en période de difficultés", text: "En cas de difficultés, l'entreprise peut s'appuyer sur ses dispositifs d'évaluation et de gestion des compétences pour accompagner les salariés (plan de départs volontaires, mobilité, formation) plutôt que de supprimer des postes sans méthode." } },
+
+            { ty: "choice", ch: 3, tag: "Le bilan de compétences", who: "I",
+              ctx: ["Inès, régisseuse lumière depuis 8 ans, a fait le tour du poste. Elle rêve de piloter la transition écologique du festival (les groupes électrogènes à l'huile de friture, ça la fait rêver). Mais elle hésite entre plusieurs pistes et ne veut pas en parler à sa hiérarchie avant d'y voir clair."],
+              q: "Que lui conseilles-tu ?",
+              opts: [
+                { t: "Lui présenter le bilan de compétences : à son initiative, possible hors temps de travail, sans avoir à t'en informer", d: [0, 6, 3], pts: 50, ok: true,
+                  fb: "Le bilan de compétences se fait à l'initiative du salarié, analyse ses compétences, ses aptitudes et ses motivations pour définir un projet professionnel. Il n'a pas à être signalé à l'employeur s'il est réalisé hors temps de travail." },
+                { t: "Lui proposer l'entretien professionnel (c'est bientôt son tour)", d: [0, 2, 0], pts: 25,
+                  fb: "Pas faux : il existe aussi, tous les 2 ans, et parle d'évolution. Mais Inès veut un accompagnement extérieur avant d'en parler en interne : le bilan colle mieux à sa situation." },
+                { t: "Lui imposer un bilan, et demander qu'on t'envoie les résultats", d: [0, -8, -10], pts: -25, ok: false,
+                  fb: "Un bilan à la demande de l'employeur nécessite l'accord du salarié, et son contenu reste confidentiel : il n'est communiqué qu'avec son autorisation." }
+              ],
+              rule: { ref: "Le bilan de compétences", text: "Démarche permettant à un salarié d'analyser ses compétences, ses aptitudes et ses motivations pour définir un projet professionnel ou de formation. À son initiative ou avec son accord ; contenu confidentiel ; trois phases : préliminaire, investigation, conclusion." } },
+
+            { ty: "choice", ch: 3, tag: "Après le bilan", who: "I",
+              ctx: ["Quelques mois plus tard, Inès revient avec le document de synthèse remis à l'issue de son bilan. Elle a trouvé sa voie : responsable développement durable."],
+              q: "Que lui réponds-tu ?",
+              opts: [
+                { t: "« Je ne te le demande pas : c'est à toi de choisir ce que tu en partages. »", d: [0, 6, 3], pts: 40, ok: true,
+                  fb: "Le contenu d'un bilan est confidentiel. Inès, rassurée, choisit de te montrer son projet : le document de synthèse reste à elle. Tu viens de gagner une alliée." },
+                { t: "« Je le garde pour le dossier. »", d: [0, -8, -10], pts: -25, ok: false,
+                  fb: "Le document de synthèse est remis au seul bénéficiaire et ne peut être communiqué à un tiers qu'avec son autorisation. Inès regarde déjà son avocat." },
+                { t: "« Je le photocopie, ça m'aidera à la placer. »", d: [0, -10, -12], pts: -30, ok: false,
+                  fb: "Pire encore : tu copies un document confidentiel sans son accord. La confiance, ça ne se photocopie pas." }
+              ],
+              rule: { ref: "Confidentialité du bilan", text: "Le contenu du bilan de compétences reste confidentiel. Il n'est communiqué à un tiers, y compris l'employeur, qu'avec l'autorisation du salarié. Un document de synthèse est remis au seul bénéficiaire." } },
+            { ty: "revenue" }
+          ] },
+
+        { label: "T4 · Automne", chap: "L'évaluation professionnelle",
+          blurb: "Le grand final. M. Tambour range ses baguettes. Reste à choisir qui prendra la suite.",
+          scenes: [
+            { ty: "sort", ch: 3, tag: "Quel dispositif ?", who: "T",
+              ctx: ["Tambour te tend une feuille de papier avec six phrases : « Dis-moi à quel dispositif elles correspondent. Après ça, tu auras mérité ton chapeau de DRH. »"],
+              buckets: ["Entretien périodique", "Entretien professionnel", "Bilan de compétences"],
+              items: [
+                { t: "Comparer les résultats de l'année aux objectifs fixés.", b: 0, why: "Résultats et objectifs : entretien périodique." },
+                { t: "Obligatoire tous les 2 ans pour tous les salariés, avec compte rendu écrit.", b: 1, why: "Obligation légale avec compte rendu écrit : entretien professionnel." },
+                { t: "Un salarié qui hésite sur une réorientation demande un accompagnement, hors temps de travail.", b: 2, why: "Initiative du salarié, confidentialité, projet professionnel : bilan de compétences." },
+                { t: "Aucun texte de loi ne l'impose : l'entreprise est libre de le mettre en place.", b: 0, why: "Entretien périodique : ni obligatoire, ni encadré par la loi." },
+                { t: "Définir les formations qui contribuent à l'évolution du salarié.", b: 1, why: "Perspectives d'évolution et formations : entretien professionnel." },
+                { t: "Se conclut par un document de synthèse remis uniquement au bénéficiaire.", b: 2, why: "Document de synthèse confidentiel : bilan de compétences." }
+              ],
+              per: 10,
+              dGood: [0, 5, 4], dBad: [-3, -3, -6],
+              rule: { ref: "Trois dispositifs d'évaluation", text: "Entretien périodique : résultats, non obligatoire. Entretien professionnel : évolution et formation, obligatoire tous les 2 ans, compte rendu écrit. Bilan de compétences : initiative du salarié, confidentiel, projet professionnel." } },
+
+            { ty: "choice", ch: 3, tag: "Le grand final", who: "T",
+              ctx: ["Dernier dossier avant que je range les baguettes : choisir mon successeur parmi trois salariés, Nadia, Théo et Inès, qui ont chacun beaucoup grandi. Sur quoi t'appuies-tu pour juger ?"],
+              q: "Comment évalues-tu ?",
+              opts: [
+                { t: "Sur les trois objets : résultats, compétences et potentiel, avec des grilles et des entretiens structurés", d: [0, 5, 4], pts: 60, ok: true,
+                  fb: "Les résultats se mesurent, les compétences et le potentiel s'apprécient avec des outils adaptés. Grilles et entretiens structurés limitent la part de jugement personnel : deux managers peuvent voir autrement le même collaborateur." },
+                { t: "Uniquement sur les résultats chiffrés : c'est plus simple", d: [0, -4, 0], pts: 0, ok: false,
+                  fb: "Les résultats disent ce qui a été produit, pas ce que la personne saura faire à un poste plus large. Pour un poste de direction, c'est insuffisant." },
+                { t: "Au feeling : je choisis celle ou celui qui rit à mes blagues", d: [0, -10, -8], pts: -20, ok: false,
+                  fb: "Tu n'as pas réussi à objectiver ta décision. Et tes blagues, honnêtement, ne sont pas toutes très bonnes." }
+              ],
+              rule: { ref: "Les trois objets d'évaluation", text: "L'évaluation professionnelle peut porter sur les résultats, les compétences ou le potentiel. Résultats : ce que le salarié a produit. Compétences : ce qu'il sait faire. Potentiel : ce qu'il pourrait accomplir plus tard. Les deux derniers sont plus subjectifs et demandent des outils structurés." } }
+          ] }
+      ]
+    }
+  ];
+
+  /* Événements de festival : un par édition, tirés au hasard */
+  var EVENTS = [
+    { title: "Concours de pizzas", text: "Luigi organise un concours de pizzas pour le personnel. Taux de participation : 70 %. Taux d'indigestion : 30 %.", d: [-1, 6, 0] },
+    { title: "Le like de Kévin", text: "À 3 h du matin, Kévin a liké un tweet de Mégawatt avec le compte officiel du festival. Il jure que c'était « un doigt qui a glissé ».", d: [0, -4, 0] },
+    { title: "Le café disparaît", text: "Gérard supprime le café de la salle de pause pour « optimiser ». Une grève du thé éclate dans la foulée.", d: [1, -8, 0] },
+    { title: "DJ Nanard en trottinette", text: "DJ Nanard arrive avec 40 minutes de retard, en trottinette. La foule applaudit. Personne n'a compris, mais tout le monde est content.", d: [2, 4, 0] },
+    { title: "Le local syndical", text: "Mme Pérignon obtient un vrai local syndical. Il sent le cuir et la friture, mais il est à elle.", d: [-1, 4, 2] },
+    { title: "La foudre et la friteuse", text: "La foudre tombe sur la friteuse de Luigi. Aucun blessé, beaucoup d'huile. L'assurance sourit nerveusement.", d: [-3, -2, 0] }
+  ];
+
+  /* Fins qui arrêtent la partie */
+  var ENDS = {
+    cash: { title: "Faillite : le festival dépose le bilan", text: "La trésorerie est à zéro. Les huissiers jouent le dernier morceau, M. Tambour pose ses baguettes. Mégawatt fait un communiqué plein de compassion." },
+    mood: { title: "Grève générale : les prises sont débranchées", text: "L'ambiance est au plus bas : saisonniers, techniciens et même Luigi coupent le courant. Le silence est assourdissant, et il dure jusqu'à lundi." },
+    law: { title: "Fermeture administrative et prud'hommes", text: "Trop d'entorses au droit : l'inspectrice Bertoli ferme le site, les prud'hommes ouvrent le leur. Le festival devient un cas d'école, dans le mauvais sens." },
+    fired: { title: "Remercié par le conseil d'administration", text: "Le conseil estime que tes décisions ne tiennent pas la route. On te remercie chaleureusement et on te rend ton badge." }
+  };
+
+  var TIERS = [
+    { min: 0.82, title: "Légende du CSE", text: "Tambour te fait un solo de batterie de 12 minutes. Gérard reconnaît qu'il y a peut-être de la valeur dans le café." },
+    { min: 0.66, title: "DRH de l'année", text: "Le festival tourne, les équipes sourient, l'inspectrice Bertoli te salue (de loin, par prudence)." },
+    { min: 0.5, title: "DRH confirmé", text: "Des erreurs, des beaux coups, et un festival toujours debout. Mégawatt a de bonnes raisons de t'envier." },
+    { min: 0.33, title: "Stagiaire reconduit", text: "Tu as tenu trois éditions, avec des cicatrices. Gérard te propose un café. Il sait que c'est ta récompense." },
+    { min: 0, title: "Survivant de justesse", text: "Le festival a tenu bon, un peu par miracle. Il est temps de relire le cours." }
+  ];
+
+  window.DRH_DATA = { W: W, EDITIONS: EDITIONS, EVENTS: EVENTS, ENDS: ENDS, TIERS: TIERS };
+})();
+
+(function () {
+  "use strict";
+  var D = window.DRH_DATA, W = D.W, EDITIONS = D.EDITIONS;
+  var GAME_ID = "drh-festival";
+  var LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  var LEVELS = ["", "Souhaitable", "Important", "Indispensable"];
+  var CHAPS = { 1: "Besoin en recrutement", 2: "Relations de travail", 3: "Évaluation professionnelle" };
+  var LIMITS = [0.28, 0.38];             /* seuils de maintien du conseil d'administration (fin des éditions 1 et 2) */
+  var START = 60;
+  var GAIN = 0.6;                         /* les gains d'ambiance et de conformité sont atténués : tout se mérite */
+  var $main = document.getElementById("main");
+  var S = null, steps = [], boardUnsub = null;
+  var CLASSES = (function () {
+    try { var g = Access.game(GAME_ID), sec = g && Access.section(g.section); return (sec && sec.classes) || []; } catch (e) { return []; }
+  })();
+
+  /* ---------- Outils ---------- */
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function scrollTop() { try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) { window.scrollTo(0, 0); } }
+  function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* stockage indisponible */ } }
+  /* « Prénom X. » : prénom + initiale du nom, jamais le nom complet */
+  function cleanName(raw) {
+    var t = String(raw).trim().replace(/\s+/g, " ");
+    var m = t.match(/^(.{2,}?)\s+(\p{L})\.?$/u);
+    if (!m) return null;
+    return m[1].charAt(0).toUpperCase() + m[1].slice(1) + " " + m[2].toUpperCase() + ".";
+  }
+  function flagsOf(x) { return x == null ? [] : (Array.isArray(x) ? x : [x]); }
+
+  /* ---------- Score maximal d'une scène (sert au seuil du conseil et à la maîtrise par chapitre) ---------- */
+  function pickValid(sc, mask) {
+    var cnt = 0, cost = 0;
+    sc.items.forEach(function (it, i) { if (mask & (1 << i)) { cnt++; cost += it.cost || 0; } });
+    if (sc.n != null) return cnt === sc.n;
+    return cnt >= 1 && cost <= sc.budget;
+  }
+  function pickTotal(sc, mask) {
+    var pts = 0, cnt = 0;
+    sc.items.forEach(function (it, i) { if (mask & (1 << i)) { pts += it.pts; cnt++; } });
+    if (sc.bonus && cnt >= sc.bonus.count) pts += sc.bonus.pts;
+    return pts;
+  }
+  function profileLoss(sc, lv) {
+    var loss = 0;
+    sc.crit.forEach(function (c, i) { loss += lv[i] < c.ideal ? (c.ideal - lv[i]) * c.w : (lv[i] - c.ideal) * 0.5; });
+    return loss;
+  }
+  function profileBest(sc) {
+    if (sc._best != null) return sc._best;
+    var n = sc.crit.length, best = 1e9, lv = [];
+    (function rec(i, used) {
+      if (i === n) { var l = profileLoss(sc, lv); if (l < best) best = l; return; }
+      for (var v = 1; v <= 3; v++) { if (used + v > sc.budget) break; lv[i] = v; rec(i + 1, used + v); }
+    })(0, 0);
+    sc._best = best; return best;
+  }
+  function sceneMax(sc) {
+    if (sc._max != null) return sc._max;
+    var m = 0;
+    if (sc.ty === "choice") sc.opts.forEach(function (o) { m = Math.max(m, o.pts || 0); });
+    else if (sc.ty === "pick") { for (var mask = 1; mask < (1 << sc.items.length); mask++) if (pickValid(sc, mask)) m = Math.max(m, pickTotal(sc, mask)); }
+    else if (sc.ty === "profile") m = 60;
+    else if (sc.ty === "sort") m = sc.items.length * sc.per;
+    else if (sc.ty === "echo") m = sc.good ? sc.good.pts : 0;
+    sc._max = m; return m;
+  }
+
+  /* ---------- Construction d'une partie ---------- */
+  function buildSteps() {
+    steps = [];
+    var deck = shuffle(D.EVENTS);
+    EDITIONS.forEach(function (ed, ei) {
+      steps.push({ k: "ed", ei: ei });
+      ed.quarters.forEach(function (q, qi) {
+        q.scenes.forEach(function (sc, si) {
+          var st = { k: "scene", ei: ei, qi: qi, sc: sc, band: si === 0 ? q : null };
+          if (sc.ty === "event") st.ev = deck.pop();
+          steps.push(st);
+        });
+      });
+      steps.push({ k: "verdict", ei: ei });
+    });
+    steps.push({ k: "end" });
+  }
+  function newGame(name, cls) {
+    S = { name: name, cls: cls, i: 0, cash: START, mood: START, law: START, score: 0, f: {}, misses: [], earn: { 1: 0, 2: 0, 3: 0 }, mx: { 1: 0, 2: 0, 3: 0 },
+          over: null, saved: false, verdictDone: {}, attr: {}, reach: 0, ei: -1, qi: 0, t0: Date.now() };
+    buildSteps();
+  }
+  function maxSeen() { return S.mx[1] + S.mx[2] + S.mx[3]; }
+
+  /* ---------- En-tête ---------- */
+  function renderHeader() {
+    var c = S ? S.cash : START, m = S ? S.mood : START, l = S ? S.law : START;
+    [["cash", c, "mCash"], ["mood", m, "mMood"], ["law", l, "mLaw"]].forEach(function (g) {
+      document.getElementById(g[0] + "Val").textContent = Math.round(g[1]);
+      document.getElementById(g[0] + "Bar").style.width = clamp(g[1], 0, 100) + "%";
+      document.getElementById(g[2]).classList.toggle("low", g[1] <= 20);
+    });
+    document.getElementById("scoreVal").textContent = S ? Math.round(S.score) : 0;
+    var h = "";
+    for (var k = 0; k < 3; k++) {
+      var dots = "";
+      for (var q = 0; q < 4; q++) {
+        var cls = "";
+        if (S && S.ei >= 0) { if (k < S.ei || (k === S.ei && q < S.qi)) cls = "done"; else if (k === S.ei && q === S.qi) cls = "now"; }
+        dots += '<i class="' + cls + '"></i>';
+      }
+      h += '<div class="ed ' + (S && k === S.ei ? "now" : "") + '">Édition ' + (k + 1) + '<div class="dots">' + dots + "</div></div>";
+    }
+    document.getElementById("eds").innerHTML = h;
+  }
+
+  /* ---------- Application d'une décision ---------- */
+  function apply(d, pts, ch, mx) {
+    d = d || [0, 0, 0];
+    var o = { c: S.cash, m: S.mood, l: S.law, s: S.score };
+    var dm = d[1] > 0 ? Math.round(d[1] * GAIN) : d[1], dl = d[2] > 0 ? Math.round(d[2] * GAIN) : d[2];
+    S.cash = clamp(S.cash + d[0], 0, 100); S.mood = clamp(S.mood + dm, 0, 100); S.law = clamp(S.law + dl, 0, 100);
+    S.score = Math.max(0, S.score + pts);
+    if (ch) { S.earn[ch] += Math.max(0, pts); S.mx[ch] += mx || 0; }
+    if (!S.over) { if (S.cash <= 0) S.over = "cash"; else if (S.mood <= 0) S.over = "mood"; else if (S.law <= 0) S.over = "law"; }
+    renderHeader();
+    return { c: S.cash - o.c, m: S.mood - o.m, l: S.law - o.l, s: S.score - o.s };
+  }
+  function noteMiss(sc, pts, mx) {
+    if (mx > 0 && pts < 0.6 * mx && sc.rule) S.misses.push({ tag: sc.tag, ch: sc.ch, rule: sc.rule });
+  }
+  function setFlags(list) { flagsOf(list).forEach(function (f) { S.f[f] = true; }); }
+
+  /* ---------- Éléments d'interface communs ---------- */
+  function whoBox(k) {
+    var w = W[k]; if (!w) return "";
+    return '<div class="who"><span class="av" aria-hidden="true">' + w.e + "</span><span><b>" + esc(w.n) + "</b><i>" + esc(w.r) + "</i></span></div>";
+  }
+  function ctxBox(arr) { return '<div class="ctx">' + arr.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>"; }
+  function ruleBox(r) { return r ? '<div class="rule"><span class="ref">Le rappel du prof · ' + esc(r.ref) + "</span>" + esc(r.text) + "</div>" : ""; }
+  function bandBox(st) { return st.band ? '<div class="band"><b>' + esc(st.band.label) + " · " + esc(st.band.chap) + "</b><span>" + esc(st.band.blurb) + '</span><span style="font-weight:500;opacity:.85">Usure du trimestre : ambiance −4, conformité −2.</span></div>' : ""; }
+  function chips(dd) {
+    var out = "";
+    [["Trésorerie", dd.c], ["Ambiance", dd.m], ["Conformité", dd.l], ["Score", dd.s]].forEach(function (x) {
+      if (x[1]) out += '<span class="chip ' + (x[1] > 0 ? "up" : "down") + '">' + x[0] + " " + (x[1] > 0 ? "+" : "−") + Math.abs(Math.round(x[1])) + "</span>";
+    });
+    return out ? '<div class="chips">' + out + "</div>" : "";
+  }
+  function lowWarn() {
+    var w = [];
+    if (S.cash <= 20 && S.cash > 0) w.push("la trésorerie"); if (S.mood <= 20 && S.mood > 0) w.push("l'ambiance"); if (S.law <= 20 && S.law > 0) w.push("la conformité");
+    return w.length ? '<p class="hint" style="margin:10px 0 0">⚠ Attention : ' + w.join(", ") + " est dans le rouge. Une jauge à zéro arrête la partie.</p>" : "";
+  }
+  function goBtn() { return '<button class="btn" id="go">' + (S.over ? "Voir la fin" : "Continuer") + "</button>"; }
+  function bindGo() { var b = document.getElementById("go"); if (b) b.onclick = next; }
+  function next() {
+    if (boardUnsub) { boardUnsub(); boardUnsub = null; }
+    if (S.over) S.i = steps.length - 1; else S.i++;
+    render();
+  }
+
+  /* ---------- Routeur ---------- */
+  function render() {
+    scrollTop();
+    if (!S) { renderHeader(); return renderStart(); }
+    var st = steps[S.i];
+    if (st.k === "scene" || st.k === "ed") { S.ei = st.ei; S.qi = st.k === "ed" ? 0 : st.qi; S.reach = Math.max(S.reach, st.ei); }
+    if (st.k === "verdict") { S.ei = st.ei; S.qi = 4; }
+    if (st.k === "end") { S.ei = 3; }
+    if (st.k === "scene" && st.band) {
+      var key = st.ei + "-" + st.qi;
+      if (!S.attr[key]) { S.attr[key] = 1; S.mood = Math.max(Math.min(S.mood, 5), S.mood - 4); S.law = Math.max(Math.min(S.law, 5), S.law - 2); }
+    }
+    renderHeader();
+    if (st.k === "ed") return renderEd(st);
+    if (st.k === "verdict") return renderVerdict(st);
+    if (st.k === "end") return renderEnd();
+    var sc = st.sc;
+    if (sc.ty === "echo") { var bad = sc.test(S.f), pick = bad ? sc.bad : sc.good; if (!pick) { S.i++; return render(); } return renderEcho(st, pick, bad); }
+    if (sc.ty === "event") return renderEvent(st);
+    if (sc.ty === "revenue") return renderRevenue(st);
+    if (sc.ty === "choice") return renderChoice(st);
+    if (sc.ty === "pick") return renderPick(st);
+    if (sc.ty === "profile") return renderProfile(st);
+    if (sc.ty === "sort") return renderSort(st);
+  }
+
+  /* ---------- Écran d'accueil ---------- */
+  function renderStart() {
+    var opts = '<option value="">Choisis ta classe</option>' + CLASSES.map(function (c) { return '<option' + (c === lsGet("df_cls") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
+    $main.innerHTML =
+      '<section class="card"><span class="tag">Festival · RHC</span><h1>Le DRH du Festival</h1>' +
+      '<p class="lead">Tu deviens DRH du Décibel Festival. Trois éditions pour que la boîte tourne : recruter, choisir les bons contrats, évaluer sans froisser. Chaque décision a des conséquences, parfois drôles, parfois moins.</p>' +
+      '<ul class="rules">' +
+      '<li><span>🎚️</span><span>Trois jauges : <b>trésorerie</b>, <b>ambiance</b>, <b>conformité</b>. Si l\'une tombe à zéro, la partie s\'arrête net.</span></li>' +
+      '<li><span>🧭</span><span>Certains choix ont une bonne réponse, d\'autres sont des <b>dilemmes</b> : licencier fait gagner de l\'argent, mais coûte en ambiance.</span></li>' +
+      '<li><span>📈</span><span>Ton <b>score</b> monte et descend à chaque décision. Une fin brutale le fige.</span></li>' +
+      '<li><span>🗳️</span><span>À la fin de chaque édition, le conseil d\'administration vote ton maintien.</span></li>' +
+      '<li><span>⏱️</span><span>Compte une quarantaine de minutes pour les trois éditions.</span></li></ul>' +
+      '<div class="form">' +
+      (CLASSES.length ? '<div class="field"><label for="cls">Classe</label><select id="cls">' + opts + "</select></div>" : "") +
+      '<div class="field"><label for="nm">Prénom et initiale du nom</label><input id="nm" autocomplete="off" placeholder="Exemple : Camille D." value="' + esc(lsGet("df_name")) + '"></div>' +
+      '<p class="err" id="err" role="alert"></p>' +
+      '<div class="row"><button class="btn" id="start" style="margin:0">Prendre mon poste</button><button class="btn ghost" id="seeb" style="margin:0">Voir le classement</button></div></div></section>';
+    document.getElementById("start").onclick = function () {
+      var name = cleanName(document.getElementById("nm").value), cls = CLASSES.length ? document.getElementById("cls").value : "";
+      var err = document.getElementById("err");
+      if (CLASSES.length && !cls) { err.textContent = "Choisis ta classe."; return; }
+      if (!name) { err.textContent = "Écris ton prénom suivi de l'initiale de ton nom, par exemple « Camille D. »."; return; }
+      lsSet("df_name", name); lsSet("df_cls", cls);
+      newGame(name, cls); render();
+    };
+    document.getElementById("seeb").onclick = renderBoardOnly;
+  }
+
+  function renderEd(st) {
+    var ed = EDITIONS[st.ei];
+    $main.innerHTML = '<section class="card"><span class="tag">Édition ' + (st.ei + 1) + " sur 3</span><h2>" + esc(ed.title) + "</h2>" +
+      ed.intro.map(function (p) { return '<p class="lead">' + esc(p) + "</p>"; }).join("") +
+      '<button class="btn" id="go">' + (st.ei === 0 ? "C'est parti" : "Lever le rideau") + "</button></section>";
+    bindGo();
+  }
+
+  /* ---------- Choix ---------- */
+  function renderChoice(st) {
+    var sc = st.sc, mx = sceneMax(sc);
+    var h = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) +
+      '<p class="q">' + esc(sc.q) + '</p><div class="opts">' +
+      sc.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span class="k">' + LETTERS[i] + "</span><span>" + esc(o.t) + "</span></button>"; }).join("") +
+      '</div><div id="fb"></div></section>';
+    $main.innerHTML = h;
+    var btns = $main.querySelectorAll(".opt");
+    Array.prototype.forEach.call(btns, function (b) {
+      b.onclick = function () {
+        var i = +b.getAttribute("data-i"), o = sc.opts[i];
+        var dd = apply(o.d, o.pts || 0, sc.ch, mx);
+        setFlags(o.flag); noteMiss(sc, o.pts || 0, mx);
+        Array.prototype.forEach.call(btns, function (x, j) {
+          x.disabled = true;
+          if (j === i) x.classList.add(o.ok === true ? "right" : (o.ok === false ? "wrong" : "sel"));
+          else if (sc.opts[j].ok === true) x.classList.add("right"); else x.classList.add("dim");
+        });
+        var best = null; if (o.ok !== true) sc.opts.forEach(function (x) { if (x.ok === true && !best) best = x; });
+        var cls = o.ok === true ? "ok" : (o.ok === false ? "ko" : "");
+        var title = o.ok === true ? "Bien joué" : (o.ok === false ? "Aïe" : "Décision prise");
+        document.getElementById("fb").innerHTML = '<div class="fb ' + cls + '"><h3>' + title + "</h3><p>" + esc(o.fb) + "</p>" +
+          (best ? "<p><b>Mieux valait :</b> " + esc(best.t) + "</p>" : "") + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
+        bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
+      };
+    });
+  }
+
+  /* ---------- Sélection (budget de jetons ou nombre exact) ---------- */
+  function renderPick(st) {
+    var sc = st.sc, mx = sceneMax(sc), sel = {}, budget = sc.budget != null;
+    function cost() { var c = 0; sc.items.forEach(function (it, i) { if (sel[i]) c += it.cost || 0; }); return c; }
+    function count() { var n = 0; for (var k in sel) if (sel[k]) n++; return n; }
+    var h = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) +
+      '<p class="q">' + esc(sc.q) + '</p><p class="count" id="cnt"></p><div class="opts">' +
+      sc.items.map(function (it, i) { return '<button class="opt" data-i="' + i + '" aria-pressed="false"><span class="k"></span><span>' + esc(it.t) + (it.sub ? "<small>" + esc(it.sub) + "</small>" : "") + "</span></button>"; }).join("") +
+      '</div><div id="fb"><button class="btn" id="ok" disabled>Valider mon choix</button></div></section>';
+    $main.innerHTML = h;
+    var btns = $main.querySelectorAll(".opt"), okb = document.getElementById("ok");
+    function refresh() {
+      var n = count();
+      document.getElementById("cnt").textContent = budget ? "Jetons dépensés : " + cost() + " sur " + sc.budget : "Sélection : " + n + " sur " + sc.n;
+      okb.disabled = budget ? !(n >= 1 && cost() <= sc.budget) : n !== sc.n;
+      Array.prototype.forEach.call(btns, function (b, i) { b.classList.toggle("sel", !!sel[i]); b.setAttribute("aria-pressed", sel[i] ? "true" : "false"); b.querySelector(".k").textContent = sel[i] ? "✓" : ""; });
+    }
+    Array.prototype.forEach.call(btns, function (b) {
+      b.onclick = function () {
+        var i = +b.getAttribute("data-i");
+        if (sel[i]) { sel[i] = false; }
+        else if (budget) { if (cost() + (sc.items[i].cost || 0) > sc.budget) { document.getElementById("cnt").textContent = "Pas assez de jetons pour ce canal."; return; } sel[i] = true; }
+        else { if (count() >= sc.n) { document.getElementById("cnt").textContent = "Tu as déjà choisi " + sc.n + " éléments : retire-en un pour changer."; return; } sel[i] = true; }
+        refresh();
+      };
+    });
+    refresh();
+    okb.onclick = function () {
+      var chosen = [], total = 0, d = [0, 0, 0], cands = 0, spent = 0;
+      sc.items.forEach(function (it, i) {
+        if (!sel[i]) return;
+        chosen.push(it); total += it.pts; cands += it.cands || 0; spent += it.cost || 0;
+        if (it.d) { d[0] += it.d[0]; d[1] += it.d[1]; d[2] += it.d[2]; }
+        setFlags(it.flag);
+      });
+      var bonusMsg = "";
+      if (sc.bonus && chosen.length >= sc.bonus.count) { total += sc.bonus.pts; bonusMsg = sc.bonus.msg; }
+      if (budget) d[0] -= spent;
+      var dd = apply(d, total, sc.ch, mx);
+      noteMiss(sc, total, mx);
+      Array.prototype.forEach.call(btns, function (b) { b.disabled = true; });
+      okb.remove();
+      var list = chosen.map(function (it) {
+        var sign = it.pts >= 15 ? "✅" : (it.pts <= 0 ? "❌" : "➖");
+        return "<li>" + sign + " <b>" + esc(it.t) + "</b> : " + esc(it.why) + "</li>";
+      }).join("");
+      var missed = sc.items.filter(function (it, i) { return !sel[i] && it.pts >= 15; });
+      var ml = missed.length ? "<p><b>Tu as laissé de côté :</b></p><ul>" + missed.map(function (it) { return "<li>" + esc(it.t) + " : " + esc(it.why) + "</li>"; }).join("") + "</ul>" : "";
+      var cls = total >= 0.7 * mx ? "ok" : (total <= 0.3 * mx ? "ko" : "");
+      document.getElementById("fb").innerHTML = '<div class="fb ' + cls + '"><h3>' + (cls === "ok" ? "Belle sélection" : (cls === "ko" ? "Aïe, sélection fragile" : "Sélection correcte")) + "</h3>" +
+        (budget ? "<p>Candidatures reçues : <b>" + cands + "</b> pour " + spent + " jeton" + (spent > 1 ? "s" : "") + ".</p>" : "") +
+        "<ul>" + list + "</ul>" + (bonusMsg ? "<p>" + esc(bonusMsg) + "</p>" : "") + ml + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
+      bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
+  }
+
+  /* ---------- Profil de poste (budget de points) ---------- */
+  function renderProfile(st) {
+    var sc = st.sc, lv = sc.crit.map(function () { return 1; });
+    function used() { return lv.reduce(function (a, b) { return a + b; }, 0); }
+    var h = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) +
+      '<p class="q">' + esc(sc.q) + '</p><p class="pts-left">Points restants : <span id="left"></span></p><div id="crits"></div><div id="fb"><button class="btn" id="ok">Valider le profil</button></div></section>';
+    $main.innerHTML = h;
+    function draw() {
+      var left = sc.budget - used();
+      document.getElementById("left").textContent = left;
+      document.getElementById("crits").innerHTML = sc.crit.map(function (c, i) {
+        return '<div class="crit"><div><b>' + esc(c.n) + "</b><small>" + esc(c.sub) + '</small></div><div class="step"><button data-i="' + i + '" data-s="-1" aria-label="Baisser : ' + esc(c.n) + '"' + (lv[i] <= 1 ? " disabled" : "") + '>−</button><output>' + LEVELS[lv[i]] + " (" + lv[i] + ')</output><button data-i="' + i + '" data-s="1" aria-label="Monter : ' + esc(c.n) + '"' + (lv[i] >= 3 || left <= 0 ? " disabled" : "") + ">+</button></div></div>";
+      }).join("");
+      Array.prototype.forEach.call(document.querySelectorAll("#crits button"), function (b) {
+        b.onclick = function () { var i = +b.getAttribute("data-i"), s = +b.getAttribute("data-s"); lv[i] = clamp(lv[i] + s, 1, 3); draw(); };
+      });
+    }
+    draw();
+    document.getElementById("ok").onclick = function () {
+      var loss = profileLoss(sc, lv), best = profileBest(sc), diff = loss - best;
+      var pts = clamp(Math.round(60 - diff * 8), -20, 60), mx = sceneMax(sc);
+      var d = [diff >= 6 ? -4 : (diff >= 3 ? -2 : 0), 0, 0];
+      var weak = sc.crit.some(function (c, i) { return c.w === 3 && lv[i] < 2; });
+      if (weak) S.f.weakProfile = true;
+      var dd = apply(d, pts, sc.ch, mx); noteMiss(sc, pts, mx);
+      document.getElementById("crits").querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+      var rows = sc.crit.map(function (c, i) {
+        var good = lv[i] === c.ideal ? '<span class="okc">✓</span>' : (lv[i] < c.ideal ? '<span class="koc">trop bas</span>' : '<span class="koc">trop haut</span>');
+        return "<tr><td>" + esc(c.n) + '</td><td class="num">' + lv[i] + '</td><td class="num">' + c.ideal + '</td><td class="num">' + good + "</td></tr>";
+      }).join("");
+      var cls = diff <= 1 ? "ok" : (diff >= 6 ? "ko" : "");
+      var warn = weak ? "<p><b>Attention :</b> un critère indispensable (sécurité, management ou gestion du stress) est sous-pondéré : tu retrouveras la conséquence plus tard.</p>" : "";
+      document.getElementById("fb").innerHTML = '<div class="fb ' + cls + '"><h3>' + (cls === "ok" ? "Profil bien calibré" : (cls === "ko" ? "Profil mal calibré" : "Profil acceptable")) + "</h3>" +
+        "<p>Avec 14 points, impossible de tout mettre à fond : il faut réserver le « 3 » aux critères sans lesquels le poste est ingérable, et accepter de baisser les autres. Voici ce que visait le poste :</p>" +
+        '<table class="cmp"><thead><tr><th>Critère</th><th class="num">Ton niveau</th><th class="num">Attendu</th><th class="num"></th></tr></thead><tbody>' + rows + "</tbody></table>" + warn + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
+      bindGo(); document.getElementById("go").scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
+  }
+
+  /* ---------- Tri : associer chaque situation à sa catégorie ---------- */
+  function renderSort(st) {
+    var sc = st.sc, mx = sceneMax(sc), items = shuffle(sc.items), i = 0, good = 0;
+    var head = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) + '<div id="sortbox"></div></section>';
+    $main.innerHTML = head;
+    function show() {
+      var it = items[i], box = document.getElementById("sortbox");
+      box.innerHTML = '<p class="count">Situation ' + (i + 1) + " sur " + items.length + '</p><div class="sortcard">' + esc(it.t) + '</div><div class="buckets">' +
+        sc.buckets.map(function (b, j) { return '<button class="bucket" data-j="' + j + '">' + esc(b) + "</button>"; }).join("") + '</div><div id="sfb"></div>';
+      Array.prototype.forEach.call(box.querySelectorAll(".bucket"), function (b) {
+        b.onclick = function () {
+          var j = +b.getAttribute("data-j"), ok = j === it.b; if (ok) good++;
+          Array.prototype.forEach.call(box.querySelectorAll(".bucket"), function (x, k) { x.disabled = true; if (k === it.b) x.classList.add("right"); else if (k === j) x.classList.add("wrong"); else x.classList.add("dim"); });
+          document.getElementById("sfb").innerHTML = '<div class="fb ' + (ok ? "ok" : "ko") + '"><h3>' + (ok ? "Bien vu" : "Raté") + "</h3><p>" + esc(it.why) + '</p><button class="btn" id="nx">' + (i + 1 < items.length ? "Suivante" : "Voir le bilan") + "</button></div>";
+          document.getElementById("nx").onclick = function () { i++; if (i < items.length) show(); else finish(); };
+        };
+      });
+    }
+    function finish() {
+      var bad = items.length - good, pts = good * sc.per - bad * 4, rate = good / items.length;
+      var d = rate >= 0.8 ? sc.dGood : (rate <= 0.4 ? sc.dBad : [0, 0, 0]);
+      var dd = apply(d, pts, sc.ch, mx); noteMiss(sc, pts, mx);
+      var cls = rate >= 0.8 ? "ok" : (rate <= 0.4 ? "ko" : "");
+      document.getElementById("sortbox").innerHTML = '<div class="fb ' + cls + '"><h3>' + good + " bonne" + (good > 1 ? "s" : "") + " réponse" + (good > 1 ? "s" : "") + " sur " + items.length + "</h3>" +
+        "<p>" + (rate >= 0.8 ? "Tu maîtrises le sujet : l'équipe en profite." : (rate <= 0.4 ? "Il va falloir relire le cours : ça se ressent dans les jauges." : "Bon début, mais quelques confusions restent.")) + "</p>" + chips(dd) + ruleBox(sc.rule) + lowWarn() + goBtn() + "</div>";
+      bindGo();
+    }
+    show();
+  }
+
+  /* ---------- Événement et écho ---------- */
+  function renderEvent(st) {
+    var ev = st.ev, dd = apply(ev.d, 0, 0, 0);
+    $main.innerHTML = bandBox(st) + '<section class="card"><span class="tag">Coulisses du festival</span><div class="event"><b>' + esc(ev.title) + "</b><p style=\"margin:0\">" + esc(ev.text) + "</p>" + chips(dd) + "</div>" + lowWarn() + goBtn() + "</section>";
+    bindGo();
+  }
+  function renderRevenue(st) {
+    var gain = Math.round(5 + S.mood * 0.18), dd = apply([gain, 0, 0], 0, 0, 0);
+    var txt = S.mood >= 70 ? "Les festivaliers ont adoré : équipes souriantes, bars pris d'assaut, record de ventes de crêpes."
+      : (S.mood >= 40 ? "Un festival correct : quelques files d'attente, quelques sourires, une recette honorable." : "Équipes crispées, service lent, avis deux étoiles : la recette est maigre.");
+    $main.innerHTML = '<section class="card"><span class="tag">Recettes du festival</span><div class="event"><b>Le bilan de la billetterie</b><p style="margin:0">' + esc(txt) +
+      '</p><p class="hint" style="margin:8px 0 0">Plus tes équipes sont motivées, mieux le festival se vend : l\'ambiance influence directement les recettes.</p>' + chips(dd) + "</div>" + goBtn() + "</section>";
+    bindGo();
+  }
+  function renderEcho(st, pick, bad) {
+    var sc = st.sc, mx = sc.good ? sc.good.pts : 0;
+    var dd = apply(pick.d, pick.pts, sc.ch, mx);
+    if (bad) S.misses.push({ tag: sc.tag.replace(/^Écho · /, ""), ch: sc.ch, rule: sc.rule || null });
+    $main.innerHTML = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + '</span><div class="event"><b>' + esc(pick.title) + "</b><p style=\"margin:0\">" + esc(pick.text) + "</p>" + chips(dd) + "</div>" + lowWarn() + goBtn() + "</section>";
+    bindGo();
+  }
+
+  /* ---------- Bilan de fin d'édition ---------- */
+  function renderVerdict(st) {
+    var ei = st.ei, bonus = 0, ed = EDITIONS[ei];
+    if (!S.verdictDone[ei]) {
+      bonus = Math.round(((S.cash + S.mood + S.law) / 3 - 50) * 2);
+      S.score = Math.max(0, S.score + bonus); S.verdictDone[ei] = { bonus: bonus };
+      renderHeader();
+    } else bonus = S.verdictDone[ei].bonus;
+    var pct = maxSeen() ? S.score / maxSeen() : 0, last = ei === EDITIONS.length - 1;
+    var fired = !last && pct < LIMITS[ei];
+    if (fired) S.over = "fired";
+    var msg = fired ? "Le conseil estime que ton bilan est insuffisant. Il ne te reconduit pas."
+      : (pct >= 0.65 ? "Le conseil applaudit. Tambour verse une petite larme dans sa grosse caisse." : (pct >= 0.45 ? "Le conseil te reconduit, avec quelques sourcils levés." : "Le conseil te reconduit de justesse, sous haute surveillance."));
+    var sign = bonus >= 0 ? "+" : "−";
+    $main.innerHTML = '<section class="card"><span class="tag">' + (last ? "Dernier bilan" : "Conseil d'administration") + "</span><h2>Bilan de l'édition " + (ei + 1) + "</h2>" +
+      '<p class="lead">' + esc(ed.title) + "</p>" +
+      '<div class="chips"><span class="chip">Trésorerie ' + Math.round(S.cash) + '</span><span class="chip">Ambiance ' + Math.round(S.mood) + '</span><span class="chip">Conformité ' + Math.round(S.law) + "</span></div>" +
+      '<p class="lead">Bonus ou malus de gestion selon l\'état moyen de tes jauges : <b>' + sign + Math.abs(bonus) + " points</b>. Score actuel : <b>" + Math.round(S.score) + "</b>.</p>" +
+      '<div class="fb ' + (fired ? "ko" : "ok") + '"><h3>' + (fired ? "Remercié" : "Reconduit") + "</h3><p>" + esc(msg) + "</p></div>" +
+      '<button class="btn" id="go">' + (fired ? "Voir la fin" : (last ? "Voir le verdict final" : "Édition suivante")) + "</button></section>";
+    bindGo();
+  }
+
+  /* ---------- Fin de partie ---------- */
+  function outcome() {
+    if (S.over) return { win: false, title: D.ENDS[S.over].title, text: D.ENDS[S.over].text, type: S.over };
+    var pct = maxSeen() ? S.score / maxSeen() : 0, t = D.TIERS.filter(function (x) { return pct >= x.min; })[0];
+    return { win: true, title: t.title, text: t.text, type: "win" };
+  }
+  function renderEnd() {
+    var out = outcome(), mast = "";
+    [1, 2, 3].forEach(function (c) {
+      if (!S.mx[c]) return;
+      var p = Math.round(100 * S.earn[c] / S.mx[c]);
+      mast += '<div class="mast ' + (p < 50 ? "low" : "") + '"><span>' + CHAPS[c] + '</span><span class="bar"><i style="width:' + p + '%"></i></span><span>' + p + " %</span></div>";
+    });
+    var seen = {}, rev = "";
+    S.misses.forEach(function (m) {
+      if (!m.rule || seen[m.rule.ref] || Object.keys(seen).length >= 6) return;
+      seen[m.rule.ref] = 1;
+      rev += '<div class="miss"><b>' + esc(m.rule.ref) + "</b>" + esc(m.rule.text) + "</div>";
+    });
+    $main.innerHTML = '<section class="card"><span class="tag">' + (out.win ? "Verdict final" : "Fin de partie") + "</span>" +
+      '<h2 class="endtitle">' + esc(out.title) + '</h2><p class="lead">' + esc(out.text) + "</p>" +
+      '<p class="bigscore">' + Math.round(S.score) + '<small style="font-size:18px"> pts</small></p>' +
+      '<div class="chips"><span class="chip">Trésorerie ' + Math.round(S.cash) + '</span><span class="chip">Ambiance ' + Math.round(S.mood) + '</span><span class="chip">Conformité ' + Math.round(S.law) + "</span></div>" +
+      '<div class="row"><button class="btn" id="again">Rejouer</button></div></section>' +
+      '<section class="card"><h3 class="sec">Ta maîtrise par chapitre</h3>' + (mast || '<p class="hint" style="margin:0">Pas assez de décisions pour établir un bilan.</p>') + "</section>" +
+      (rev ? '<section class="card"><h3 class="sec">À revoir en cours</h3><div class="review">' + rev + "</div></section>" : "") +
+      '<section class="card"><h3 class="sec">Classement</h3><div id="board"><p class="hint" style="margin:0">Enregistrement du score…</p></div></section>' +
+      '<section class="card"><h3 class="sec">Notions les plus ratées</h3><div id="tags"><p class="hint" style="margin:0">Chargement…</p></div></section>';
+    document.getElementById("again").onclick = function () { if (boardUnsub) { boardUnsub(); boardUnsub = null; } S = null; render(); };
+    var tags = []; S.misses.forEach(function (m) { if (tags.indexOf(m.tag) < 0 && tags.length < 8) tags.push(m.tag); });
+    var pc = function (c) { return S.mx[c] ? Math.round(100 * S.earn[c] / S.mx[c]) : null; };
+    var details = { cls: S.cls, ending: out.title, type: out.type, ed: S.reach + 1, cash: Math.round(S.cash), mood: Math.round(S.mood), law: Math.round(S.law), ch1: pc(1), ch2: pc(2), ch3: pc(3), tags: tags, secs: Math.round((Date.now() - S.t0) / 1000) };
+    saveAndShowBoard({ name: S.name, cls: S.cls, score: Math.round(S.score), details: details });
+  }
+
+  /* ---------- Classement ---------- */
+  var boardRows = [], boardMe = "", boardState = "none", boardClass = "";
+  function renderBoardOnly() {
+    renderHeader();
+    $main.innerHTML = '<section class="card"><h3 class="sec">Classement</h3><div id="board"><p class="hint" style="margin:0">Chargement du classement…</p></div></section>' +
+      '<section class="card"><h3 class="sec">Notions les plus ratées</h3><div id="tags"><p class="hint" style="margin:0">Chargement…</p></div></section>' +
+      '<div class="row"><button class="btn ghost" id="back">Retour</button></div>';
+    document.getElementById("back").onclick = function () { if (boardUnsub) { boardUnsub(); boardUnsub = null; } render(); };
+    saveAndShowBoard(null);
+  }
+  function saveAndShowBoard(row) {
+    var boardEl = function () { return document.getElementById("board"); }, tagsEl = function () { return document.getElementById("tags"); };
+    var unavailable = function (msg) {
+      if (boardEl()) boardEl().innerHTML = '<p class="hint" style="margin:0">' + esc(msg) + "</p>";
+      if (tagsEl()) tagsEl().innerHTML = '<p class="hint" style="margin:0">Disponible avec le classement.</p>';
+    };
+    if (!(window.MesJeux && MesJeux.ready())) { unavailable("Le classement n'est pas encore branché."); return; }
+    if (boardUnsub) { boardUnsub(); boardUnsub = null; }
+    boardClass = row ? (row.cls || "") : lsGet("df_cls");
+    boardMe = row ? row.name : lsGet("df_name");
+    function toRow(r) { var d = r.details || {}; return { name: r.player, cls: d.cls || "", score: r.score, ending: d.ending || "", tags: d.tags || [], ts: Date.parse(r.created_at) || 0 }; }
+    function refresh() {
+      return MesJeux.list(GAME_ID, 1000).then(function (rows) { boardRows = rows.map(toRow); redraw(); }, function () { unavailable("Le classement n'a pas pu être lu."); });
+    }
+    var saveP = Promise.resolve("none");
+    if (row && !S.saved) { S.saved = true; saveP = MesJeux.save(GAME_ID, row.name, row.score, row.details).then(function (r) { return r.ok ? "saved" : "readonly"; }); }
+    saveP.then(function (state) {
+      boardState = state;
+      refresh().then(function () {
+        var id = setInterval(function () { if (!boardEl()) { clearInterval(id); return; } refresh(); }, 30000);
+        boardUnsub = function () { clearInterval(id); };
+      });
+    });
+  }
+  function redraw() {
+    var rows = boardClass ? boardRows.filter(function (r) { return r.cls === boardClass; }) : boardRows;
+    drawBoard(rows); drawTags(rows);
+  }
+  function classPicker() {
+    var o = '<option value="">Toutes les classes</option>' + CLASSES.map(function (c) { return '<option' + (c === boardClass ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
+    return '<div class="field" style="max-width:260px;margin:0 0 12px"><label for="bc">Classement de la classe</label><select id="bc">' + o + "</select></div>";
+  }
+  function bindPicker() { var p = document.getElementById("bc"); if (p) p.onchange = function () { boardClass = this.value; redraw(); }; }
+  function drawBoard(rows) {
+    var el = document.getElementById("board"); if (!el) return;
+    rows = rows.slice().sort(function (a, b) { return (b.score - a.score) || (a.ts - b.ts); });
+    var note = boardState === "readonly" ? '<p class="hint" style="margin:0 0 10px">Ton résultat n\'a pas pu être enregistré (connexion indisponible). Il sera renvoyé à la prochaine ouverture du jeu.</p>' : "";
+    if (!rows.length) { el.innerHTML = classPicker() + note + '<p class="hint" style="margin:0">Aucun résultat pour l\'instant. Le premier à finir ouvre le classement.</p>'; bindPicker(); return; }
+    var meTs = Math.max.apply(null, rows.filter(function (r) { return r.name === boardMe; }).map(function (r) { return r.ts; }).concat([0]));
+    var h = classPicker() + note + '<div class="tbl"><table class="board"><thead><tr><th class="rk">#</th><th>Joueur</th><th>Fin</th><th class="num">Score</th></tr></thead><tbody>';
+    rows.slice(0, 30).forEach(function (r, i) {
+      h += '<tr class="' + (r.name === boardMe && r.ts === meTs ? "me" : "") + '"><td class="rk">' + (i + 1) + '</td><td>' + esc(r.name || "?") + (r.cls ? ' <span class="cls">' + esc(r.cls) + "</span>" : "") + "</td><td>" + esc(r.ending) + '</td><td class="num"><b>' + esc(Math.round(r.score)) + "</b></td></tr>";
+    });
+    h += "</tbody></table></div><p class=\"hint\" style=\"margin:10px 0 0\">" + rows.length + " partie" + (rows.length > 1 ? "s" : "") + ". Chaque partie jouée est ajoutée au classement.</p>";
+    el.innerHTML = h; bindPicker();
+  }
+  function drawTags(rows) {
+    var el = document.getElementById("tags"); if (!el) return;
+    var count = {};
+    rows.forEach(function (r) { (r.tags || []).forEach(function (t) { count[t] = (count[t] || 0) + 1; }); });
+    var arr = Object.keys(count).map(function (k) { return [k, count[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 6);
+    if (!arr.length) { el.innerHTML = '<p class="hint" style="margin:0">Pas encore assez de résultats.</p>'; return; }
+    var max = arr[0][1], h = "";
+    arr.forEach(function (a) { h += '<div class="tag-row"><span>' + esc(a[0]) + '</span><span class="tag-bar" title="' + a[1] + ' erreurs"><i style="width:' + Math.round(100 * a[1] / max) + '%"></i></span></div>'; });
+    el.innerHTML = h + '<p class="hint" style="margin:8px 0 0">Calculé sur toutes les parties de la classe sélectionnée.</p>';
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

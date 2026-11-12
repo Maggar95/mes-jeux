@@ -27,6 +27,20 @@ window.MESJEUX_GAMES = [
     }
   },
   {
+    id: "drh-festival",
+    section: "terminale",
+    title: "Le DRH du Festival",
+    file: "jeux/drh-festival.html",
+    blurb: "Tu deviens DRH d'un festival de musique et tu dois le faire tourner pendant trois éditions : recrutements, contrats, entretiens. Trésorerie, ambiance et conformité : si l'une tombe à zéro, c'est la fin du concert.",
+    scoreLabel: "Score",
+    unit: " pts",
+    bg: "#1a0b3b", fg: "#ffd23f",
+    detail: function (r) {
+      var d = r.details || {};
+      return (d.ending || "") + (d.cls ? " · " + d.cls : "");
+    }
+  },
+  {
     id: "saint-gratien",
     section: "perso",
     title: "Direction Saint-Gratien",
