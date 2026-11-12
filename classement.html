@@ -75,7 +75,7 @@
     shown.slice(0, 100).forEach(function (r, i) {
       var sub = [current.detail ? current.detail(r) : "", fmtDate(r.created_at)].filter(Boolean).join(" · ");
       h += '<tr><td class="rk">' + (i + 1) + '</td><td class="nm"><span class="who">' + esc(r.player) + "</span>" + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") +
-           '</td><td class="num">' + esc(Math.round(r.score)) + "</td></tr>";
+           '</td><td class="num">' + esc(current.fmt ? current.fmt(r.score) : Math.round(r.score)) + "</td></tr>";
     });
     out.innerHTML = h + "</tbody></table>" +
       '<p class="note">' + shown.length + (mode === "best" ? " joueur" : " partie") + (shown.length > 1 ? "s" : "") + (shown.length > 100 ? " (100 premiers affichés)" : "") + ".</p>";

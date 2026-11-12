@@ -27,6 +27,8 @@ Chaque jeu affiche son QR code dans son menu déroulant de l'accueil. Il est cal
 - Les codes ne sont jamais écrits en clair dans le dépôt : on garde leur empreinte (SHA-256). C'est une barrière douce, qui guide les élèves mais ne protège pas contre quelqu'un de très motivé.
 - Pour changer un code, il suffit de recalculer l'empreinte : `sha256("mesjeux:" + code en minuscules)`.
 
+Le Greffier (rubrique Première) est protégé par un code de jeu. La banque est dans `jeux/greffier.html` : 2 dossiers de tri, 6 usagers de guichet, 13 affirmations vrai ou faux ; chaque partie en tire au hasard (1 dossier, 1 usager, 8 affirmations dont au moins 3 fausses).
+
 ## Page « Les codes » (Perso)
 
 Dans la rubrique Perso, un menu déroulant « Les codes » est fermé par un code à 6 chiffres. Il affiche les codes des jeux et celui de la rubrique Perso.
@@ -44,11 +46,12 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 | --- | --- |
 | Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale |
 | Le DRH du Festival | score en points (jusqu'à environ 2 000) : bonnes décisions et gestion des trois jauges (trésorerie, ambiance, conformité) ; une jauge à zéro, ou le renvoi par le conseil d'administration, arrête la partie et fige le score |
+| Le Greffier (Première, 1STMG1) | **note sur 10** : 8 points d'exactitude (tri des phrases d'un litige 2,5 ; guichet 3,5 ; vrai ou faux 2) + 2 points de rapidité (références : 30 s par réponse, 20 s par affirmation). La note affichée évolue en direct, arrondie à la fin. Dans la base, le score est stocké en **dixièmes de point** (0 à 100) ; le champ `fmt` de `js/games.js` le réaffiche en note sur 10 |
 | Direction Saint-Gratien | pas de points : classement au nombre de **fins différentes découvertes** (à égalité, le premier arrivé). Un clic sur son prénom affiche ses fins, uniquement depuis l'appareil où il a joué (liste gardée dans son navigateur) |
 
 ### Fin de partie
 
-À la fin d'une partie, Le Franchisé et Le DRH du Festival affichent le score en points, la place dans le classement (de la classe sélectionnée) et l'écart avec le joueur juste devant. Direction Saint-Gratien fait de même avec le nombre de fins découvertes.
+À la fin d'une partie, Le Franchisé, Le DRH du Festival et Le Greffier affichent le score en points, la place dans le classement (de la classe sélectionnée) et l'écart avec le joueur juste devant. Direction Saint-Gratien fait de même avec le nombre de fins découvertes.
 
 ## Le DRH du Festival (Terminale)
 

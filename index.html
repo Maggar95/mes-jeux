@@ -145,7 +145,7 @@
       var top = g.rank === "endings" ? Endings.rank(rows).slice(0, 3).map(function (o) { return { player: o.player, score: o.count }; }) : rows.slice(0, 3);
       if (!top.length) { podium(g, '<li><span class="empty">Aucune partie pour l’instant. Lance la première.</span></li>'); return; }
       podium(g, top.map(function (r, i) {
-        return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(Math.round(r.score)) + esc(g.unit || "") + "</span></li>";
+        return '<li><span class="rk">' + (i + 1) + '</span><span class="nm"><span>' + esc(r.player) + '</span></span><span class="sc">' + esc(g.fmt ? g.fmt(r.score) : Math.round(r.score)) + esc(g.unit || "") + "</span></li>";
       }).join(""));
     }, function () {
       podium(g, '<li><span class="empty">Classement indisponible pour le moment.</span></li>');

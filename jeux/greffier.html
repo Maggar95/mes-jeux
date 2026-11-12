@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Le Greffier</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Mise en page : une feuille de cahier Seyès (marge rouge, carreaux bleus, surligneur jaune), une colonne, un écran à la fois. La note sur 10 reste visible en haut, la consigne en tête de chaque temps. */
+:root {
+  --paper: #f7f9ff;
+  --line: #d3dbf4;
+  --margin: #d6455d;
+  --ink: #1b2a8a;
+  --text: #1d2233;
+  --muted: #5d6482;
+  --hl: #ffe45c;
+  --card: #ffffff;
+  --good: #14693f;
+  --good-bg: #e0f3e8;
+  --bad: #a8221a;
+  --bad-bg: #fde7e4;
+  --f-hand: "Kalam", "Segoe Print", "Comic Sans MS", cursive;
+  --f-text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10152b; --line: #232c52; --margin: #ff7b8f; --ink: #a9baff; --text: #e9ecf8; --muted: #9aa3c7;
+    --hl: rgba(255, 228, 92, .34); --card: #161d3b; --good: #5cd08f; --good-bg: #12301f; --bad: #ff8a80; --bad-bg: #3a1a1a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10152b; --line: #232c52; --margin: #ff7b8f; --ink: #a9baff; --text: #e9ecf8; --muted: #9aa3c7;
+  --hl: rgba(255, 228, 92, .34); --card: #161d3b; --good: #5cd08f; --good-bg: #12301f; --bad: #ff8a80; --bad-bg: #3a1a1a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--text); font: 17px/1.55 var(--f-text);
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet {
+  max-width: 680px; margin: 0 auto; position: relative; min-height: 70vh;
+  padding: 20px 16px 28px 28px;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  border: 1px solid var(--line); border-radius: 4px;
+}
+.sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: 14px; width: 2px; background: var(--margin); opacity: .8; }
+h1, h2, h3 { font-family: var(--f-hand); color: var(--ink); margin: 0; font-weight: 700; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 40px; }
+h2 { font-size: 26px; }
+h3 { font-size: 20px; }
+p { margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.demo-tag { display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border: 1.5px solid var(--margin); color: var(--margin); border-radius: 4px; transform: rotate(-1.5deg); }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.lead { max-width: 60ch; }
+.hl { background: linear-gradient(transparent 52%, var(--hl) 52%, var(--hl) 92%, transparent 92%); padding: 0 2px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; color: var(--muted); }
+.field input { font: inherit; min-height: 48px; padding: 10px 14px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--text); width: 100%; }
+.btn { font: 600 17px/1.2 var(--f-text); min-height: 48px; padding: 12px 22px; border: 0; border-radius: 8px; background: var(--ink); color: var(--paper); cursor: pointer; align-self: flex-start; }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--margin); outline-offset: 2px; }
+
+/* Consigne : l'encart à lire avant d'agir */
+.consigne { border: 1.5px solid var(--ink); border-radius: 8px; background: var(--card); padding: 12px 14px; }
+.consigne .eyebrow { color: var(--ink); margin-bottom: 4px; display: block; }
+.consigne p + p { margin-top: 6px; }
+.consigne ul { margin: 6px 0 0; padding-left: 20px; }
+.consigne li + li { margin-top: 3px; }
+.consigne.small { font-size: 15px; }
+details.rappel { margin-top: 8px; font-size: 15px; }
+details.rappel summary { cursor: pointer; color: var(--ink); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+details.rappel p { padding: 4px 0 0 4px; color: var(--muted); }
+.gloss { display: grid; gap: 8px; margin: 8px 0 0; }
+.gloss div { display: grid; grid-template-columns: 124px 1fr; gap: 10px; font-size: 15px; min-width: 0; }
+.gloss dt { font-weight: 700; color: var(--ink); }
+.gloss dd { margin: 0; color: var(--muted); min-width: 0; }
+@media (max-width: 420px) { .gloss div { grid-template-columns: 1fr; gap: 0; } }
+
+/* En-tête : visite, temps, note qui évolue */
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: flex-start; margin-bottom: 10px; }
+.notebox { text-align: right; }
+.notebox span { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.notebox b { font-family: var(--f-hand); font-size: 44px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.notebox small { font-size: 16px; color: var(--muted); margin-left: 3px; }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin-bottom: 16px; }
+.bar > i { display: block; height: 100%; background: var(--ink); width: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { color: var(--ink); }
+
+.bubble { max-width: 92%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); }
+.bubble .who { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+
+/* Fiche à remplir */
+.fiche { display: grid; gap: 10px; margin: 0; }
+.fiche-row { display: grid; grid-template-columns: 124px 1fr; gap: 10px; align-items: start; min-width: 0; }
+.fiche-row dt { font-weight: 700; color: var(--ink); font-size: 14px; line-height: 1.3; }
+.fiche-row dt small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.fiche-row dd { margin: 0; min-width: 0; font-size: 15px; padding: 6px 10px; border-radius: 6px; border: 1.5px dashed var(--line); color: var(--muted); }
+.fiche-row dd.full { border-style: solid; border-color: var(--good); background: var(--good-bg); color: var(--text); }
+@media (max-width: 420px) { .fiche-row { grid-template-columns: 1fr; gap: 2px; } }
+
+.opts { display: grid; gap: 10px; }
+.opt { text-align: left; font: inherit; min-height: 52px; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.opt b { font-weight: 600; }
+.opt .rep { font-style: italic; }
+.opt .verdict { font-size: 13px; font-weight: 600; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; opacity: .55; }
+.opt.good { border-color: var(--good); background: var(--good-bg); opacity: 1; }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); opacity: 1; }
+.opt.good .verdict { color: var(--good); }
+.opt.bad .verdict { color: var(--bad); }
+.fb { padding: 12px 14px; border-radius: 8px; font-size: 16px; }
+.fb.good { background: var(--good-bg); border: 1px solid var(--good); }
+.fb.bad { background: var(--bad-bg); border: 1px solid var(--bad); }
+.fb strong { display: block; margin-bottom: 2px; }
+.quote { font-size: 18px; line-height: 1.6; padding: 12px 14px; border-left: 4px solid var(--ink); background: var(--card); border-radius: 0 8px 8px 0; margin: 0; }
+
+.pts { font-family: var(--f-hand); font-size: 76px; line-height: 1; color: var(--ink); }
+.pts small { font-size: 26px; }
+.place { padding: 10px 12px; border-left: 4px solid var(--margin); background: var(--card); border-radius: 0 8px 8px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 16px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; }
+td.rk { width: 2.2em; color: var(--muted); }
+tr.me td { background: var(--hl); font-weight: 700; }
+.tablewrap { overflow-x: auto; }
+.review { display: grid; gap: 10px; }
+.miss { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); font-size: 15px; }
+.miss b { display: block; color: var(--ink); }
+.sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.sum div { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.sum span { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.sum b { font-size: 22px; font-variant-numeric: tabular-nums; }
+.note { font-size: 14px; color: var(--muted); }
+@media (max-width: 420px) { h1 { font-size: 34px; } .pts { font-size: 62px; } .notebox b { font-size: 38px; } }
+
+.vf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vf .opt { align-items: center; text-align: center; font-weight: 700; font-size: 20px; min-height: 64px; justify-content: center; }
+.dots { display: flex; flex-wrap: wrap; gap: 6px; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink); display: block; }
+.dots i.on { background: var(--ink); }
+.dots i.ok { background: var(--good); border-color: var(--good); }
+.dots i.ko { background: var(--bad); border-color: var(--bad); }
+.back { font-size: 14px; margin: 0 0 6px; } .back a { color: var(--ink); }
+.board-wait { color: var(--muted); font-size: 15px; }
+</style>
+</head><body>
+
+<main class="sheet" id="app" aria-live="polite"></main>
+
+<script src="../js/config.js"></script>
+<script src="../js/games.js"></script>
+<script src="../js/scores.js"></script>
+<script>window.MESJEUX_GAME="greffier";</script>
+<script src="../js/access.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Barème : 8 points d'exactitude + 2 points de rapidité = 10 ---------- */
+  var TRI_EACH = 2.5 / 7;                                          /* manche 1 : 7 phrases, 2,5 points */
+  var PTS = { q: 0.4, pj: 0.8, dem: 0.35, suite: 0.35 };           /* manche 2 : 5 questions utiles (2) + 1,5 = 3,5 points */
+  var VF_EACH = 0.25;                                              /* manche 3 : 8 affirmations, 2 points */
+  var SPEED = { tri: 0.6, guichet: 0.8, vf: 0.6 };                 /* rapidité : 2 points en tout */
+  var REF = { tri: 7 * 30, guichet: 8 * 30, vf: 8 * 20 };          /* secondes de référence : 30 s par réponse, 20 s par affirmation */
+  var MAX_Q = 5;                                                   /* questions que le greffier peut poser */
+  var NB_VF = 8;
+
+  var CATS = [
+    { id: "faits", l: "Les faits", h: "Ce qui s'est passé : événements, dates" },
+    { id: "parties", l: "Les parties", h: "Les personnes engagées dans le procès" },
+    { id: "moyens", l: "Le moyen de droit", h: "La règle de droit invoquée" },
+    { id: "pretentions", l: "Les prétentions", h: "Ce que chacun demande au juge" },
+    { id: "probleme", l: "Le problème juridique", h: "La question de droit à trancher" }
+  ];
+  var CATNAME = {}; CATS.forEach(function (c) { CATNAME[c.id] = c.l; });
+  var FICHE = [
+    { id: "faits", l: "Les faits", h: "Ce qui s'est passé, avec les dates" },
+    { id: "parties", l: "Les parties", h: "Les personnes engagées dans le procès" },
+    { id: "pretentions", l: "Les prétentions", h: "Ce que chacun demande" }
+  ];
+  var MANCHES = [{ id: "tri", t: "Le tri" }, { id: "guichet", t: "Le guichet" }, { id: "vf", t: "Vrai ou faux du juge" }];
+
+  /* ---------- Manche 1 : dossiers à trier (1 tiré au hasard) ---------- */
+  var TRIS = [
+    { titre: "L'abonnement à la salle de sport", sentences: [
+      { t: "En janvier, Léo signe un abonnement de 12 mois à 39 € par mois dans la salle FitMax. En juin, il déménage et envoie sa lettre de résiliation.", c: "faits", why: "Des événements datés et précis : ce sont les faits." },
+      { t: "En juillet et en août, la salle continue de prélever 39 € sur son compte.", c: "faits", why: "Un autre événement daté : un fait." },
+      { t: "Léo, client de la salle, et la société FitMax, qui l'exploite, sont en désaccord.", c: "parties", why: "Les parties sont les personnes engagées dans le procès : ici une personne physique et une personne morale." },
+      { t: "Léo demande le remboursement des deux prélèvements, soit 78 €.", c: "pretentions", why: "C'est ce que réclame le demandeur : sa prétention." },
+      { t: "FitMax demande que Léo paie jusqu'à la fin des douze mois.", c: "pretentions", why: "C'est la demande du défendeur en réponse : sa prétention." },
+      { t: "FitMax invoque la règle selon laquelle les contrats légalement formés tiennent lieu de loi à ceux qui les ont faits (article 1103 du Code civil).", c: "moyens", why: "C'est une règle de droit sur laquelle une partie s'appuie : un moyen de droit." },
+      { t: "Un client peut-il rompre un abonnement de douze mois avant son terme après un déménagement, et obtenir le remboursement des prélèvements suivants ?", c: "probleme", why: "C'est la question de droit posée au juge, formulée comme une question." }
+    ] },
+    { titre: "La voiture mal réparée", sentences: [
+      { t: "Le 3 mars, Mme Diallo confie sa voiture au garage Auto Express pour changer les freins, pour 450 €.", c: "faits", why: "Un événement daté et chiffré : un fait." },
+      { t: "Dix jours plus tard, les freins défaillent à nouveau et elle doit faire remorquer la voiture.", c: "faits", why: "Un autre événement : ce qui s'est passé, sans rien demander." },
+      { t: "Mme Diallo, cliente, et la société Auto Express, garage, s'opposent.", c: "parties", why: "Les parties sont les personnes engagées dans le procès." },
+      { t: "Mme Diallo demande que le garage refasse la réparation sans frais et paie le remorquage.", c: "pretentions", why: "C'est ce que réclame le demandeur : une remise en état et des dommages et intérêts." },
+      { t: "Auto Express demande à ne rien faire gratuitement : selon lui, le problème vient d'une autre pièce.", c: "pretentions", why: "C'est la demande du défendeur en réponse. Ce qu'il invoque pour la justifier reste une affirmation, pas une règle de droit." },
+      { t: "Les contrats doivent être exécutés de bonne foi (article 1104 du Code civil).", c: "moyens", why: "C'est une règle de droit invoquée à l'appui de la demande : un moyen de droit." },
+      { t: "Un garagiste doit-il refaire gratuitement une réparation de freins qui a échoué dix jours plus tard ?", c: "probleme", why: "C'est la question de droit posée au juge." }
+    ] }
+  ];
+
+  /* ---------- Manche 3 : vrai ou faux (8 tirées parmi 13 : au moins 3 fausses) ---------- */
+  var VFS = [
+    { t: "Un litige est un désaccord entre deux ou plusieurs personnes concernant l'exercice d'un droit.", v: true, why: "C'est la définition du litige (Document 1)." },
+    { t: "Les parties à un litige sont forcément des personnes physiques.", v: false, why: "Elles peuvent être physiques ou morales : une société peut être demandeur ou défendeur." },
+    { t: "Le juge peut accorder plus que ce qui lui est demandé.", v: false, why: "Le juge ne peut pas se prononcer sur ce qui n'a pas été demandé (Document 2)." },
+    { t: "Le demandeur est la personne qui prend l'initiative d'engager la procédure judiciaire.", v: true, why: "Son adversaire est le défendeur (Document 3)." },
+    { t: "Le défendeur est toujours celui qui a causé le dommage.", v: false, why: "Le défendeur est simplement l'adversaire du demandeur : on ne sait pas encore qui a raison." },
+    { t: "Un litige qui n'est pas réglé à l'amiable est soumis à un tribunal.", v: true, why: "Naissance du litige, tentative amiable, puis accord amiable OU saisine du juge (Document 4)." },
+    { t: "Le conciliateur de justice a pour mission de proposer une solution amiable au litige.", v: true, why: "On peut le solliciter avant tout recours à un juge (Document 4)." },
+    { t: "Avant de trancher, le juge doit en principe chercher à concilier les parties.", v: true, why: "C'est ce que prévoit l'article 21 du Code de procédure civile." },
+    { t: "Le problème juridique est la question de droit à laquelle le juge doit répondre.", v: true, why: "C'est l'un des éléments d'un litige (Document 2)." },
+    { t: "Les faits d'un litige se limitent à l'opinion des parties sur ce qui s'est passé.", v: false, why: "Les faits doivent être clairs et précis : dates, personnes impliquées, récit de ce qui s'est passé." },
+    { t: "Les moyens de droit sont les règles de droit que les parties utilisent pour appuyer leurs prétentions.", v: true, why: "C'est la définition du moyen de droit (Document 2)." },
+    { t: "Un accord amiable permet de mettre fin au litige sans passer par le juge.", v: true, why: "C'est le but de la tentative de résolution amiable (Document 4)." },
+    { t: "On ne peut saisir un juge qu'après avoir signé un accord amiable.", v: false, why: "C'est l'inverse : on tente d'abord l'amiable, et le juge est saisi si l'accord échoue." }
+  ];
+
+  /* ---------- Banque d'usagers (6 cas différents ; 2 sont tirés à chaque partie) ---------- */
+  var AMIABLE = "On essaie d'abord de se concilier. Si l'accord échoue, on saisit le juge compétent, qui doit lui aussi chercher à concilier les parties (article 21 du Code de procédure civile).";
+  var JUGE = "Quand la tentative de résolution amiable a échoué, le litige est soumis au juge compétent, qui le tranche.";
+  var PJ_WHY = "Le problème juridique est la question de droit posée au juge : elle relie les faits aux prétentions des parties, sans juger les personnes ni répéter un simple fait.";
+  var CASSATION = { t: "Saisir directement la Cour de cassation", ok: false, why: "La Cour de cassation intervient bien plus tard, après les juges du fond." };
+  function pj(ok, opinion, fait) {
+    return { ok: ok, bad: [{ t: opinion, why: "C'est un jugement de valeur sur une personne, pas une question de droit." }, { t: fait, why: "C'est un fait à établir, pas une question de droit." }], why: PJ_WHY };
+  }
+  function dem(opts, ok, why) { return { q: "Qui est le demandeur ?", opts: opts, ok: ok, why: why }; }
+
+  var CASES = [
+    { nom: "Inès", role: "Cliente d'un site de vente en ligne",
+      recit: ["Bonjour, j'ai acheté un téléphone sur internet et il est tombé en panne presque tout de suite.", "Le vendeur ne veut rien savoir. Je me sens vraiment arnaquée."],
+      qs: [
+        { q: "Que s'est-il passé exactement ?", r: "J'ai acheté un smartphone à 650 € sur le site de MobiShop le 12 mars. Dix jours plus tard, l'écran s'est mis à clignoter puis s'est éteint.", cell: "faits", fiche: "Smartphone à 650 € acheté le 12 mars ; écran en panne dix jours plus tard." },
+        { q: "Avez-vous prévenu le vendeur ?", r: "Oui, par message le 25 mars. Il m'a répondu que ma demande était refusée.", cell: "faits", fiche: "Vendeur prévenu le 25 mars ; demande refusée." },
+        { q: "Contre qui êtes-vous en désaccord ?", r: "Contre la société MobiShop, le vendeur. Moi, je suis la cliente.", cell: "parties", fiche: "Inès (cliente) et la société MobiShop (vendeur)." },
+        { q: "Que voulez-vous obtenir ?", r: "Le remboursement de mes 650 €, ou à défaut un téléphone neuf.", cell: "pretentions", fiche: "Inès demande le remboursement de 650 € ou un téléphone neuf." },
+        { q: "Que répond MobiShop ?", r: "Elle refuse. Elle dit que j'ai fait tomber le téléphone, donc que ce n'est pas un défaut.", cell: "pretentions", fiche: "MobiShop refuse : selon elle, la panne vient d'une chute." }
+      ],
+      pj: pj("Un vendeur doit-il rembourser ou remplacer un téléphone tombé en panne dix jours après l'achat ?", "MobiShop est-elle un vendeur honnête ?", "Inès a-t-elle acheté son téléphone le 12 mars ?"),
+      intro: "Inès décide de porter l'affaire en justice pour obtenir gain de cause.",
+      demandeur: dem(["Inès", "MobiShop", "Le conciliateur de justice"], 0, "Inès prend l'initiative de la procédure : c'est elle, la demanderesse. MobiShop, son adversaire, est la défenderesse. Le conciliateur n'est pas une partie."),
+      suite: { q: "Inès veut obtenir gain de cause. Quel est le bon réflexe en premier ?", opts: [
+        { t: "Tenter un accord amiable avec MobiShop, éventuellement avec un conciliateur de justice", ok: true },
+        { t: "Publier de très mauvais avis pour faire pression", ok: false, why: "Cela ne règle pas le litige et peut se retourner contre elle." },
+        CASSATION], why: AMIABLE } },
+
+    { nom: "Karim", role: "Salarié d'un garage",
+      recit: ["Bonjour, je travaille dans un garage depuis trois ans. Mon patron ne me paie pas toutes mes heures.", "J'ai déjà essayé d'en discuter avec lui, plusieurs fois. Ça ne mène à rien."],
+      qs: [
+        { q: "Que s'est-il passé ?", r: "Depuis janvier, je reste deux heures de plus chaque soir pour finir les réparations. Ces heures ne figurent pas sur mes bulletins de paie.", cell: "faits", fiche: "Depuis janvier, deux heures de plus chaque soir, absentes des bulletins de paie." },
+        { q: "Depuis combien de temps cela dure-t-il ?", r: "Cinq mois, de janvier à mai.", cell: "faits", fiche: "Situation depuis cinq mois (janvier à mai)." },
+        { q: "Qui est en face de vous ?", r: "Mon employeur, la société Garage Bernard. Moi, je suis son salarié.", cell: "parties", fiche: "Karim (salarié) et la société Garage Bernard (employeur)." },
+        { q: "Que voulez-vous obtenir ?", r: "Le paiement de mes heures supplémentaires, soit 1 800 €.", cell: "pretentions", fiche: "Karim demande le paiement de 1 800 € d'heures supplémentaires." },
+        { q: "Que répond votre employeur ?", r: "Il refuse : il dit qu'il ne m'a jamais demandé de rester plus tard.", cell: "pretentions", fiche: "L'employeur refuse : il dit n'avoir jamais demandé ces heures." }
+      ],
+      pj: pj("Un employeur doit-il payer des heures supplémentaires qu'il dit ne pas avoir demandées ?", "Le patron de Karim est-il un mauvais patron ?", "Karim reste-t-il deux heures de plus chaque soir ?"),
+      intro: "Faute d'accord après plusieurs discussions, Karim décide de saisir la justice.",
+      demandeur: dem(["Le Garage Bernard", "Karim", "L'inspecteur du travail"], 1, "Karim prend l'initiative de la procédure : il est demandeur. Son employeur, une personne morale, est le défendeur. L'inspecteur du travail n'est pas une partie à ce litige."),
+      suite: { q: "Karim a essayé plusieurs fois de s'entendre avec son employeur, sans résultat. Que peut-il faire maintenant ?", opts: [
+        { t: "Saisir le juge compétent pour qu'il tranche le litige", ok: true },
+        { t: "Arrêter de venir travailler sans prévenir", ok: false, why: "Quitter son poste sans prévenir peut lui être reproché : ce n'est pas une façon de résoudre le litige." },
+        { t: "Attendre sans rien faire que son patron change d'avis", ok: false, why: "Attendre ne règle pas le litige." }], why: JUGE } },
+
+    { nom: "M. Garnier", role: "Propriétaire d'un pavillon, convoqué par sa voisine",
+      recit: ["Bonjour, j'ai reçu un courrier du tribunal et je n'y comprends rien. C'est ma voisine qui réclame quelque chose !", "On vit côte à côte depuis vingt ans, et voilà."],
+      qs: [
+        { q: "Que s'est-il passé ?", r: "Ma haie de thuyas fait plus de deux mètres de haut. Elle donne de l'ombre sur le jardin de ma voisine depuis deux ans.", cell: "faits", fiche: "Haie de plus de deux mètres qui fait de l'ombre sur le jardin voisin depuis deux ans." },
+        { q: "Qu'avez-vous reçu exactement ?", r: "Une convocation du tribunal : ma voisine m'a assigné en justice il y a trois semaines.", cell: "faits", fiche: "Convocation du tribunal reçue : la voisine a engagé une procédure." },
+        { q: "Qui est en face de vous ?", r: "Ma voisine, Mme Petit. Moi, je suis M. Garnier, le propriétaire de la haie.", cell: "parties", fiche: "Mme Petit (voisine) et M. Garnier (propriétaire de la haie)." },
+        { q: "Que demande votre voisine ?", r: "Que je coupe la haie à deux mètres et que je lui verse 500 € pour la gêne.", cell: "pretentions", fiche: "Mme Petit demande la taille de la haie et 500 €." },
+        { q: "Et vous, que voulez-vous ?", r: "Que le juge refuse sa demande : la haie est là depuis vingt ans.", cell: "pretentions", fiche: "M. Garnier demande que le juge refuse : haie présente depuis vingt ans." }
+      ],
+      pj: pj("Un propriétaire peut-il être obligé de tailler sa haie et d'indemniser son voisin pour la gêne causée ?", "La haie de M. Garnier est-elle jolie ?", "M. Garnier a-t-il reçu une convocation du tribunal ?"),
+      intro: "M. Garnier vient de recevoir une convocation : une procédure est lancée contre lui.",
+      demandeur: dem(["M. Garnier", "Mme Petit", "Le tribunal"], 1, "Le demandeur est celui qui a pris l'initiative d'engager la procédure : ici Mme Petit. M. Garnier, convoqué, est le défendeur. L'usager que tu reçois n'est pas toujours le demandeur."),
+      suite: { q: "M. Garnier est convoqué, mais l'audience n'a pas encore eu lieu. Que peut-il encore tenter ?", opts: [
+        { t: "Proposer un accord amiable à sa voisine, avec l'aide d'un conciliateur si besoin", ok: true },
+        { t: "Ne pas se présenter en espérant que l'affaire disparaisse", ok: false, why: "Ne pas se présenter l'expose à une décision rendue sans qu'il ait pu s'expliquer." },
+        { t: "Couper la haie en pleine nuit sans rien dire", ok: false, why: "Cela ne règle pas la demande d'indemnisation et ne vaut pas accord entre les voisins." }],
+        why: "Même quand une procédure est lancée, un accord amiable reste possible. Le juge doit d'ailleurs en principe chercher à concilier les parties (article 21 du Code de procédure civile)." } },
+
+    { nom: "Samia", role: "A prêté de l'argent à un ami",
+      recit: ["Bonjour, j'ai prêté de l'argent à un ami et il ne me le rend pas.", "Je tiens à notre amitié, mais là, ça devient trop."],
+      qs: [
+        { q: "Que s'est-il passé ?", r: "En février, j'ai remis 2 000 € à mon ami Yanis pour acheter une voiture. Il devait me les rendre en août.", cell: "faits", fiche: "2 000 € remis en février à Yanis ; remboursement attendu en août." },
+        { q: "Qu'a fait Yanis depuis ?", r: "Rien. Nous sommes en novembre et je n'ai pas reçu un euro.", cell: "faits", fiche: "Aucun remboursement reçu en novembre." },
+        { q: "Qui est en face de vous ?", r: "Yanis, mon ami. Nous sommes deux particuliers.", cell: "parties", fiche: "Samia et Yanis (deux particuliers)." },
+        { q: "Que voulez-vous ?", r: "Qu'il me rende les 2 000 €.", cell: "pretentions", fiche: "Samia demande la restitution des 2 000 €." },
+        { q: "Que dit Yanis ?", r: "Il dit que c'était un cadeau, pas un prêt.", cell: "pretentions", fiche: "Yanis soutient qu'il s'agissait d'un cadeau." }
+      ],
+      pj: pj("Une personne doit-elle rendre une somme reçue quand l'une parle d'un prêt et l'autre d'un cadeau ?", "Yanis est-il un mauvais ami ?", "Samia a-t-elle remis 2 000 € en février ?"),
+      intro: "Samia décide d'agir en justice pour récupérer son argent.",
+      demandeur: dem(["Yanis", "Samia", "Un témoin de la remise d'argent"], 1, "Samia prend l'initiative de la procédure : elle est demanderesse, Yanis est défendeur. Un témoin n'est pas une partie : il raconte ce qu'il a vu."),
+      suite: { q: "Samia tient à son amitié avec Yanis. Quelle démarche choisir d'abord ?", opts: [
+        { t: "Chercher un accord amiable, par exemple avec un médiateur ou un conciliateur", ok: true },
+        { t: "Lui envoyer des messages menaçants sur les réseaux sociaux", ok: false, why: "Menacer ne résout pas le litige et peut se retourner contre elle." },
+        CASSATION], why: AMIABLE } },
+
+    { nom: "Hugo", role: "Passager d'un vol annulé",
+      recit: ["Bonjour, ma compagnie aérienne a annulé mon vol et refuse de me rembourser.", "J'ai déjà écrit trois fois. On me répond toujours la même chose."],
+      qs: [
+        { q: "Que s'est-il passé ?", r: "J'avais réservé un vol Paris–Lisbonne pour le 4 juillet, 380 € le billet. Le vol a été annulé la veille.", cell: "faits", fiche: "Billet Paris–Lisbonne à 380 € pour le 4 juillet ; vol annulé la veille." },
+        { q: "Comment avez-vous été prévenu ?", r: "Par un SMS la veille au soir, sans aucune solution de remplacement.", cell: "faits", fiche: "Prévenu par SMS la veille, sans solution de remplacement." },
+        { q: "Contre qui êtes-vous en désaccord ?", r: "Contre AirNova, la compagnie aérienne. Moi, je suis le passager.", cell: "parties", fiche: "Hugo (passager) et la société AirNova (compagnie aérienne)." },
+        { q: "Que voulez-vous obtenir ?", r: "Le remboursement de mon billet et une indemnité.", cell: "pretentions", fiche: "Hugo demande le remboursement du billet et une indemnité." },
+        { q: "Que répond AirNova ?", r: "Elle propose seulement un bon d'achat et refuse tout remboursement.", cell: "pretentions", fiche: "AirNova propose un simple bon d'achat et refuse le remboursement." }
+      ],
+      pj: pj("Une compagnie aérienne doit-elle rembourser et indemniser un passager dont le vol est annulé la veille ?", "AirNova est-elle la pire des compagnies ?", "Le billet d'Hugo coûtait-il 380 € ?"),
+      intro: "Hugo a épuisé les démarches amiables et décide de saisir la justice.",
+      demandeur: dem(["AirNova", "Hugo", "Le juge"], 1, "Hugo prend l'initiative de la procédure : il est demandeur. AirNova, personne morale, est la défenderesse. Le juge n'est pas une partie : il tranche."),
+      suite: { q: "Hugo a écrit trois fois à AirNova sans obtenir satisfaction. Que peut-il faire ?", opts: [
+        { t: "Saisir le juge compétent pour qu'il tranche le litige", ok: true },
+        { t: "Aller à l'aéroport exiger de force une place dans un avion", ok: false, why: "On ne se fait pas justice soi-même : seul un juge peut contraindre." },
+        { t: "Attendre sans rien faire que la compagnie change d'avis", ok: false, why: "Attendre ne règle pas le litige." }], why: JUGE } },
+
+    { nom: "Mme Lambert", role: "Gérante de la société FruiPro",
+      recit: ["Bonjour, je dirige FruiPro, un grossiste en fruits et légumes. Un restaurateur ne nous a toujours pas payés.", "Je veux récupérer mon argent, et vite."],
+      qs: [
+        { q: "Que s'est-il passé ?", r: "Fin mai, nous avons livré pour 1 200 € de fruits et légumes au restaurant de M. Roche. Il ne nous a pas payés.", cell: "faits", fiche: "Livraison de 1 200 € de fruits et légumes fin mai ; facture non payée." },
+        { q: "Quand le paiement était-il attendu ?", r: "À l'échéance de la facture, en juillet. Nous sommes bien après.", cell: "faits", fiche: "Paiement attendu en juillet ; toujours impayé." },
+        { q: "Qui est la personne en face de vous ?", r: "M. Roche, le restaurateur. Moi, je représente la société FruiPro.", cell: "parties", fiche: "FruiPro (société) et M. Roche (restaurateur)." },
+        { q: "Que voulez-vous obtenir ?", r: "Le paiement des 1 200 € et des intérêts de retard.", cell: "pretentions", fiche: "FruiPro demande 1 200 € et des intérêts de retard." },
+        { q: "Que répond M. Roche ?", r: "Il ne veut rien payer : selon lui, une partie de la marchandise était abîmée.", cell: "pretentions", fiche: "M. Roche demande à ne rien payer (marchandise selon lui abîmée)." }
+      ],
+      pj: pj("Un client doit-il payer le prix convenu quand il dit que la marchandise livrée était abîmée ?", "M. Roche est-il un client honnête ?", "FruiPro a-t-elle livré les fruits et légumes fin mai ?"),
+      intro: "FruiPro engage une procédure judiciaire pour obtenir le paiement de sa facture.",
+      demandeur: dem(["M. Roche", "FruiPro", "Le conciliateur de justice"], 1, "FruiPro prend l'initiative de la procédure : c'est le demandeur, même si c'est une personne morale. M. Roche est le défendeur. Le conciliateur n'est pas une partie."),
+      suite: { q: "FruiPro veut récupérer son argent. Quelle est la première démarche logique ?", opts: [
+        { t: "Chercher un accord amiable avec M. Roche, avec l'aide d'un conciliateur si besoin", ok: true },
+        { t: "Aller reprendre la marchandise de force au restaurant", ok: false, why: "On ne se fait pas justice soi-même : seul un juge peut contraindre." },
+        { t: "Saisir tout de suite un tribunal, sans rien tenter d'autre", ok: false, why: "Le juge reste possible, mais en principe on tente d'abord de se concilier." }], why: AMIABLE } }
+  ];
+
+  /* Questions sans effet sur le dossier : la règle de droit est toujours là, deux autres sont tirées au hasard */
+  var REGLE = { q: "Quelle règle de droit s'applique ?", r: "Aucune idée, je ne suis pas juriste ! C'est à vous de me le dire.", why: "Le moyen de droit n'est pas fourni par l'usager : c'est au greffier ou à l'avocat de l'identifier à partir du récit." };
+  var GENERIC = [
+    { q: "Quel âge avez-vous ?", r: "Mon âge ? Je ne vois pas le rapport avec mon affaire.", why: "L'âge ne change rien au litige : ce n'est ni un fait utile, ni une demande." },
+    { q: "Avez-vous une bonne opinion de l'autre personne ?", r: "Pas vraiment, mais ça change quoi ?", why: "Un avis personnel n'est pas un fait juridique : le juge ne tranche pas sur la sympathie." },
+    { q: "Êtes-vous déjà allé au tribunal ?", r: "Jamais, mais ce n'est pas la question.", why: "Votre expérience personnelle de la justice n'est pas un élément du litige." },
+    { q: "Avez-vous des enfants ?", r: "Oui, mais ça n'a rien à voir avec cette histoire.", why: "La situation familiale n'a pas d'effet sur ce litige." }
+  ];
+
+  var CLS = "1STMG1";
+  function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* stockage indisponible */ } }
+
+  /* ---------- Outils ---------- */
+  var app = document.getElementById("app");
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function ordinal(n) { return n === 1 ? "1ᵉʳ" : n + "ᵉ"; }
+  function mmss(s) { return ("0" + Math.floor(s / 60)).slice(-2) + ":" + ("0" + (s % 60)).slice(-2); }
+  function f1(n) { return n.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+  var S = null, timer = null, shown = 0, anim = null;
+
+  function total() { return Math.min(10, S.tri + S.q + S.pj + S.dem + S.suite + S.vf + S.speed); }
+
+  /* La note affichée glisse vers sa nouvelle valeur */
+  function paintNote(v) {
+    var n = document.getElementById("note"), b = document.getElementById("notebar"), w = document.getElementById("notebarwrap");
+    if (n) n.textContent = f1(v);
+    if (b) b.style.width = Math.max(0, Math.min(100, v * 10)) + "%";
+    if (w) w.setAttribute("aria-valuenow", v.toFixed(1));
+  }
+  function updateNote() {
+    var target = total(), from = shown;
+    if (anim) cancelAnimationFrame(anim);
+    if (reduce || Math.abs(target - from) < 0.005) { shown = target; paintNote(shown); return; }
+    var t0 = performance.now(), dur = 500;
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      shown = from + (target - from) * e; paintNote(shown);
+      if (k < 1) anim = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  function consigne(title, html) { return '<div class="consigne"><span class="eyebrow">' + esc(title) + '</span>' + html + '</div>'; }
+  function choices(list, cls) { return '<div class="' + (cls || "opts") + '">' + list.map(function (o, i) { return '<button class="opt" type="button" data-i="' + i + '"><b>' + esc(o.t) + '</b>' + (o.h ? '<small class="note">' + esc(o.h) + '</small>' : "") + '</button>'; }).join("") + '</div>'; }
+
+  /* En-tête commun : manche, note provisoire, barre, temps */
+  function header(manche, title, sub, step, withTimer) {
+    return '<div class="top"><div><p class="eyebrow">Manche ' + (manche + 1) + ' sur ' + MANCHES.length + ' · ' + esc(MANCHES[manche].t) + '</p><h2>' + esc(title) + '</h2>' + (sub ? '<p class="note">' + esc(sub) + '</p>' : '') + '</div>' +
+      '<div class="notebox"><span>Note provisoire</span><b id="note">' + f1(shown) + '</b><small>/ 10</small></div></div>' +
+      '<div class="bar" id="notebarwrap" role="progressbar" aria-label="Note provisoire sur 10" aria-valuemin="0" aria-valuemax="10" aria-valuenow="' + shown.toFixed(1) + '"><i id="notebar" style="width:' + Math.round(shown * 10) + '%"></i></div>' +
+      '<div class="meta"><span>' + esc(step) + '</span>' + (withTimer ? '<span>Temps <b id="chrono">' + mmss(Math.round((Date.now() - S.t0) / 1000)) + '</b></span>' : '') + '</div>';
+  }
+  function startClock() {
+    S.t0 = Date.now(); clearInterval(timer);
+    timer = setInterval(function () { var c = document.getElementById("chrono"); if (c) c.textContent = mmss(Math.round((Date.now() - S.t0) / 1000)); }, 1000);
+  }
+  /* Rapidité de la manche : points pleins sous la référence, dégressifs jusqu'au double */
+  function endClock(k) {
+    var sec = Math.round((Date.now() - S.t0) / 1000), sp = SPEED[k] * Math.max(0, Math.min(1, 1 - Math.max(0, sec - REF[k]) / REF[k]));
+    S.speed += sp; S.spk[k] = sp; clearInterval(timer);
+    return "Manche bouclée en " + mmss(sec) + " : rapidité +" + f1(sp) + " sur " + f1(SPEED[k]) + ".";
+  }
+
+  /* Boutons à choix unique : corrige, met à jour la note, affiche le retour */
+  function wireChoice(opts, onPick) {
+    var btns = app.querySelectorAll(".opt");
+    Array.prototype.forEach.call(btns, function (b) {
+      b.onclick = function () {
+        var o = opts[+b.getAttribute("data-i")];
+        Array.prototype.forEach.call(btns, function (x, i) { x.disabled = true; if (opts[i].ok) x.classList.add("good"); });
+        if (!o.ok) b.classList.add("bad");
+        var r = onPick(o); updateNote();
+        document.getElementById("fb").innerHTML = '<div class="stack"><div class="fb ' + (r.ok ? "good" : "bad") + '"><strong>' + esc(r.title) + '</strong>' + esc(r.why) + '</div><button class="btn" type="button" id="next">' + esc(r.label) + '</button></div>';
+        var nb = document.getElementById("next"); nb.onclick = r.next; nb.focus();
+      };
+    });
+  }
+
+  /* ---------- Accueil ---------- */
+  function renderStart() {
+    clearInterval(timer);
+    app.innerHTML =
+      '<div class="stack">' +
+      '<p class="back"><a href="../index.html">Tous les jeux</a></p>' +
+      '<div><p class="eyebrow">Droit · Chapitre 3 · I) Identifier les éléments d\'un litige</p><h1>Le Greffier</h1></div>' +
+      '<p class="lead">Tu travailles au <span class="hl">greffe du tribunal</span>. Pour réussir, il faut savoir lire un litige comme un professionnel : repérer ses éléments, reconstituer un dossier, connaître les règles du jeu.</p>' +
+      consigne("Trois manches, une seule note sur 10",
+        '<ul><li><b>Manche 1, le tri.</b> Tu classes les phrases d\'un dossier dans la bonne case.</li>' +
+        '<li><b>Manche 2, le guichet.</b> Un usager te raconte son histoire : tu poses les bonnes questions, tu formules le problème juridique, tu désignes le demandeur et la bonne suite.</li>' +
+        '<li><b>Manche 3, vrai ou faux du juge.</b> Huit affirmations de cours à trancher.</li></ul>' +
+        '<p style="margin-top:8px">Ta note évolue à chaque réponse : 8 points pour l\'exactitude, 2 points pour la rapidité. La note est arrondie à la fin. Compte 12 à 15 minutes.</p>') +
+      '<div class="field"><label for="nm">Prénom et initiale du nom</label><input id="nm" maxlength="24" autocomplete="off" placeholder="Camille D." value="' + esc(lsGet("gr-name")) + '"></div><p class="note" id="nmerr" role="alert"></p>' +
+      '<button class="btn" id="go" type="button">Commencer</button>' +
+      '</div>';
+    document.getElementById("go").onclick = function () {
+      var n = document.getElementById("nm").value.replace(/\s+/g, " ").trim().slice(0, 30);
+      if (n.length < 2) { document.getElementById("nmerr").textContent = "Écris ton prénom et l'initiale de ton nom, par exemple Camille D."; return; }
+      lsSet("gr-name", n); newGame(n);
+    };
+  }
+
+  function newGame(name) {
+    var vf = shuffle(VFS.filter(function (x) { return !x.v; })).slice(0, 3).concat(shuffle(VFS.filter(function (x) { return x.v; })).slice(0, NB_VF - 3));
+    S = { name: name, dossier: shuffle(TRIS)[0], v: shuffle(CASES)[0], vfs: shuffle(vf),
+      tri: 0, q: 0, pj: 0, dem: 0, suite: 0, vf: 0, speed: 0, spk: {}, misses: [],
+      stat: { tri: 0, qOk: 0, pj: 0, dem: 0, suite: 0, vf: 0 } };
+    shown = 0; renderIntro(0);
+  }
+
+  /* ---------- Écrans d'introduction de chaque manche ---------- */
+  function renderIntro(k) {
+    var title, sub, body;
+    if (k === 0) {
+      title = S.dossier.titre; sub = "Dossier à classer";
+      body = consigne("Ta mission",
+        '<p>Un dossier de litige est découpé en <b>7 phrases</b>. Pour chacune, choisis la case où elle va. Il faut connaître les cinq éléments d\'un litige :</p>' +
+        '<dl class="gloss">' +
+        '<div><dt>Les faits</dt><dd>Ce qui s\'est passé, de façon claire et précise (dates, personnes).</dd></div>' +
+        '<div><dt>Les parties</dt><dd>Les personnes engagées dans le procès (physiques ou morales).</dd></div>' +
+        '<div><dt>Le moyen de droit</dt><dd>La règle de droit sur laquelle une partie s\'appuie.</dd></div>' +
+        '<div><dt>Les prétentions</dt><dd>Ce que chacun réclame : la demande et la défense en réponse.</dd></div>' +
+        '<div><dt>Le problème juridique</dt><dd>La question de droit à laquelle le juge doit répondre.</dd></div></dl>' +
+        '<p style="margin-top:8px">Une bonne réponse rapporte ' + f1(TRI_EACH) + ' point. Référence de temps : 30 secondes par phrase.</p>');
+    } else if (k === 1) {
+      title = S.v.nom; sub = S.v.role;
+      body = consigne("Ta mission",
+        '<p>Un usager se présente au guichet et raconte son histoire en vrac. Tu dois <b>reconstituer son dossier</b>.</p>' +
+        '<ul><li><b>Temps 1.</b> Tu poses ' + MAX_Q + ' questions parmi 8 pour remplir la fiche : les faits, les parties, les prétentions. Certaines questions n\'apportent rien au dossier : elles te coûtent quand même un essai.</li>' +
+        '<li><b>Temps 2.</b> Tu formules le problème juridique.</li>' +
+        '<li><b>Temps 3.</b> Tu désignes le demandeur, puis tu choisis la bonne suite à donner.</li></ul>' +
+        '<p style="margin-top:8px">Référence de temps : 30 secondes par réponse.</p>');
+    } else {
+      title = "Vrai ou faux du juge"; sub = "Huit affirmations de cours";
+      body = consigne("Ta mission",
+        '<p>Une affirmation s\'affiche. Dis si elle est <b>vraie</b> ou <b>fausse</b>, d\'après ton cours. Chaque bonne réponse rapporte ' + f1(VF_EACH) + ' point, et la correction t\'explique à chaque fois.</p>' +
+        '<p>Référence de temps : 20 secondes par affirmation. Au moins trois affirmations sont fausses.</p>');
+    }
+    app.innerHTML = header(k, title, sub, "Prêt ?", false) +
+      '<div class="stack" style="margin-top:14px">' + body + '<button class="btn" id="start" type="button">' + (k === 0 ? "Commencer le tri" : k === 1 ? "Ouvrir le guichet" : "Commencer") + '</button></div>';
+    var b = document.getElementById("start"); b.focus();
+    b.onclick = function () { startClock(); if (k === 0) { S.si = 0; S.sent = shuffle(S.dossier.sentences); renderSentence(); } else if (k === 1) { S.asked = []; renderGuichet(); } else { S.vi = 0; renderVF(); } };
+  }
+
+  /* ---------- Manche 1 : le tri ---------- */
+  function renderSentence() {
+    var s = S.sent[S.si], n = S.sent.length;
+    var opts = CATS.map(function (c) { return { t: c.l, h: c.h, id: c.id, ok: c.id === s.c }; });
+    app.innerHTML = header(0, S.dossier.titre, "Phrase " + (S.si + 1) + " sur " + n, "Dans quelle case classes-tu cette phrase ?", true) +
+      '<div class="stack" style="margin-top:14px"><blockquote class="quote">' + esc(s.t) + '</blockquote>' + choices(opts) + '<div id="fb"></div></div>';
+    wireChoice(opts, function (o) {
+      var last = S.si + 1 >= n;
+      if (o.ok) { S.tri += TRI_EACH; S.stat.tri++; } else S.misses.push({ t: "Tri : « " + s.t + " »", why: "Bonne case : " + CATNAME[s.c] + ". " + s.why });
+      var line = last ? " " + endClock("tri") : "";
+      return { ok: o.ok, title: (o.ok ? "Bien classé, +" + f1(TRI_EACH) + "." : "Pas tout à fait. Bonne case : " + CATNAME[s.c] + ".") + line, why: s.why,
+        label: last ? "Manche suivante : le guichet" : "Phrase suivante",
+        next: function () { S.si++; if (S.si < n) renderSentence(); else renderIntro(1); } };
+    });
+  }
+
+  /* ---------- Manche 2 : le guichet ---------- */
+  function ficheHTML() {
+    return '<dl class="fiche">' + FICHE.map(function (c) {
+      var got = S.asked.filter(function (q) { return q.cell === c.id; });
+      return '<div class="fiche-row"><dt>' + c.l + '<small>' + c.h + '</small></dt><dd class="' + (got.length ? "full" : "") + '">' + (got.length ? got.map(function (q) { return esc(q.fiche); }).join(" ") : "À remplir") + '</dd></div>';
+    }).join("") + '</dl>';
+  }
+
+  function renderGuichet() {
+    var v = S.v, qs = shuffle(v.qs.concat([REGLE], shuffle(GENERIC).slice(0, 2)));
+    app.innerHTML = header(1, v.nom, v.role, "Temps 1 sur 3 · l'interview", true) +
+      '<div class="stack" style="margin-top:14px">' +
+      v.recit.map(function (t, i) { return '<div class="bubble">' + (i === 0 ? '<span class="who">' + esc(v.nom) + '</span>' : '') + esc(t) + '</div>'; }).join("") +
+      '<div class="card"><h3 style="margin-bottom:10px">Fiche du dossier</h3><div id="fiche">' + ficheHTML() + '</div></div>' +
+      '<div><p class="eyebrow" id="qcount">Questions posées : 0 sur ' + MAX_Q + '</p>' +
+      '<div class="opts" id="opts" style="margin-top:8px">' + qs.map(function (q, i) { return '<button class="opt" type="button" data-i="' + i + '"><b>' + esc(q.q) + '</b></button>'; }).join("") + '</div></div>' +
+      '<div id="after"></div></div>';
+    var btns = app.querySelectorAll(".opt");
+    Array.prototype.forEach.call(btns, function (b) {
+      b.onclick = function () {
+        var q = qs[+b.getAttribute("data-i")], useful = !!q.cell;
+        b.disabled = true; S.asked.push(q);
+        b.classList.add(useful ? "good" : "bad");
+        b.insertAdjacentHTML("beforeend", '<span class="rep">« ' + esc(q.r) + ' »</span><span class="verdict">' + (useful ? "Utile : la fiche est complétée (+" + f1(PTS.q) + ")" : "Inutile, un essai perdu. " + esc(q.why)) + '</span>');
+        if (useful) { S.q += PTS.q; S.stat.qOk++; } else S.misses.push({ t: "Question inutile : « " + q.q + " »", why: q.why });
+        updateNote();
+        document.getElementById("fiche").innerHTML = ficheHTML();
+        document.getElementById("qcount").textContent = "Questions posées : " + S.asked.length + " sur " + MAX_Q;
+        if (S.asked.length >= MAX_Q) endInterview(btns, qs);
+      };
+    });
+  }
+
+  function endInterview(btns, qs) {
+    Array.prototype.forEach.call(btns, function (x) { x.disabled = true; });
+    qs.forEach(function (q) { if (q.cell && S.asked.indexOf(q) < 0) S.misses.push({ t: "Question utile oubliée : « " + q.q + " »", why: "Elle aurait complété « " + FICHE.filter(function (c) { return c.id === q.cell; })[0].l + " » : " + q.fiche }); });
+    document.getElementById("after").innerHTML = '<div class="fb good"><strong>Interview terminée.</strong>Tu as posé tes ' + MAX_Q + ' questions. Relis ta fiche, puis passe à la question posée au juge.</div><button class="btn" id="tojp" type="button" style="margin-top:12px">Formuler le problème juridique</button>';
+    var b = document.getElementById("tojp"); b.onclick = renderPJ; b.focus();
+  }
+
+  function renderPJ() {
+    var p = S.v.pj, opts = shuffle([{ t: p.ok, ok: true }].concat(p.bad.map(function (b) { return { t: b.t, ok: false, why: b.why }; })));
+    app.innerHTML = header(1, S.v.nom, S.v.role, "Temps 2 sur 3 · le problème juridique", true) +
+      '<div class="stack" style="margin-top:14px">' +
+      consigne("Ta mission", '<p>Le <b>problème juridique</b> est la question de droit que le juge devra trancher. Il ne dit pas qui a raison, il ne juge pas les personnes et il ne répète pas un simple fait.</p><p>Relis la fiche, puis choisis la formulation qui relie les faits aux demandes de chacun.</p>') +
+      '<div class="card"><h3 style="margin-bottom:10px">Fiche du dossier</h3>' + ficheHTML() + '</div>' +
+      '<h3>Quelle est la question de droit posée au juge ?</h3>' + choices(opts) + '<div id="fb"></div></div>';
+    wireChoice(opts, function (o) {
+      if (o.ok) { S.pj += PTS.pj; S.stat.pj++; } else S.misses.push({ t: "Problème juridique : " + S.v.nom, why: o.why + " " + p.why });
+      return { ok: o.ok, title: o.ok ? "Bien formulé, +" + f1(PTS.pj) + "." : "Pas tout à fait.", why: o.ok ? p.why : (o.why + " " + p.why), label: "Passer au demandeur", next: renderDem };
+    });
+  }
+
+  function renderDem() {
+    var d = S.v.demandeur, opts = shuffle(d.opts.map(function (t, i) { return { t: t, ok: i === d.ok }; }));
+    app.innerHTML = header(1, S.v.nom, S.v.role, "Temps 3 sur 3 · le demandeur", true) +
+      '<div class="stack" style="margin-top:14px">' +
+      consigne("Ta mission", '<p>Le <b>demandeur</b> est la personne qui prend l\'initiative d\'engager la procédure judiciaire. Son adversaire est le <b>défendeur</b>.</p><p>Attention : l\'usager que tu reçois n\'est pas toujours le demandeur.</p>') +
+      '<blockquote class="quote">' + esc(S.v.intro) + '</blockquote><h3>' + esc(d.q) + '</h3>' + choices(opts) + '<div id="fb"></div></div>';
+    wireChoice(opts, function (o) {
+      if (o.ok) { S.dem += PTS.dem; S.stat.dem++; } else S.misses.push({ t: "Demandeur : " + S.v.nom, why: d.why });
+      return { ok: o.ok, title: o.ok ? "Exact, +" + f1(PTS.dem) + "." : "Pas tout à fait.", why: d.why, label: "Quelle suite donner ?", next: renderSuite };
+    });
+  }
+
+  function renderSuite() {
+    var q = S.v.suite, opts = shuffle(q.opts);
+    app.innerHTML = header(1, S.v.nom, S.v.role, "Temps 3 sur 3 · la bonne suite", true) +
+      '<div class="stack" style="margin-top:14px">' +
+      consigne("Ta mission", '<p>Choisis la démarche la mieux adaptée à la situation décrite.</p><details class="rappel"><summary>Rappel du cours</summary><p>Naissance d\'un litige, puis tentative de résolution amiable, puis accord amiable OU saisine du juge compétent.</p></details>') +
+      '<h3>' + esc(q.q) + '</h3>' + choices(opts) + '<div id="fb"></div></div>';
+    wireChoice(opts, function (o) {
+      if (o.ok) { S.suite += PTS.suite; S.stat.suite++; } else S.misses.push({ t: "Suite à donner : " + S.v.nom, why: (o.why ? o.why + " " : "") + q.why });
+      return { ok: o.ok, title: (o.ok ? "Bien vu, +" + f1(PTS.suite) + ". " : "Pas tout à fait. ") + endClock("guichet"),
+        why: o.ok ? q.why : ((o.why ? o.why + " " : "") + q.why), label: "Manche suivante : vrai ou faux", next: function () { renderIntro(2); } };
+    });
+  }
+
+  /* ---------- Manche 3 : vrai ou faux ---------- */
+  function renderVF() {
+    var x = S.vfs[S.vi], n = S.vfs.length;
+    var opts = [{ t: "Vrai", ok: x.v === true }, { t: "Faux", ok: x.v === false }];
+    app.innerHTML = header(2, "Vrai ou faux du juge", "Affirmation " + (S.vi + 1) + " sur " + n, "Que dit ton cours ?", true) +
+      '<div class="stack" style="margin-top:14px"><blockquote class="quote">' + esc(x.t) + '</blockquote>' + choices(opts, "opts vf") + '<div id="fb"></div></div>';
+    wireChoice(opts, function (o) {
+      var last = S.vi + 1 >= n;
+      if (o.ok) { S.vf += VF_EACH; S.stat.vf++; } else S.misses.push({ t: "Vrai ou faux : « " + x.t + " »", why: "C'était " + (x.v ? "vrai" : "faux") + ". " + x.why });
+      return { ok: o.ok, title: (o.ok ? "Exact, +" + f1(VF_EACH) + ". " : "Pas tout à fait : c'était " + (x.v ? "vrai" : "faux") + ". ") + (last ? endClock("vf") : ""), why: x.why,
+        label: last ? "Voir ma note" : "Affirmation suivante", next: function () { S.vi++; if (S.vi < n) renderVF(); else renderEnd(); } };
+    });
+  }
+
+  /* ---------- Fin ---------- */
+  function renderEnd() {
+    var exact = total(), final = Math.round(exact), tenths = Math.round(exact * 10);
+    app.innerHTML =
+      '<div class="stack">' +
+      '<div><p class="eyebrow">Fin de la partie</p><h2>Greffe fermé</h2></div>' +
+      '<div><p class="pts">' + final + '<small> / 10</small></p><p class="note">Soit ' + f1(exact) + ' avant arrondi.</p></div>' +
+      '<div class="sum">' +
+      '<div><span>Manche 1 · tri</span><b>' + S.stat.tri + ' / 7</b></div>' +
+      '<div><span>Manche 2 · questions utiles</span><b>' + S.stat.qOk + ' / ' + MAX_Q + '</b></div>' +
+      '<div><span>Manche 2 · problème, demandeur, suite</span><b>' + (S.stat.pj + S.stat.dem + S.stat.suite) + ' / 3</b></div>' +
+      '<div><span>Manche 3 · vrai ou faux</span><b>' + S.stat.vf + ' / ' + NB_VF + '</b></div>' +
+      '<div><span>Rapidité</span><b>' + f1(S.speed) + ' / 2,0</b></div></div>' +
+      '<div id="board" class="card"><p class="board-wait">Enregistrement de ta note…</p></div>' +
+      '<div><h3>' + (S.misses.length ? "À revoir (" + S.misses.length + ")" : "À revoir") + '</h3><div class="review" style="margin-top:8px">' +
+      (S.misses.length ? S.misses.map(function (m) { return '<div class="miss"><b>' + esc(m.t) + '</b>' + esc(m.why) + '</div>'; }).join("") : '<p class="note">Aucune erreur. Rejoue pour rencontrer un autre usager et d\'autres affirmations.</p>') +
+      '</div></div>' +
+      '<button class="btn" id="again" type="button">Rejouer</button>' +
+      '<p class="back"><a href="../index.html">Tous les jeux</a></p></div>';
+    document.getElementById("again").onclick = renderStart;
+    var box = document.getElementById("board");
+    if (!(window.MesJeux && MesJeux.ready())) { box.innerHTML = '<p class="note">Le classement n\'est pas encore branché.</p>'; return; }
+    var details = { cls: CLS, note: Math.round(exact * 100) / 100, tri: S.stat.tri, q: S.stat.qOk, guichet: S.stat.pj + S.stat.dem + S.stat.suite, vf: S.stat.vf, speed: Math.round(S.speed * 100) / 100 };
+    MesJeux.save("greffier", S.name, tenths, details).then(function (r) {
+      if (!r.ok) { box.innerHTML = '<p class="note">Ta note n\'a pas pu être envoyée. Elle est gardée sur cet appareil et sera envoyée dès que la connexion revient.</p>'; return; }
+      return MesJeux.list("greffier", 1000).then(function (rows) { drawBoard(box, rows, tenths); },
+        function () { box.innerHTML = '<p class="note">Ta note est enregistrée, mais le classement n\'a pas pu être lu.</p>'; });
+    });
+  }
+
+  /* Classement : toutes les parties, meilleures notes d'abord ; la partie qui vient d'être jouée est surlignée */
+  function drawBoard(box, rows, tenths) {
+    rows = rows.filter(function (r) { return ((r.details || {}).cls || CLS) === CLS; });
+    var mine = -1, last = "";
+    rows.forEach(function (r, i) { if (r.player === S.name && Math.round(r.score) === tenths && String(r.created_at) >= last) { mine = i; last = String(r.created_at); } });
+    var t = "";
+    if (mine >= 0) {
+      t = "Tu es " + ordinal(mine + 1) + " sur " + rows.length + " partie" + (rows.length > 1 ? "s" : "") + " (" + CLS + ").";
+      if (mine === 0) t += " Tu es en tête du classement !";
+      else { var d = (rows[mine - 1].score - tenths) / 10; t += d > 0.04 ? " " + rows[mine - 1].player + " est devant toi de " + f1(d) + " point" + (d >= 1.5 ? "s" : "") + "." : " Égalité avec " + rows[mine - 1].player + ", arrivé avant toi."; }
+    }
+    var show = rows.slice(0, 10), h = "";
+    if (mine > 9) show.push(rows[mine]);
+    h = '<h3>Classement ' + esc(CLS) + '</h3>' + (t ? '<p class="place"><b>Ta note : ' + Math.round(tenths / 10) + ' sur 10.</b> ' + esc(t) + '</p>' : "") +
+      '<div class="tablewrap"><table><thead><tr><th class="rk">#</th><th>Joueur</th><th class="num">Note</th></tr></thead><tbody>' +
+      show.map(function (r) { var k = rows.indexOf(r); return '<tr class="' + (k === mine ? "me" : "") + '"><td class="rk">' + (k + 1) + '</td><td>' + esc(r.player) + '</td><td class="num">' + f1(r.score / 10) + '</td></tr>'; }).join("") +
+      '</tbody></table></div>';
+    box.innerHTML = h;
+  }
+
+  renderStart();
+})();
+</script>
+</body></html>

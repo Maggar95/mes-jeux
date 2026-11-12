@@ -12,6 +12,22 @@ window.MESJEUX_SECTIONS = [
 
 window.MESJEUX_GAMES = [
   {
+    id: "greffier",
+    section: "premiere",
+    title: "Le Greffier",
+    file: "jeux/greffier.html",
+    codeHash: "67277866c0d06705a34badb4b09bbda7f2dd8f779c40ed3edb2f115dbb60bc29",
+    blurb: "Tu travailles au greffe du tribunal : trie les éléments d'un litige, reçois un usager au guichet, puis tranche des vrai ou faux. Une note sur 10 qui évolue à chaque réponse, rapidité comprise.",
+    scoreLabel: "Note",
+    unit: " / 10",
+    bg: "#1b2a8a", fg: "#ffe45c",
+    fmt: function (s) { return (s / 10).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); },   /* le score est stocké en dixièmes de point */
+    detail: function (r) {
+      var d = r.details || {};
+      return d.tri == null ? "" : "tri " + d.tri + "/7 · guichet " + d.guichet + "/3 + " + d.q + "/5 · vrai ou faux " + d.vf + "/8";
+    }
+  },
+  {
     id: "franchise",
     section: "bts",
     title: "Le Franchisé",
