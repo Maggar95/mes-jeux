@@ -18,6 +18,7 @@
   --good: #46d39a;
   --bad: #ff7a7a;
   --focus: #7fb2ff;
+  --secret: #b88cff; --secret-soft: #2c2158; --region: #1a2859; --ghost: #3b4a85;
   --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
   --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
 }
@@ -26,12 +27,14 @@
     color-scheme: light;
     --bg: #edf0f8; --panel: #ffffff; --panel2: #f1f4fb; --fg: #101a3b; --muted: #56618a;
     --line: #cfd6ea; --accent-ink: #8a5b00; --good: #0c7a53; --bad: #b83232; --focus: #1b5fd6;
+    --secret: #7b3fc4; --secret-soft: #ece2fb; --region: #e4e9f6; --ghost: #b9c2dc;
   }
 }
 :root[data-theme="light"] {
   color-scheme: light;
   --bg: #edf0f8; --panel: #ffffff; --panel2: #f1f4fb; --fg: #101a3b; --muted: #56618a;
   --line: #cfd6ea; --accent-ink: #8a5b00; --good: #0c7a53; --bad: #b83232; --focus: #1b5fd6;
+  --secret: #7b3fc4; --secret-soft: #ece2fb; --region: #e4e9f6; --ghost: #b9c2dc;
 }
 * { box-sizing: border-box; }
 body {
@@ -71,6 +74,39 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .mg-cards button.up, .mg-cards button.done { background: var(--panel2); } .mg-cards button.done { border-color: var(--good); }
 .mg-die { font-family: var(--font-display); font-size: 96px; font-weight: 700; text-align: center; line-height: 1; padding: 8px 0; }
 .mg-big { min-height: 64px; font-size: 20px; }
+
+
+/* Carte */
+.mapbar { display: flex; }
+.mapbtn { position: relative; display: inline-flex; align-items: center; gap: 8px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.mapbtn:hover { border-color: var(--accent); }
+.mapbtn svg { width: 20px; height: 20px; color: var(--accent-ink); }
+.mapcount { font-weight: 500; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mapdot { position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%; background: var(--secret); border: 2px solid var(--bg); }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(5,8,22,.66); display: flex; align-items: flex-end; justify-content: center; }
+.sheet[hidden] { display: none; }
+.panel { width: 100%; max-width: 640px; max-height: 92vh; background: var(--bg); border-radius: 18px 18px 0 0; border: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.ph { display: flex; align-items: center; gap: 10px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+.ph h2 { flex: 1; font-size: 28px; }
+.close { background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; min-height: 44px; padding: 8px 14px; cursor: pointer; }
+.pb { overflow: auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 20px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.stats { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+.stats b { font-family: var(--font-display); font-size: 30px; color: var(--accent-ink); }
+.mapbar2 { height: 8px; border-radius: 4px; background: var(--panel2); overflow: hidden; } .mapbar2 i { display: block; height: 100%; background: var(--accent); }
+svg.map { flex: none; width: 100%; height: auto; display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.reg { fill: var(--region); stroke: var(--line); } .sub { fill: none; stroke: var(--ghost); stroke-dasharray: 5 4; }
+.regl { font: 600 10px var(--font-display); letter-spacing: .1em; fill: var(--muted); text-transform: uppercase; }
+.edge { stroke: var(--ghost); stroke-width: 2; stroke-dasharray: 4 4; fill: none; } .edge.on { stroke: var(--accent-ink); stroke-dasharray: none; stroke-width: 3; } .edge.sewer { stroke: var(--secret); }
+.node { cursor: pointer; } .node circle.b { fill: var(--panel); stroke: var(--ghost); stroke-width: 2.5; stroke-dasharray: 3 3; }
+.node.seen circle.b { fill: var(--accent); stroke: var(--accent-ink); stroke-dasharray: none; }
+.node.sec circle.b { fill: var(--secret-soft); stroke: var(--secret); stroke-dasharray: none; stroke-width: 3; }
+.node circle.h { display: none; fill: none; stroke: var(--good); stroke-width: 3; } .node.here circle.h { display: block; }
+.node text.q { font: 700 15px var(--font-display); fill: var(--muted); text-anchor: middle; }
+.node text.n { font: 600 10.5px var(--font-body); fill: var(--fg); text-anchor: middle; }
+.node.seen text.q { fill: var(--accent-fg); } .node.sec text.q { fill: var(--secret); }
+.node:focus-visible circle.b { stroke: var(--focus); stroke-width: 4; }
+.mapinfo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 74px; }
+.mapname { font-family: var(--font-display); font-size: 22px; } .maptag { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--secret-soft); color: var(--secret); margin-left: 6px; }
 
 /* Départ */
 .who-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
@@ -167,14 +203,17 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
       <ul class="need" id="need" aria-label="Ce que Yann attend">
         <li data-k="b" data-label="À boire">À boire</li><li data-k="m" data-label="À manger">À manger</li><li data-k="s" data-label="Une surprise">Une surprise</li>
       </ul>
-      <ol class="line" id="line">
-        <li data-z="c">Cormeilles</li><li data-z="f">Franconville</li><li data-z="s">Saint-Gratien</li>
-      </ol>
+      <div class="mapbar"><button class="mapbtn" id="mapbtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Carte<span class="mapcount" id="mapcount"></span><span class="mapdot" id="mapdot" hidden></span></button></div>
       <div class="scene" id="scene" aria-live="polite"></div>
     </div>
   </section>
   <section id="end" hidden></section>
 </div>
+<div class="sheet" id="sheet" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="maptitle">
+  <div class="ph"><h2 id="maptitle">Carte</h2><button class="close" id="mapclose" type="button">Fermer</button></div>
+  <div class="pb"><div class="stats"><b id="mapcnt"></b><span class="small" id="mapcnt2"></span></div><div class="mapbar2"><i id="mappct"></i></div>
+    <svg class="map" id="map" viewBox="0 0 360 1075" role="group" aria-label="Plan des lieux"></svg>
+    <div class="mapinfo" id="mapinfo" aria-live="polite"></div></div></div></div>
 
 <script src="../js/config.js"></script>
 <script src="../js/games.js"></script>
@@ -316,6 +355,132 @@ const EVA = (function(){
       g[1](); return g[0];
     }
   };
+})();
+
+
+/* ---------- La carte : les lieux se dévoilent au fil des scènes ---------- */
+const MAP = (function(){
+  const Z = [
+   // Cormeilles
+   ['eva','Chez Eva','C',50,64,0,"Aller chez Eva, au before","Le before, la cuisine et la table de jeux d’Eva."],
+   ['rue','Les rues|de Cormeilles','C',140,64,0,"Sortir dans la rue","Le point de départ de toutes les routes."],
+   ['lycee','Le lycée|Philippe Kieffer','C',230,64,0,"Passer devant le lycée","Le gardien Gérard garde la cour."],
+   ['citystade','Le city-stade','C',320,64,0,"Faire un tour au city-stade","Des ados, un ballon, des confettis."],
+   ['epicerie','L’épicerie|pas chère','C',50,140,0,"Entrer à l’épicerie","Un blanc sec, un saucisson, une cuvée douteuse."],
+   ['boulangerie','La boulangerie|du coin','C',140,140,0,"Pousser la porte de la boulangerie","Ouverte, fermée, ou très arrangeante."],
+   ['pdf','Part de Folie','C',230,140,0,"Aller à Part de Folie","Des pizzas à volonté et les sacs d’Alexandra."],
+   ['station','Station-service','C',320,140,0,"Faire un tour à la station-service","Le plein, ou pas."],
+   ['marielle','Chez Marielle|et Fabien','C',50,216,0,"Frapper chez Marielle et Fabien","Une quiche, et Arthur qui compte des burpees."],
+   ['micka','Chez les parents|de Micka','C',140,216,0,"Sonner chez les parents de Micka","Un chien, un chat, une promenade."],
+   ['virgile','Les hauteurs|chez Virgile','C',230,216,0,"Monter chez Virgile","Une Mazda qui démarre quand elle veut."],
+   ['cindy','Devant chez|Cindy','K',180,50,0,"Passer devant chez Cindy, à Conflans","Collée à Cormeilles. Un carton laissé à la voisine."],
+   // La gare
+   ['gare','La gare','C',50,292,0,"Filer à la gare","Un panneau lumineux qui change d\u2019avis, des valises, Chrisly et JC."],
+   ['parvis','Le parvis','C',140,292,0,"Rester sur le parvis","Audrey, Quentin et un chauffeur très arrangeant."],
+   ['quai','Le quai','C',230,292,0,"Monter sur le quai","Train supprimé, puis à l’approche, puis supprimé."],
+   ['arret','L’arrêt de bus','C',320,292,0,"Attendre à l’arrêt de bus","Le bus a du retard. Comme toujours."],
+   // Le hangar d'Antonin
+   ['hangar','Le hangar|d’Antonin','C',140,368,0,"Pousser le portail du hangar","Un mécanicien d’hélicoptère, et des outils partout."],
+   ['moto','La moto|d’Antonin','C',230,368,0,"Monter derrière Antonin","Casque en plus, aucun conseil."],
+   ['heli','L’hélicoptère|d’Antonin','C',320,368,0,"Monter dans l’hélicoptère","Impossible de se poser à Saint-Gratien."],
+   // Franconville · Le Plessis-Bouchard
+   ['gabie','Chez Marco|et Gabie','F',42,490,0,"Descendre à Franconville, chez Marco et Gabie","Un poème, un plaid, un recueil."],
+   ['gareFP','Gare Franconville|Plessis-Bouchard','F',132,490,0,"Descendre du train à Franconville","Un côté pour Marco et Gabie, l’autre pour Maël."],
+   ['busr','Bus de|remplacement','F',90,560,0,"Prendre le bus de remplacement","Il passe, ou il ne passe pas."],
+   ['mael','Chez Maël','L',268,490,0,"Traverser les voies, côté Plessis-Bouchard","Il lit, il débat, il connaît quelqu’un dans les égouts."],
+   // Saint-Gratien
+   ['sg','Saint-Gratien','S',180,690,0,"Arriver à Saint-Gratien","Enfin."],
+   ['distrib','Le distributeur','S',60,755,0,"Passer au distributeur","Il donne ou il garde."],
+   ['carrefour','Carrefour City','S',180,755,0,"Entrer au Carrefour City","Les rayons, la caisse, les ruptures."],
+   ['pavillon','Le pavillon|de Yann','S',300,755,0,"Aller au pavillon de Yann","La sonnette et le voisinage."],
+   ['yann','Chez Yann','S',300,815,0,"Entrer chez Yann","Le verdict."],
+   // Secrets
+   ['egouts','Les égouts','L',268,560,1,"Descendre dans les égouts","Lucien connaît la fourche."],
+   ['reserve','La réserve|du Carrefour','S',120,815,1,"Se glisser dans la réserve","Un employé, un coffre-fort à code."],
+   ['doro','La doro party','P',180,920,1,"Suivre la guirlande lumineuse","À Paris. Quelque chose qui fait oublier minuit."]
+  ];
+  const DY = 100, dy = r => r === 'K' ? 0 : DY;
+  const ZM = Object.fromEntries(Z.map(z => [z[0], {id:z[0], name:z[1], r:z[2], x:z[3], y:z[4] + dy(z[2]), sec:!!z[5], go:z[6], tip:z[7]}]));
+  const REG = [['K','CONFLANS-STE-HONORINE',10,14,340,88],['C','CORMEILLES-EN-PARISIS',10,14,340,412],['F','FRANCONVILLE',10,442,170,150],['L','LE PLESSIS-BOUCHARD',190,442,160,150],['S','SAINT-GRATIEN',10,640,340,222],['P','PARIS',10,878,340,82]];
+  const SUB = [['LA GARE',18,258,324,76],['LE HANGAR D’ANTONIN',112,334,230,76]];
+  const EDGES = [['gare','parvis'],['parvis','quai'],['quai','arret'],['hangar','moto'],['moto','heli'],['gabie','gareFP'],['gareFP','busr'],['gareFP','mael'],['sg','distrib'],['sg','carrefour'],['sg','pavillon'],['pavillon','yann'],['mael','egouts','sewer'],['egouts','reserve','sewer'],['carrefour','reserve']];
+  
+  const RULES = [
+    [/^(Chez Eva|Chez toi|Le canapé|La table de jeux|Le before)/, 'eva'], [/^Cormeilles-en-Parisis$/, 'rue'],
+    [/^Le (lycée|portail du lycée)/, 'lycee'], [/^Le city-stade/, 'citystade'], [/^L'épicerie/, 'epicerie'], [/^La boulangerie/, 'boulangerie'],
+    [/^Part de Folie/, 'pdf'], [/^Station-service/, 'station'], [/^(Chez Marielle|Deux portes)/, 'marielle'], [/^(Chez les parents de Micka|Dans la rue · avec le chien)/, 'micka'],
+    [/^Les hauteurs/, 'virgile'], [/^(Parvis de la gare|Devant la gare)/, 'parvis'], [/^(La gare · Cormeilles|Les bornes de tickets)/, 'gare'],
+    [/^Le quai/, 'quai'], [/^L'arrêt de bus/, 'arret'], [/^Dans le (train|bus) · Franconville/, 'gareFP'], [/^Franconville · chez Marco/, 'gabie'],
+    [/^Franconville · (bus de remplacement|dans le bus)/, 'busr'], [/^Le Plessis-Bouchard/, 'mael'], [/^Sous Le Plessis-Bouchard/, 'egouts'],
+    [/^Réserve du Carrefour City/, 'reserve'], [/^Devant chez Cindy/, 'cindy'], [/^Le hangar d'Antonin/, 'hangar'], [/^Sur la moto d'Antonin/, 'moto'],
+    [/^Dans l'hélicoptère/, 'heli'], [/^Saint-Gratien$/, 'sg'], [/^Le distributeur/, 'distrib'], [/^Carrefour City/, 'carrefour'],
+    [/^Le pavillon de Yann/, 'pavillon'], [/^Chez Yann/, 'yann']
+  ];
+  const BYID = { fin_egout_rave: 'doro' };
+  let seen = {}, loadedFor = null, here = null, fresh = false, selected = null;
+  const nm = z => z.name.replace('|', ' ');
+  const who = () => (typeof S !== 'undefined' && S) ? String(S.pseudo || NAMES[S.player] || '').trim().toLowerCase() : '';
+  const key = () => 'dsg-map:' + who();
+  function load(){
+    const k = key(); if (loadedFor === k) return; loadedFor = k; seen = {};
+    try { const r = JSON.parse(store(k) || '{}'); if (r && typeof r === 'object') Object.keys(r).forEach(id => { if (ZM[id]) seen[id] = 1; }); } catch (e) {}
+  }
+  function zoneOf(id, sc){ if (BYID[id]) return BYID[id]; const p = sc && typeof sc.p === 'string' ? sc.p : ''; for (const [re, z] of RULES) if (re.test(p)) return z; return null; }
+  function visit(id, sc){
+    load(); const z = zoneOf(id, sc); if (!z) { count(); return; }
+    here = z;
+    if (!seen[z]) { seen[z] = 1; fresh = true; try { store(key(), JSON.stringify(seen)); } catch (e) {} }
+    count();
+  }
+  const normals = Z.filter(z => !z[5]), secrets = Z.filter(z => z[5]);
+  function count(){
+    const n = normals.filter(z => seen[z[0]]).length, s = secrets.filter(z => seen[z[0]]).length;
+    const c = document.getElementById('mapcount'); if (c) c.textContent = n + '/' + normals.length + (s ? ' · ' + s + ' ★' : '');
+    const d = document.getElementById('mapdot'); if (d) d.hidden = !fresh;
+    return [n, s];
+  }
+  function svgEl(tag, attrs, txt){ const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt != null) e.textContent = txt; return e; }
+  function renderMap(){
+    const m = document.getElementById('map'); m.textContent = '';
+    REG.forEach(([id, label, x, y0, w, h]) => { if (id === 'P' && !seen.doro) return; const y = y0 + dy(id); m.append(svgEl('rect', {class:'reg', x, y, width:w, height:h, rx:12})); m.append(svgEl('text', {class:'regl', x:x+12, y:y+17}, label)); });
+    SUB.forEach(([label, x, y0, w, h]) => { const y = y0 + DY; m.append(svgEl('rect', {class:'sub', x, y, width:w, height:h, rx:10})); m.append(svgEl('text', {class:'regl', x:x+10, y:y+14}, label)); });
+    EDGES.forEach(([a, b, k]) => { const A = ZM[a], B = ZM[b]; if ((A.sec && !seen[a]) || (B.sec && !seen[b])) return;
+      m.append(svgEl('line', {class:'edge ' + (k || '') + ((seen[a] && seen[b]) ? ' on' : ''), x1:A.x, y1:A.y, x2:B.x, y2:B.y})); });
+    Z.forEach(z0 => { const z = ZM[z0[0]]; if (z.sec && !seen[z.id]) return;
+      const known = !!seen[z.id];
+      const g = svgEl('g', {class:'node' + (known ? ' seen' : '') + (z.sec ? ' sec' : '') + (here === z.id ? ' here' : ''), tabindex:0, role:'button', 'aria-label':known ? nm(z) : 'Lieu inconnu'});
+      g.append(svgEl('circle', {class:'h', cx:z.x, cy:z.y, r:19})); g.append(svgEl('circle', {class:'b', cx:z.x, cy:z.y, r:13}));
+      g.append(svgEl('text', {class:'q', x:z.x, y:z.y + 5}, known ? (z.sec ? '★' : '✓') : '?'));
+      if (known) z.name.split('|').forEach((l, i) => g.append(svgEl('text', {class:'n', x:z.x, y:z.y + 29 + i * 11}, l)));
+      const pick = () => { selected = z.id; renderInfo(); };
+      g.addEventListener('click', pick); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(); } });
+      m.append(g); });
+  }
+  function renderInfo(){
+    const el = document.getElementById('mapinfo'); el.textContent = ''; const z = ZM[selected];
+    const p = t => { const e = document.createElement('p'); e.className = 'small'; e.style.margin = '0'; e.textContent = t; return e; };
+    if (!z) { el.append(p('Touche un lieu pour voir ce qu\u2019on y a vécu. Les ronds en pointillés sont des lieux encore inconnus.')); return; }
+    if (!seen[z.id]) { el.append(p('Lieu pas encore découvert. Continue d\u2019explorer.')); return; }
+    const b = document.createElement('b'); b.className = 'mapname'; b.textContent = nm(z); el.append(b);
+    if (z.sec) { const t = document.createElement('span'); t.className = 'maptag'; t.textContent = 'Lieu secret'; b.after(t); }
+    el.append(p(z.tip + (here === z.id ? ' Tu es ici.' : '')));
+  }
+  function open(){
+    load(); fresh = false; selected = here; count(); const [n, s] = count();
+    document.getElementById('mapcnt').textContent = n + ' / ' + normals.length;
+    document.getElementById('mapcnt2').textContent = 'lieux découverts' + (s ? ' · ' + s + ' secret' + (s > 1 ? 's' : '') + ' trouvé' + (s > 1 ? 's' : '') : ' · des lieux secrets existent…');
+    document.getElementById('mappct').style.width = Math.round(n / normals.length * 100) + '%';
+    renderMap(); renderInfo(); document.getElementById('sheet').hidden = false; document.getElementById('mapclose').focus();
+  }
+  function close(){ document.getElementById('sheet').hidden = true; const b = document.getElementById('mapbtn'); if (b) b.focus(); }
+  function reset(){ here = null; fresh = false; selected = null; loadedFor = null; load(); count(); }
+  function init(){
+    const b = document.getElementById('mapbtn'); if (b) b.addEventListener('click', open);
+    const c = document.getElementById('mapclose'); if (c) c.addEventListener('click', close);
+    const sh = document.getElementById('sheet'); if (sh) sh.addEventListener('click', e => { if (e.target === sh) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && sh && !sh.hidden) close(); });
+  }
+  return { visit, init, reset, count };
 })();
 
 const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
@@ -952,12 +1117,11 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
 
  /* ---------- Gare ---------- */
  gare: {p:"La gare · Cormeilles",
-  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, Chrisly arrive en traînant une valise, JC fait tourner une pièce entre ses doigts, et Maël s'étire de profil.",
+  text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». Sur le quai, Chrisly arrive en traînant une valise et JC fait tourner une pièce entre ses doigts.",
   c:[
    B("Aller aux bornes de tickets", 'gare_borne', {t:5}),
    B("Parler à Chrisly", 'chrisly', {t:5}),
    B("Parler à JC", 'jc', {t:5}),
-   B("Parler à Maël", 'mael', {t:5}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
  chrisly: {p:"La gare · Cormeilles", who:'chrisly',
@@ -983,18 +1147,18 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
  course_c2: {p:"En route avec Chrisly · à mi-chemin", who:'chrisly',
   text:"« Dernier kilomètre, je te donne un sprint. » Il ne te donne rien, il s'en va. Tu le vois rétrécir au bout de la rue, avec sa valise qui rebondit.",
   c:[B("Faire un dernier effort", 'saintgratien', {t:20, flag:'essouffle'})]},
- mael: {p:"La gare · Cormeilles", who:'mael',
-  text:"Maël est assis sur un banc du quai, un livre de poche ouvert sur les genoux, un stylo rouge à la main, les marges noircies d'annotations. Il lève la tête, ravi. « Tu tombes bien. J'ai besoin de quelqu'un qui me contredise. Yann n'est pas là, et il le fait mieux que tout le monde. »",
+ mael: {p:"Le Plessis-Bouchard · chez Maël", who:'mael',
+  text:"Maël est assis sur un banc, de l'autre côté des voies, un livre de poche ouvert sur les genoux, un stylo rouge à la main, les marges noircies d'annotations. Il lève la tête, ravi. « Tu tombes bien. J'ai besoin de quelqu'un qui me contredise. Yann n'est pas là, et il le fait mieux que tout le monde. »",
   c:[
    B("Accepter un débat", 'mael_sujets', {t:5}),
    B("Lui demander son chrono du marathon", 'mael_chrono', {t:10}),
    B("Lui demander comment aller à Saint-Gratien", 'mael_cousin', {t:5}),
-   B("Retourner sur le quai", 'gare', {t:5})
+   B("Retraverser les voies", 'franconville', {t:10})
   ]},
- mael_chrono: {p:"La gare · Cormeilles", who:'mael',
+ mael_chrono: {p:"Le Plessis-Bouchard · chez Maël", who:'mael',
   text:"Maël sort son téléphone, un peu timide, puis très fier. « 3 h 58. Sub 4 h pour un premier marathon. J'ai pleuré sur la ligne, j'assume. » Il fait défiler un autre chrono. « Yann : 3 h 37. Il ne s'en est même pas vanté. Vingt et une minutes d'écart. Ce sont mes vingt et une minutes de dignité. » Il cite Murakami de mémoire, avec une grimace d'accent. « Il a couru, j'ai écrit dans mes marges. On est quittes. »",
   c:[B("Sourire et revenir au banc", 'mael', {t:5})]},
- mael_sujets: {p:"La gare · le banc de Maël", who:'mael',
+ mael_sujets: {p:"Le Plessis-Bouchard · le banc de Maël", who:'mael',
   text:S=>S.flags.m_resp
    ? "Maël a les yeux qui brillent. « Encore un ? Je prends le contraire de tout ce que tu diras. Je préviens, ce n'est pas une menace, c'est de l'affection. »"
    : "« Choisis un sujet, je prends le contraire. Je préviens, c'est de l'affection, pas de l'agressivité. » Il stylote déjà le coin de sa page.",
@@ -1005,49 +1169,49 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Accepter son livre annoté", 'mael_sujets', {t:5, item:'livre_mael', flag:'m_livre', need:S=>S.flags.m_resp && !S.flags.m_livre, note:"Maël te tend le livre, une main sur le cœur : « Il y a trois « faux ! » en marge. Ils sont affectueux. »"}),
    B("Revenir au banc", 'mael', {t:5})
   ]},
- mael_d1: {p:"La gare · le banc de Maël", who:'mael',
+ mael_d1: {p:"Le Plessis-Bouchard · le banc de Maël", who:'mael',
   text:"« Un film génial, réalisé par quelqu'un de détestable. Tu le regardes ? » Il referme le livre sur son doigt, prêt à contredire.",
   c:[
    B("Oui, une œuvre vit toute seule", 'mael_sujets', {t:20, fx:S=>{ S.flags.d1 = true; S.flags.m_resp = true; }, note:"Maël se redresse, ravi : « Donc tu écoutes un album d'un artiste que tu méprises ? » Tu tiens bon. Il sourit, battu à moitié : « Pas mal. Pas mal du tout. »"}),
    B("Non, on ne peut pas ignorer l'homme", 'mael_sujets', {t:20, fx:S=>{ S.flags.d1 = true; S.flags.m_resp = true; }, note:"« Donc tu brûles les bibliothèques ? » Tu précises, tu nuances, tu cites un exemple. Maël lève le stylo, comme un escrimeur : « Touché. »"}),
    B("Tu as raison, comme toujours", 'mael_sujets', {t:20, flag:'d1', note:"Maël soupire, déçu : « Tu es poli. C'est triste. J'ai besoin de résistance, pas de politesse. »"})
   ]},
- mael_d2: {p:"La gare · le banc de Maël", who:'mael',
+ mael_d2: {p:"Le Plessis-Bouchard · le banc de Maël", who:'mael',
   text:"« La grande question du XXᵉ siècle. Réponds sans tricher. » Il tapote la couverture de son livre.",
   c:[
    B("Oui, l'imagination gagne toujours", 'mael_sujets', {t:20, fx:S=>{ S.flags.d2 = true; S.flags.m_resp = true; }, note:"« Même contre un grand réalisateur ? » Tu défends ta position, il t'écoute avec une joie presque indécente. « Enfin quelqu'un qui a un avis. »"}),
    B("Non, certains films dépassent leur livre", 'mael_sujets', {t:20, fx:S=>{ S.flags.d2 = true; S.flags.m_resp = true; }, note:"Maël pousse un cri de bonheur : « Donne un exemple ! » Tu en donnes un, puis deux. Il note quelque chose dans sa marge : « À débattre. »"}),
    B("Je ne sais pas, je n'ai rien lu", 'mael_sujets', {t:20, flag:'d2', note:"Maël te regarde avec une immense tendresse : « Ça se corrige. » Il ne te juge pas, mais il note ton nom dans un carnet imaginaire."})
   ]},
- mael_d3: {p:"La gare · le banc de Maël", who:'mael',
+ mael_d3: {p:"Le Plessis-Bouchard · le banc de Maël", who:'mael',
   text:"« J'ai couru mon premier marathon en 3 h 58. Entre le kilomètre trente et le kilomètre trente-cinq, j'ai cru que je ne vivrais plus. Alors, sport ou thérapie ? »",
   c:[
    B("Un sport : il y a un chrono et des règles", 'mael_sujets', {t:20, fx:S=>{ S.flags.d3 = true; S.flags.m_resp = true; }, note:"« Mais pourquoi on y retourne ? » Tu défends le chrono, il défend le mystère. Vous finissez à égalité, ce qui le rend très heureux."}),
    B("Une thérapie : quatre heures à parler à soi-même", 'mael_sujets', {t:20, fx:S=>{ S.flags.d3 = true; S.flags.m_resp = true; }, note:"Il s'immobilise, bouleversé : « Quatre heures à parler à soi-même. » Il le note, il le souligne, il l'encadre mentalement."}),
    B("Les deux, bien sûr", 'mael_sujets', {t:20, flag:'d3', note:"« Réponse de diplomate. » Il sourit, un peu déçu : « Engage-toi la prochaine fois, c'est le principe d'un débat. »"})
   ]},
- mael_cousin: {p:"La gare · Cormeilles", who:'mael',
-  text:"Maël referme son livre. « À Saint-Gratien ? J'ai mieux qu'un train : un cousin. Lucien. Il connaît les égouts entre Cormeilles et Saint-Gratien comme moi les marges de ce livre. Enfin, il a connu. Enfin, il y vit un peu. » Il désigne une plaque d'égout, au fond de la gare, légèrement entrouverte. « Il t'attend. Je lui ai dit que tu viendrais. »",
+ mael_cousin: {p:"Le Plessis-Bouchard · chez Maël", who:'mael',
+  text:"Maël referme son livre. « À Saint-Gratien ? J'ai mieux qu'un train : un cousin. Lucien. Il connaît les égouts entre Le Plessis-Bouchard et Saint-Gratien comme moi les marges de ce livre. Enfin, il a connu. Enfin, il y vit un peu. » Il désigne une plaque d'égout, au bout du quai, légèrement entrouverte. « Il t'attend. Je lui ai dit que tu viendrais. »",
   c:[
    B("Descendre dans les égouts", 'egout_entree', {t:20}),
    B("Refuser poliment", 'mael', {t:5})
   ]},
- egout_entree: {p:"Sous Cormeilles · les égouts", who:'mael',
+ egout_entree: {p:"Sous Le Plessis-Bouchard · les égouts", who:'mael',
   text:"L'échelle est froide et mouillée. En bas, une odeur de pierre humide, un bruit d'eau, et un homme en cuissardes avec une lampe frontale, qui a la voix exacte de Maël en plus grave. « Lucien. Maël m'a dit que tu aimais débattre. Ici, on débat avec les rats : ils perdent toujours, mais ils reviennent. » Il balaie le tunnel du faisceau. « Je te guide jusqu'à la fourche. Après, je m'arrête : j'ai un rendez-vous. »",
   c:[
    B("Lui demander un conseil", 'egout_conseil', {t:5}),
    B("Le suivre jusqu'à la fourche", 'egout_fourche', {t:25}),
-   B("Remonter à l'air libre", 'gare', {t:10})
+   B("Remonter à l'air libre", 'franconville', {t:10})
   ]},
- egout_conseil: {p:"Sous Cormeilles · les égouts", who:'mael',
+ egout_conseil: {p:"Sous Le Plessis-Bouchard · les égouts", who:'mael',
   text:"Lucien s'arrête et lève un doigt, comme un professeur. « Règle des égouts : ici, rien n'est jamais à sa place. Même les panneaux. Surtout les panneaux. » Il réfléchit, puis ajoute : « Ça ressemble à un débat. Celui qui crie le plus fort n'a pas toujours raison, mais il a souvent de la lumière. » Il hausse les épaules. « Ne me demande pas de précision, je plaisante la moitié du temps. »",
   c:[B("Le suivre jusqu'à la fourche", 'egout_fourche', {t:25})]},
- egout_fourche: {p:"Sous Cormeilles · la fourche", who:'mael',
+ egout_fourche: {p:"Sous Le Plessis-Bouchard · la fourche", who:'mael',
   text:"Le tunnel se sépare en deux. À gauche, une guirlande de Noël clignote au-dessus d'une pancarte peinte à la main : « SAINT-GRATIEN → ». Un léger bourdonnement vient du fond, sûrement les canalisations. À droite, un boyau étroit et sombre, avec un courant d'air tiède et une odeur de carton. Lucien lève sa lampe : « Moi, je m'arrête là. Je ne choisis jamais pour les autres. Bonne année. » Il disparaît dans l'ombre.",
   c:[
    B("Aller à gauche, vers la guirlande", 'fin_egout_rave', {t:20}),
    B("Aller à droite, dans le boyau sombre", 'egout_reserve', {t:20}),
-   B("Remonter par l'échelle", 'gare', {t:30})
+   B("Remonter par l'échelle", 'franconville', {t:30})
   ]},
  egout_reserve: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
   text:"Le boyau débouche derrière une palette de bouteilles d'eau. Tu te glisses dans une réserve éclairée au néon. Un employé, assis sur un carton, mange des chips en regardant son téléphone. Il te regarde, cligne des yeux, hausse les épaules. « Encore un. C'est le troisième ce mois-ci. Prends une chose, une seule, et tu ne dis rien à mon chef. »",
@@ -1174,12 +1338,13 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   text:"Le contrôleur sort un carnet à souche, l'air d'un artisan. « Procès-verbal. C'est trente-cinq euros, ou ce que vous avez. » Il est très poli. Il est impitoyable. Tu signes.",
   c:[B("Descendre à Franconville, la dignité intacte", 'train_arrive', {t:10})]},
  train_arrive: {p:"Dans le train · Franconville",
-  text:"Le train s'arrête. Le panneau annonçait Saint-Gratien, mais c'était avant les travaux : « Terminus, merci de descendre. » Tu descends à Franconville, devant des immeubles que tu reconnais : le coin de l'appart de Marco.",
+  text:"Le train s'arrête. Le panneau annonçait Saint-Gratien, mais c'était avant les travaux : « Terminus, merci de descendre. » Tu descends à Franconville–Le Plessis-Bouchard, devant des immeubles que tu reconnais : le coin de l'appart de Marco.",
   c:[B("Descendre", 'franconville', {t:15})]},
  franconville: {p:"Franconville · chez Marco et Gabie", z:'f',
-  text:"Franconville, nuit noire. Les fenêtres de l'appartement de Marco sont allumées. Saint-Gratien est à quelques kilomètres : un bus de remplacement passe, peut-être.",
+  text:"Franconville–Le Plessis-Bouchard, nuit noire. D'un côté de la gare, les fenêtres de l'appartement de Marco sont allumées. De l'autre, côté Le Plessis-Bouchard, une lampe éclaire un banc où quelqu'un lit. Saint-Gratien est à quelques kilomètres : un bus de remplacement passe, peut-être.",
   c:[
    B("Sonner chez Marco et Gabie", 'gabie', {t:5}),
+   B("Traverser les voies, côté Le Plessis-Bouchard", 'mael', {t:10}),
    B("Aller au bus de remplacement", 'bus_remp', {t:10}),
    B("Finir à pied, c'est possible techniquement", 'marche3', {t:10, flag:'essouffle'})
   ]},
@@ -1421,7 +1586,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Attendre sur le trottoir", 'moto1', {t:75, note:"Antonin est arrivé à 21h10, avec un fromage dans sa sacoche et aucune excuse."}),
    B("Laisser tomber et repartir", 'appel', {t:5})
   ]},
- cindy_porte: {p:"Devant chez Cindy · Cormeilles", who:'cindy',
+ cindy_porte: {p:"Devant chez Cindy · Conflans", who:'cindy',
   text:S=>S.flags.c_pris
    ? "La voisine de Cindy te regarde par la fenêtre, le carton est vide, les volets sont toujours fermés. « Elle a dit une chose, pas deux. »"
    : "La porte de Cindy est fermée, les volets aussi, et un autocollant d'aéroport est resté collé sur la boîte aux lettres. Sa voisine, en robe de chambre, sort sur le palier : « Cindy m'a laissé un carton pour quelqu'un qui passerait. Elle a dit : « Une seule chose, pas deux, et pas de questions. » Je n'en ai pas posé. » Dans le carton, un thé glacé de Singapour, des biscuits emballés un par un, et un objet lourd enveloppé dans une page de magazine en chinois.",
@@ -1807,6 +1972,7 @@ function foundSet(p){
 }
 const ENDS = Object.keys(SCENES).filter(k=>SCENES[k].end);
 let S = null, timerId = null;
+MAP.init();
 
 function fill(str){
   return String(str).replace(/\{(\w+)\}/g,(m,k)=>{
@@ -1876,6 +2042,7 @@ function renderStart(){
 
 function newGame(p, pseudo){
   S = {player:p, pseudo:pseudo || NAMES[p], codeA:'03', codeB:'37', t:0, m:20, bag:[], flags:{}, note:'', best:null, win:false, antonin:false, pass:false, ticket:null, seen:{}, stock:newStock(), mys:false, next:'rue', kb:0, tries:0, yq:0};
+  MAP.reset();
   showOnly('game');
   goTo('eva');
 }
@@ -1885,6 +2052,7 @@ function goTo(id){
   let sc = SCENES[id];
   if (sc.who && (Array.isArray(sc.who) ? sc.who.indexOf(S.player) >= 0 : sc.who === S.player)){ id = sc.alt || 'rue'; sc = SCENES[id]; }
   S.scene = id;
+  MAP.visit(id, sc);
   if (sc.end) return showEnd(id, sc);
   showScene(id, sc);
 }
@@ -1953,8 +2121,7 @@ function updateBoard(sc){
     li.classList.toggle('ok', ok);
     li.textContent = (ok ? '✓ ' : '') + li.dataset.label;
   });
-  const z = sc.z || 'c';
-  $('line').querySelectorAll('li').forEach(li=>{ if (li.dataset.z === z) li.setAttribute('aria-current','step'); else li.removeAttribute('aria-current'); });
+  MAP.count();
 }
 
 function visibleChoices(sc){
