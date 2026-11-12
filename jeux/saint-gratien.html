@@ -806,7 +806,7 @@ const MAP = (function(){
     [/^Dans l'hélicoptère/, 'heli'], [/^Saint-Gratien$/, 'sg'], [/^Le distributeur/, 'distrib'], [/^Carrefour City/, 'carrefour'],
     [/^Le pavillon de Yann/, 'pavillon'], [/^Chez Yann/, 'yann']
   ];
-  const BYID = { fin_egout_rave: 'doro' };
+  const BYID = { fin_egout_rave: 'doro', fin_doro: 'doro' };
   let seen = {}, loadedFor = null, here = null, fresh = false, selected = null;
   const nm = z => z.name.replace('|', ' ');
   const who = () => (typeof S !== 'undefined' && S) ? String(S.pseudo || NAMES[S.player] || '').trim().toLowerCase() : '';
