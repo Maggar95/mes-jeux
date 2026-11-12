@@ -14,6 +14,11 @@
 .pen-msg{margin:0;min-height:1.6em;font-weight:700}
 .pen-msg.ok{color:var(--good)} .pen-msg.ko{color:var(--bad)}
 @media (prefers-reduced-motion:reduce){.pen-keeper{transition:none}}
+.keypad{display:grid;gap:8px;margin:14px 0}
+.keypad label{font-weight:600;color:var(--muted)}
+.keypad input{font:inherit;font-size:28px;letter-spacing:.5em;text-align:center;padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);color:var(--fg);width:100%;box-sizing:border-box}
+.keypad input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.keypad .kp-go:disabled{opacity:.5;cursor:default}
 </style></head><body>
 <title>Direction Saint-Gratien</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1295,15 +1300,14 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Regarder le coffre-fort derrière les palettes", 'coffre', {t:5, need:S=>!S.flags.coffre_ouvert && !S.flags.alarme}),
    B("Ne rien prendre et sortir", 'saintgratien', {t:10})
   ]},
- coffre: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
-  text:S=>"Derrière les palettes, un coffre-fort gris, plus vieux que le magasin, avec un petit clavier à quatre chiffres. L'employé fixe son téléphone avec une concentration suspecte. « Moi, je n'ai jamais rien vu, et je ne connais pas le code. »"+((S.flags.code_a||S.flags.code_b)?" Dans ta paume, au stylo : « "+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··')+" »":""),
+ coffre: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael', keypad:true,
+  text:S=>"Derrière les palettes, un coffre-fort gris, plus vieux que le magasin, avec un petit clavier à quatre chiffres. L'employé fixe son téléphone avec une concentration suspecte. « Moi, je n'ai jamais rien vu, et je ne connais pas le code. » Une étiquette collée sur le clavier : « Un seul essai. Après une erreur, le coffre prévient la police. »"+((S.flags.code_a||S.flags.code_b)?" Dans ta paume, au stylo : « "+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··')+" »":""),
   c:[
-   B(S=>"Taper le code : "+S.codeA+S.codeB, 'coffre_ouvert', {t:5, flag:'coffre_ouvert', need:S=>S.flags.code_a&&S.flags.code_b}),
-   B("Taper le début du code et deviner la fin", S=>S.pass?'coffre_ouvert':'coffre_alarme', {t:5, need:S=>S.flags.code_a&&!S.flags.code_b, fx:S=>{ S.pass = rnd(0.01); if (S.pass) S.flags.coffre_ouvert = true; }}),
-   B("Taper la fin du code et deviner le début", S=>S.pass?'coffre_ouvert':'coffre_alarme', {t:5, need:S=>S.flags.code_b&&!S.flags.code_a, fx:S=>{ S.pass = rnd(0.01); if (S.pass) S.flags.coffre_ouvert = true; }}),
-   B("Essayer 1-2-3-4, « ça marche toujours »", 'coffre_alarme', {t:5, need:S=>!S.flags.code_a&&!S.flags.code_b}),
    B("Laisser le coffre tranquille", 'egout_reserve', {t:5})
   ]},
+ coffre_police: {end:'lose', h:"Une nuit au poste",
+  text:"Quatre chiffres, un bip aigu, puis une lumière bleue qui tourne sur le mur de la réserve. L'employé lâche son téléphone : « Je ne connais pas cet homme. » Dix minutes plus tard, deux policiers te demandent ce que tu fais devant un coffre-fort qui n'est pas à toi. À minuit, tu es sur un banc du commissariat de Saint-Gratien, un gobelet de café tiède dans les mains, à expliquer à un brigadier que tu cherchais seulement une bouteille pour Yann. Il note « tentative de cambriolage, circonstances atténuantes : le blanc sec ». Pas de fête cette nuit, mais tu as une anecdote pour toute la vie.",
+  c:[]},
  coffre_alarme: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael',
   text:"Le clavier clignote en rouge, puis une sirène remplit la réserve. L'employé lâche son paquet de chips : « Je ne connais pas cet homme ! » Il te pousse dehors par la porte de service, passe vingt minutes au téléphone avec son chef, et te regarde avec la lassitude de quelqu'un qui va devoir tout expliquer. Il ne te donnera plus rien.",
   c:[B("Sortir en faisant profil bas", 'egout_sortie', {t:25, flag:'r_pris'+'', fx:S=>{ S.flags.alarme = true; }})]},
@@ -2252,6 +2256,15 @@ function showScene(id, sc){
     const bar = el('div','timer'); const i = el('i'); i.style.animationDuration = sc.timer+'s'; bar.appendChild(i);
     bar.setAttribute('role','presentation'); box.appendChild(bar);
     timerId = setTimeout(()=>pick({to:sc.tt, t:5, note:"Le temps est écoulé."}), sc.timer*1000);
+  }
+  if (sc.keypad){
+    const form = el('form','keypad'); form.noValidate = true;
+    const lab = el('label',null,'Code du coffre'); lab.setAttribute('for','kp-in');
+    const inp = el('input'); inp.id = 'kp-in'; inp.type = 'text'; inp.inputMode = 'numeric'; inp.maxLength = 4; inp.autocomplete = 'off'; inp.placeholder = '····'; inp.setAttribute('pattern','[0-9]*');
+    const go = el('button','choice kp-go','Valider le code'); go.type = 'submit'; go.disabled = true;
+    inp.addEventListener('input', ()=>{ inp.value = inp.value.replace(/\D/g,'').slice(0,4); go.disabled = inp.value.length !== 4; });
+    form.addEventListener('submit', e=>{ e.preventDefault(); if (inp.value.length !== 4) return; const ok = inp.value === S.codeA + S.codeB; pick({to: ok ? 'coffre_ouvert' : 'coffre_police', t:5, flag: ok ? 'coffre_ouvert' : undefined}); });
+    form.append(lab, inp, go); box.appendChild(form);
   }
   if (sc.mini){
     const area = el('div'); box.appendChild(area);
