@@ -1614,7 +1614,7 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    B("Ne rien prendre et sortir", 'saintgratien', {t:10})
   ]},
  coffre: {p:"Réserve du Carrefour City · Saint-Gratien", z:'s', who:'mael', keypad:true,
-  text:S=>"Derrière les palettes, un coffre-fort gris, plus vieux que le magasin, avec un petit clavier à quatre chiffres. L'employé fixe son téléphone avec une concentration suspecte. « Moi, je n'ai jamais rien vu, et je ne connais pas le code. » Une étiquette collée sur le clavier : « Un seul essai. Après une erreur, le coffre prévient la police. »"+((S.flags.code_a||S.flags.code_b)?" Dans ta paume, au stylo : « "+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··')+" »":""),
+  text:S=>"Derrière les palettes, un coffre-fort gris, plus vieux que le magasin, avec un petit clavier à quatre chiffres. L'employé fixe son téléphone avec une concentration suspecte. « Moi, je n'ai jamais rien vu, et je ne connais pas le code. » Il ajoute, l'air de rien : « Ça vaut peut-être le coup de tenter un code ? Il est né en quelle année, Yann, déjà ? »"+((S.flags.code_a||S.flags.code_b)?" Dans ta paume, au stylo : « "+(S.flags.code_a?S.codeA:'··')+(S.flags.code_b?S.codeB:'··')+" »":""),
   c:[
    B("Laisser le coffre tranquille", 'egout_reserve', {t:5})
   ]},
