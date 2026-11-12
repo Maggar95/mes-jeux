@@ -58,6 +58,17 @@
 .jb-mess u { text-decoration: none; width: 18px; height: 18px; border-radius: 50%; background: var(--panel2); border: 2px solid var(--line); display: inline-block; }
 .jb-mess u.jb-f { background: var(--bad); border-color: var(--bad); }
 
+.jb-sing{height:300px}
+.jb-zone{position:absolute;left:0;right:0;top:232px;height:40px;background:rgba(255,198,41,.22);border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);pointer-events:none}
+.jb-cols{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.jb-col{background:transparent;border:0;border-right:2px dashed var(--ghost);cursor:pointer;position:relative;padding:0;touch-action:manipulation}
+.jb-col:last-child{border-right:0}
+.jb-col .jb-ln{position:absolute;bottom:6px;left:0;right:0;font-weight:700;font-size:13px;color:var(--muted)}
+.jb-col.jb-gd{background:color-mix(in srgb,var(--good) 28%,transparent)}
+.jb-col.jb-bd{background:color-mix(in srgb,var(--bad) 28%,transparent)}
+.jb-note{position:absolute;top:0;font-size:34px;line-height:1;pointer-events:none;will-change:transform}
+.jb-note.jb-won{opacity:0;transition:opacity .2s,filter .2s;filter:brightness(2)}
+.jb-note.jb-lost{opacity:0;transition:opacity .3s;filter:grayscale(1)}
 </style></head><body>
 <title>Direction Saint-Gratien</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -471,7 +482,72 @@ const JOB = (function(){
   }
 
 
-  const GAMES = { fly: runFlyers, boul: runBoulange, kids: runKids };
+  /* ---------------- 4. Chant ---------------- */
+  function runChant(box, done){
+    const N = 24, FALL = 2.1, WIN = 0.24, LANES = 4, ZONE = 250;
+    const notes = []; let tt = 1.4;
+    for (let i = 0; i < N; i++){ notes.push({ t: tt, lane: Math.floor(Math.random() * LANES), el: null, st: 0 }); tt += rr(0.85, 1.25); }
+    const END_T = tt + 0.4;
+    let hits = 0, wrong = 0, miss = 0, combo = 0, best = 0, alive = true, raf = 0, t0 = performance.now();
+    const hud = el('div', 'hud'); const sH = el('span'), sC = el('span'), sM = el('span'); hud.append(sH, sC, sM);
+    const stage = el('div', 'stage sing'); stage.setAttribute('aria-label', 'Les notes à chanter : une colonne par touche');
+    const zone = el('div', 'zone'); stage.append(zone);
+    const cols = el('div', 'cols'); stage.append(cols);
+    const KEYS = ['d', 'f', 'j', 'k'], NAMES = ['Do', 'Mi', 'Sol', 'Si aigu'];
+    const btns = [];
+    for (let i = 0; i < LANES; i++){
+      const b = el('button', 'col'); b.type = 'button'; b.setAttribute('aria-label', 'Chanter ' + NAMES[i] + ' (touche ' + KEYS[i].toUpperCase() + ')');
+      b.append(el('span', 'ln', NAMES[i]));
+      b.addEventListener('pointerdown', e => { e.preventDefault(); tap(i); });
+      cols.append(b); btns.push(b);
+    }
+    const say = el('p', 'say'); say.setAttribute('aria-live', 'polite');
+    box.append(hud, stage, say);
+    const speed = (ZONE + 40) / FALL;
+    function now(){ return (performance.now() - t0) / 1000; }
+    function paint(){ sH.textContent = '🎵 ' + hits + ' / ' + N; sC.textContent = 'Enchaînement : ' + combo; sM.textContent = '✖ ' + (miss + wrong); }
+    function flash(i, cls){ btns[i].classList.add(cls); setTimeout(() => btns[i].classList.remove(cls), 160); }
+    function tap(i){
+      if (!alive) return; const n = now();
+      let c = null, cd = 9;
+      notes.forEach(o => { if (o.lane === i && o.st === 0) { const d = Math.abs(o.t - n); if (d <= WIN && d < cd) { c = o; cd = d; } } });
+      if (c){
+        c.st = 1; hits++; combo++; best = Math.max(best, combo);
+        if (c.el) { c.el.classList.add('jb-won'); const e = c.el; setTimeout(() => e.remove(), 220); }
+        say.textContent = cd < 0.1 ? 'Parfait !' : 'Bien !'; say.className = K('say ok'); flash(i, 'jb-gd');
+      } else {
+        wrong++; combo = 0; say.textContent = 'À côté, le pigeon grimace.'; say.className = K('say ko'); flash(i, 'jb-bd');
+      }
+      paint();
+    }
+    function onKey(e){ const i = KEYS.indexOf(e.key.toLowerCase()); if (i >= 0 && !e.repeat) tap(i); }
+    document.addEventListener('keydown', onKey);
+    function tick(){
+      if (!alive) return; const n = now();
+      notes.forEach(o => {
+        if (o.st === 2 || o.st === 1) return;
+        if (!o.el && n >= o.t - FALL) {
+          o.el = el('div', 'note', '🎵'); o.el.style.left = (o.lane * 25 + 12.5) + '%'; stage.append(o.el);
+        }
+        if (o.el) o.el.style.transform = 'translate(-50%,' + (ZONE - (o.t - n) * speed - 20) + 'px)';
+        if (n > o.t + WIN) { o.st = 2; miss++; combo = 0; if (o.el) { o.el.classList.add('jb-lost'); const e = o.el; setTimeout(() => e.remove(), 300); } paint(); }
+      });
+      if (n >= END_T) { end(); return; }
+      raf = requestAnimationFrame(tick);
+    }
+    function end(){
+      if (!alive) return; alive = false; cancelAnimationFrame(raf); document.removeEventListener('keydown', onKey);
+      const net = hits - wrong * 0.5; let pay, title, text;
+      if (net >= N * 0.65) { pay = 12; title = 'Standing ovation'; text = 'Tu entonnes « All I Want for Christmas Is You ». Un homme s’arrête, applaudit, et laisse un billet. Puis une dame, puis un groupe de fêtards qui fait chœur. Tu récoltes 12 €, une standing ovation et une extinction de voix.'; }
+      else if (net >= N * 0.35) { pay = 5; title = 'Le refrain sauve la mise'; text = 'Quelques notes tombent à côté, mais le refrain passe. Une dame laisse une pièce, deux fêtards te lancent un billet de 5 € « pour que tu continues, ou que tu t’arrêtes, on ne sait pas ».'; }
+      else { pay = 1; title = 'Le pigeon applaudit à moitié'; text = 'Tu chantes devant la gare. Un pigeon te regarde, un contrôleur te regarde, et une dame traverse la rue pour ne pas t’entendre. Tu récoltes 1 €, que tu soupçonnes d’être une erreur.'; }
+      setTimeout(() => done({ title, text, pay, detail: hits + ' notes justes sur ' + N + ', meilleur enchaînement : ' + best }), 300);
+    }
+    paint(); raf = requestAnimationFrame(tick);
+    return () => { alive = false; cancelAnimationFrame(raf); document.removeEventListener('keydown', onKey); };
+  }
+
+  const GAMES = { fly: runFlyers, boul: runBoulange, kids: runKids, chant: runChant };
   function run(kind, area, cb){
     stop(); dead = false; area.textContent = '';
     const box = el('div', 'panel'); area.appendChild(box);
@@ -1052,7 +1128,7 @@ const SCENES = {
    B("Aider la boulangère à ranger avant la fermeture", 'job_boulangere', {t:30, flag:'j_boul', need:S=>!S.flags.j_boul}),
    B("Distribuer des flyers pour la soirée d'un bar", 'job_flyers', {t:40, flag:'j_fly', need:S=>!S.flags.j_fly}),
    B("Garder les enfants des voisins, une heure", 'job_enfants', {t:60, flag:'j_enf', need:S=>!S.flags.j_enf}),
-   B("Chanter Mariah Carey devant la gare", S=>S.pass?'job_chant_ok':'job_chant_ko', {t:30, flag:'j_chant', need:S=>!S.flags.j_chant, fx:S=>{ S.pass = rnd(0.5); S.m += S.pass ? 12 : 1; }}),
+   B("Chanter Mariah Carey devant la gare", 'job_chant', {t:30, flag:'j_chant', need:S=>!S.flags.j_chant}),
    B("Retourner dans la rue", 'rue', {t:5})
   ]},
  job_boulangere: {p:"La boulangerie du coin · l'arrière-boutique", mini:'job:boul',
@@ -1067,12 +1143,9 @@ const SCENES = {
  job_res: {p:"Un petit boulot de dernière minute · Cormeilles",
   text:S=>(S.jobRes ? S.jobRes.text : "")+"\n\n"+(S.jobRes && S.jobRes.pay > 0 ? "Tu empoches "+eur(S.jobRes.pay)+"." : "Tu ne gagnes rien."),
   c:[B("Retourner voir les petits boulots", 'boulot', {t:5})]},
- job_chant_ok: {p:"Devant la gare · Cormeilles",
-  text:"Tu entonnes « All I Want for Christmas Is You ». Un homme s'arrête, applaudit, et laisse un billet. Puis une dame, puis un groupe de fêtards qui fait chœur. Tu récoltes 12 €, une standing ovation et une extinction de voix.",
-  c:[B("Saluer et partir", 'boulot', {t:5})]},
- job_chant_ko: {p:"Devant la gare · Cormeilles",
-  text:"Tu chantes devant la gare. Un pigeon te regarde, un contrôleur te regarde, et une dame traverse la rue pour ne pas t'entendre. Tu récoltes 1 €, que tu soupçonnes d'être une erreur.",
-  c:[B("Ramasser le euro et partir", 'boulot', {t:5})]},
+ job_chant: {p:"Devant la gare · Cormeilles", mini:'job:chant',
+  text:"Tu te plantes devant la gare avec ton plus beau sourire et une voix pas vraiment échauffée. Quatre notes, quatre colonnes : touche la colonne quand la note arrive dans la bande jaune. Les touches D, F, J et K marchent aussi.",
+  c:[]},
 
  /* ---------- Épicerie ---------- */
  epicerie: {p:"L'épicerie pas chère · Cormeilles",
