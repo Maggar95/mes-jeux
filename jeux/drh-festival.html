@@ -252,8 +252,22 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
         { label: "T1 · Hiver", chap: "Le besoin en recrutement",
           blurb: "Le festival est enneigé, Gérard a éteint le chauffage « pour la cause ». Un poste clé se libère.",
           scenes: [
+            { ty: "choice", ch: 1, tag: "Anticiper les besoins", who: "T",
+              ctx: ["Tambour déroule un tableau sur ton bureau : quatre départs en retraite d'ici deux ans (régie, sécurité, bars, comptabilité), la billetterie qui passe au tout-numérique, et un festival qui veut grandir. Gilbert, le régisseur général, part dans six mois.",
+                    "« Comment on s'y prend pour ne pas se retrouver le bec dans l'eau ? »"],
+              q: "Que mets-tu en place ?",
+              opts: [
+                { t: "Un plan de GPEC : anticiper les départs et l'évolution des métiers, puis former et organiser les mobilités", d: [-2, 4, 2], pts: 50, ok: true,
+                  fb: "La GPEC (gestion prévisionnelle des emplois et des compétences) permet d'anticiper les conséquences de l'environnement et de la stratégie sur les emplois, puis de définir des actions à court et moyen terme. Gilbert est le premier dossier de la liste." },
+                { t: "On verra quand chacun partira : on recrutera au dernier moment", d: [-6, -4, 0], pts: -15, ok: false,
+                  fb: "Recruter en urgence coûte plus cher, et tout le savoir-faire de Gilbert part avec lui, sans transmission. Tambour « se souvient » alors qu'il a déjà vécu ça avec le régisseur lumière." },
+                { t: "Embaucher dix personnes dès maintenant, à tout hasard", d: [-10, 0, 0], pts: -10, ok: false,
+                  fb: "Anticiper ne veut pas dire recruter sans savoir quoi ni qui. Gérard demande à voir la liste des postes. Elle n'existe pas." }
+              ],
+              rule: { ref: "La GPEC", text: "Un plan de GPEC permet à l'entreprise d'anticiper les conséquences de son environnement interne et externe et de ses choix stratégiques, afin de définir les actions à mener à court et moyen terme : développer la qualification des salariés, valoriser les compétences, accompagner les changements d'organisation et développer les mobilités professionnelles." } },
+
             { ty: "profile", ch: 1, tag: "Profil de poste", who: "T",
-              ctx: ["Gilbert, notre régisseur général, part à la retraite dans six mois. Dix-huit ans à monter des scènes sous la pluie.",
+              ctx: ["Premier départ à préparer : Gilbert, notre régisseur général, part à la retraite dans six mois. Dix-huit ans à monter des scènes sous la pluie.",
                     "Définition de poste. Le régisseur général pilote la production technique des trois jours : il coordonne le montage et le démontage de quatre scènes avec les prestataires et dirige une soixantaine de techniciens. Il est responsable de la sécurité du site (plans d'évacuation, relations avec les pompiers et la préfecture). Il règle les imprévus en direct : orage, panne, artiste en retard. Il travaille avec les équipes des artistes, les fournisseurs et les bénévoles.",
                     "À toi de bâtir le profil de poste, le portrait idéal du candidat, à partir de ces missions. Chaque critère se note de 1 (souhaitable) à 3 (indispensable). Tu disposes de 14 points à répartir, pas un de plus : tout ne pourra pas être « indispensable ».",
                     "Gérard : « Mets 3 partout, ça ne coûte rien ! » (Il se trompe.)"],
