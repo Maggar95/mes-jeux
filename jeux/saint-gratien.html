@@ -19,6 +19,45 @@
 .keypad input{font:inherit;font-size:28px;letter-spacing:.5em;text-align:center;padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);color:var(--fg);width:100%;box-sizing:border-box}
 .keypad input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .keypad .kp-go:disabled{opacity:.5;cursor:default}
+.jb-panel{display:grid;gap:12px;min-width:0;margin:12px 0;padding:14px;background:var(--panel);border:2px solid var(--line);border-radius:14px}
+.jb-hud{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;font-weight:600}
+.jb-hud span{background:var(--panel2);border-radius:8px;padding:4px 10px}
+.jb-bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.jb-bar i{display:block;height:100%;background:var(--accent);width:100%;transform-origin:left}
+.jb-stage{position:relative;overflow:hidden;border-radius:12px;background:var(--region);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.jb-say{min-height:1.6em;font-weight:700;margin:0}
+.jb-say.jb-ok{color:var(--good)} .jb-say.jb-ko{color:var(--bad)}
+/* flyers */
+.jb-street { height: 300px; }
+.jb-lane { position: absolute; left: 0; right: 0; height: 33.33%; border-bottom: 2px dashed var(--ghost); }
+.jb-pers { position: absolute; width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--line); background: var(--panel); font-size: 30px; line-height: 1; display: grid; place-items: center; cursor: pointer; padding: 0; will-change: transform; }
+.jb-pers.jb-busy { border-color: var(--bad); }
+.jb-pop { position: absolute; font-weight: 700; pointer-events: none; animation: pop .8s ease-out forwards; z-index: 3; }
+.jb-pop.jb-ok { color: var(--good); } .jb-pop.jb-ko { color: var(--bad); }
+@keyframes pop { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-26px); } }
+
+/* boulangerie */
+.jb-bake { padding: 14px; display: grid; gap: 14px; background: var(--panel2); }
+.jb-belt { text-align: center; font-size: 76px; line-height: 1.1; min-height: 100px; display: grid; place-items: center; background: var(--region); border-radius: 12px; border: 2px dashed var(--ghost); }
+.jb-bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.jb-bin { background: var(--panel); border: 2px solid var(--line); border-radius: 12px; padding: 12px 6px; text-align: center; cursor: pointer; display: grid; gap: 2px; min-height: 84px; place-content: center; font-weight: 600; }
+.jb-bin span { font-size: 30px; }
+.jb-bin.jb-good { border-color: var(--good); background: color-mix(in srgb, var(--good) 20%, var(--panel)); }
+.jb-bin.jb-bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 20%, var(--panel)); }
+
+/* enfants */
+.jb-salon { padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--panel2); }
+.jb-spot { position: relative; height: 104px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel); display: grid; place-items: center; text-align: center; font-size: 12px; color: var(--muted); padding: 0; cursor: pointer; }
+.jb-spot .jb-ico { font-size: 38px; line-height: 1; }
+.jb-spot .jb-nm { position: absolute; bottom: 4px; left: 0; right: 0; }
+.jb-spot.jb-on { border-color: var(--bad); animation: wob .35s infinite alternate; }
+.jb-spot i { position: absolute; left: 6px; right: 6px; top: 6px; height: 6px; background: var(--panel2); border-radius: 99px; overflow: hidden; }
+.jb-spot i b { display: block; height: 100%; background: var(--bad); width: 100%; transform-origin: left; }
+@keyframes wob { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+.jb-mess { display: flex; gap: 4px; align-items: center; }
+.jb-mess u { text-decoration: none; width: 18px; height: 18px; border-radius: 50%; background: var(--panel2); border: 2px solid var(--line); display: inline-block; }
+.jb-mess u.jb-f { background: var(--bad); border-color: var(--bad); }
+
 </style></head><body>
 <title>Direction Saint-Gratien</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -246,6 +285,200 @@ svg.map { flex: none; width: 100%; height: auto; display: block; background: var
 /*DATA_START*/
 const END_T = 240;
 /* ---------- Mini-jeux d'Eva (tirés au hasard) ---------- */
+const JOB = (function(){
+  const rr = (a, b) => a + Math.random() * (b - a);
+  const choose = a => a[Math.floor(Math.random() * a.length)];
+  const K = s => s.split(' ').map(k => 'jb-' + k).join(' ');
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = K(c); if (x != null) e.textContent = x; return e; };
+  let stopFn = null, dead = false;
+  function stop(){ dead = true; if (stopFn){ stopFn(); stopFn = null; } }
+/* ---------------- 1. Flyers ---------------- */
+  function runFlyers(box, done) {
+    const DUR = 30, STOCK = 20;
+    let stock = STOCK, given = 0, wasted = 0, t0 = performance.now(), alive = true, raf = 0, nextSpawn = 0.4;
+    const hud = el('div', 'hud'); const sT = el('span'), sS = el('span'), sG = el('span'); hud.append(sT, sS, sG);
+    const bar = el('div', 'bar'); const bi = el('i'); bar.append(bi);
+    const stage = el('div', 'stage street'); stage.setAttribute('aria-label', 'Le trottoir');
+    for (let i = 0; i < 3; i++) { const l = el('div', 'lane'); l.style.top = (i * 33.33) + '%'; stage.append(l); }
+    const say = el('p', 'say'); say.setAttribute('aria-live', 'polite');
+    box.append(hud, bar, stage, say);
+    const people = [];
+    const FACES = ['🚶', '🚶‍♀️', '🧍', '🧍‍♀️', '🏃'];
+    function paint(rem) {
+      sT.textContent = '⏱ ' + Math.ceil(rem) + ' s';
+      sS.textContent = '📄 Flyers : ' + stock;
+      sG.textContent = '✔ Donnés : ' + given;
+      bi.style.transform = 'scaleX(' + Math.max(0, rem / DUR) + ')';
+    }
+    function pop(x, y, txt, cls) { const p = el('div', 'pop ' + cls, txt); p.style.left = Math.max(4, x - 20) + 'px'; p.style.top = y + 'px'; stage.append(p); setTimeout(() => p.remove(), 800); }
+    function spawn() {
+      const W = stage.clientWidth, H = stage.clientHeight;
+      const lane = Math.floor(Math.random() * 3), dir = Math.random() < 0.5 ? 1 : -1;
+      const busy = Math.random() < 0.3;
+      const b = el('button', 'pers' + (busy ? ' busy' : ''), busy ? '📱' : choose(FACES)); b.type = 'button';
+      b.setAttribute('aria-label', busy ? 'Passant sur son téléphone' : 'Passant');
+      const speed = rr(70, 140) * dir; const y = lane * (H / 3) + (H / 6) - 28;
+      const o = { b, x: dir > 0 ? -60 : W + 4, y, speed, busy, gone: false };
+      b.style.transform = 'translate(' + o.x + 'px,' + o.y + 'px)';
+      b.addEventListener('click', () => {
+        if (!alive || o.gone || stock <= 0) return;
+        stock--; o.gone = true;
+        const r = b.getBoundingClientRect(), s = stage.getBoundingClientRect();
+        if (o.busy) { wasted++; pop(r.left - s.left, r.top - s.top - 6, '« Non merci. »', 'ko'); say.textContent = 'Il ne lève même pas les yeux : flyer perdu.'; say.className = K('say ko'); }
+        else { given++; pop(r.left - s.left, r.top - s.top - 6, '« Merci ! »', 'ok'); say.textContent = ''; say.className = K('say'); }
+        b.remove(); paint(DUR - (performance.now() - t0) / 1000);
+        if (stock <= 0) end();
+      });
+      stage.append(b); people.push(o);
+    }
+    let last = performance.now();
+    function tick(now) {
+      if (!alive) return;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const el_ = (now - t0) / 1000, rem = DUR - el_;
+      if (rem <= 0) { paint(0); end(); return; }
+      nextSpawn -= dt; if (nextSpawn <= 0) { spawn(); nextSpawn = rr(0.45, 0.95); }
+      const W = stage.clientWidth;
+      for (let i = people.length - 1; i >= 0; i--) {
+        const o = people[i];
+        if (o.gone) { people.splice(i, 1); continue; }
+        o.x += o.speed * dt; o.b.style.transform = 'translate(' + o.x + 'px,' + o.y + 'px)';
+        if (o.x < -80 || o.x > W + 20) { o.b.remove(); people.splice(i, 1); }
+      }
+      paint(rem); raf = requestAnimationFrame(tick);
+    }
+    function end() {
+      if (!alive) return; alive = false; cancelAnimationFrame(raf);
+      let pay = 0, title, text;
+      if (given >= 10) { pay = 10; title = 'Le patron est content'; text = 'Presque tout le trottoir a un flyer en main. Le patron te donne 10 € en bougonnant, ce qui est sa façon de dire merci.'; }
+      else if (given >= 5) { pay = 5; title = 'Un petit billet'; text = 'Pas mal, mais le patron voit encore des flyers dans ton sac. Il te donne 5 €.'; }
+      else { pay = 0; title = 'Des flyers sur le trottoir'; text = 'La moitié finit par terre. Le patron te regarde, regarde les flyers, et ne sort pas son portefeuille.'; }
+      setTimeout(() => done({ title, text, pay, detail: given + ' flyers donnés, ' + wasted + ' gâchés' }), 250);
+    }
+    paint(DUR); raf = requestAnimationFrame(tick);
+    return () => { alive = false; cancelAnimationFrame(raf); };
+  }
+
+  /* ---------------- 2. Boulangerie ---------------- */
+  function runBoulange(box, done) {
+    const DUR = 30;
+    const ITEMS = [
+      ['🥖', 'b'], ['🥖', 'b'], ['🥐', 'v'], ['🥐', 'v'], ['🥞', 'v'], ['🍞', 'p'], ['🥨', 'p'], ['🥯', 'p'], ['🍞', 'p']
+    ];
+    const BINS = [['b', '🥖', 'Baguettes'], ['v', '🥐', 'Viennoiseries'], ['p', '🍞', 'Pains']];
+    let ok = 0, ko = 0, cur = null, alive = true, t0 = performance.now(), iv = 0, lock = false;
+    const hud = el('div', 'hud'); const sT = el('span'), sO = el('span'); hud.append(sT, sO);
+    const bar = el('div', 'bar'); const bi = el('i'); bar.append(bi);
+    const area = el('div', 'stage bake');
+    const belt = el('div', 'belt'); belt.setAttribute('aria-live', 'polite');
+    const bins = el('div', 'bins'); const btns = {};
+    BINS.forEach(([k, ico, name]) => {
+      const b = el('button', 'bin'); b.type = 'button'; b.append(el('span', null, ico), el('b', null, name));
+      b.addEventListener('click', () => answer(k, b)); bins.append(b); btns[k] = b;
+    });
+    area.append(belt, bins);
+    box.append(hud, bar, area);
+    function next() { cur = choose(ITEMS); belt.textContent = cur[0]; belt.setAttribute('aria-label', 'Produit : ' + cur[0]); lock = false; }
+    function paint() {
+      const rem = DUR - (performance.now() - t0) / 1000;
+      sT.textContent = '⏱ ' + Math.max(0, Math.ceil(rem)) + ' s'; sO.textContent = '✔ ' + ok + '   ✖ ' + ko;
+      bi.style.transform = 'scaleX(' + Math.max(0, rem / DUR) + ')'; return rem;
+    }
+    function answer(k, b) {
+      if (!alive || lock) return; lock = true;
+      const good = cur[1] === k;
+      if (good) ok++; else ko++;
+      b.classList.add(good ? 'jb-good' : 'jb-bad'); if (!good) btns[cur[1]].classList.add('jb-good');
+      paint();
+      setTimeout(() => { Object.values(btns).forEach(x => x.classList.remove('jb-good', 'jb-bad')); if (alive) next(); }, good ? 140 : 450);
+    }
+    iv = setInterval(() => { if (paint() <= 0) end(); }, 200);
+    function end() {
+      if (!alive) return; alive = false; clearInterval(iv);
+      const net = ok - ko; let pay = 0, title, text;
+      if (net >= 12) { pay = 8; title = 'Rangé en un temps record'; text = 'La boulangère te met 8 € dans la poche, plus un pain au chocolat qu’elle jure ne pas avoir vu.'; }
+      else if (net >= 7) { pay = 4; title = 'Presque tout est à sa place'; text = 'Quelques baguettes chez les croissants, mais elle te glisse 4 € et un sourire fatigué.'; }
+      else { pay = 0; title = 'Les croissants sont avec les baguettes'; text = 'La boulangère refait tout le rangement derrière toi, sans un mot. Pas de pièce, pas de pain au chocolat.'; }
+      done({ title, text, pay, detail: ok + ' bien rangés, ' + ko + ' erreurs' });
+    }
+    next(); paint();
+    return () => { alive = false; clearInterval(iv); };
+  }
+
+  /* ---------------- 3. Enfants ---------------- */
+  function runKids(box, done) {
+    const DUR = 30, MAXMESS = 6, LIFE = 2300;
+    const SPOTS = ['Canapé', 'Étagère', 'Tapis', 'Table', 'Rideaux', 'Placard'];
+    const DEEDS = [['🖍️', 'Crayon sur le mur'], ['🎨', 'Pot de peinture'], ['🐹', 'Hamster en liberté'], ['🔧', 'Tournevis'], ['🍯', 'Pot de miel'], ['✂️', 'Ciseaux']];
+    let mess = 0, stopped = 0, alive = true, t0 = performance.now(), raf = 0, nextAt = 0.5;
+    const hud = el('div', 'hud'); const sT = el('span'), sS = el('span'); const sM = el('span', 'mess'); sM.setAttribute('aria-label', 'Dégâts'); hud.append(sT, sS, sM);
+    const dots = []; for (let i = 0; i < MAXMESS; i++) { const u = el('u'); dots.push(u); sM.append(u); }
+    const bar = el('div', 'bar'); const bi = el('i'); bar.append(bi);
+    const salon = el('div', 'stage salon');
+    const say = el('p', 'say'); say.setAttribute('aria-live', 'polite');
+    const spots = SPOTS.map(n => {
+      const b = el('button', 'spot'); b.type = 'button';
+      const ico = el('span', 'ico', '🧒'); const nm = el('span', 'nm', n);
+      const life = el('i'); const lb = el('b'); life.append(lb); life.hidden = true;
+      b.append(life, ico, nm); salon.append(b);
+      const s = { b, ico, life, lb, deed: null, born: 0 };
+      b.addEventListener('click', () => {
+        if (!alive || !s.deed) return;
+        stopped++; say.textContent = 'Stoppé : ' + s.deed[1].toLowerCase() + '.'; say.className = K('say ok'); clear(s); paintHud();
+      });
+      return s;
+    });
+    box.append(hud, bar, salon, say);
+    function clear(s) { s.deed = null; s.b.classList.remove('jb-on'); s.ico.textContent = '🧒'; s.life.hidden = true; }
+    function paintHud() {
+      const rem = DUR - (performance.now() - t0) / 1000;
+      sT.textContent = '⏱ ' + Math.max(0, Math.ceil(rem)) + ' s'; sS.textContent = '✋ ' + stopped;
+      dots.forEach((u, i) => u.classList.toggle('jb-f', i < mess));
+      bi.style.transform = 'scaleX(' + Math.max(0, rem / DUR) + ')'; return rem;
+    }
+    let last = performance.now();
+    function tick(now) {
+      if (!alive) return;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const rem = paintHud();
+      if (rem <= 0 || mess >= MAXMESS) { end(); return; }
+      nextAt -= dt;
+      const prog = 1 - rem / DUR;
+      if (nextAt <= 0) {
+        const free = spots.filter(s => !s.deed);
+        if (free.length) { const s = choose(free); s.deed = choose(DEEDS); s.born = now; s.b.classList.add('jb-on'); s.ico.textContent = s.deed[0]; s.life.hidden = false; }
+        nextAt = rr(0.55, 1.0) - prog * 0.25;
+      }
+      spots.forEach(s => {
+        if (!s.deed) return;
+        const k = (now - s.born) / LIFE;
+        s.lb.style.transform = 'scaleX(' + Math.max(0, 1 - k) + ')';
+        if (k >= 1) { mess++; say.textContent = s.deed[1] + ' : trop tard, les dégâts s’accumulent.'; say.className = K('say ko'); clear(s); }
+      });
+      raf = requestAnimationFrame(tick);
+    }
+    function end() {
+      if (!alive) return; alive = false; cancelAnimationFrame(raf); paintHud();
+      let pay = 0, title, text;
+      if (mess >= MAXMESS) { title = 'Le hamster a gagné'; text = 'Les parents rentrent sur un tableau de Jackson Pollock avec un hamster dessus. Ils ne te payent pas et ne te dénoncent pas non plus.'; }
+      else if (mess <= 2) { pay = 15; title = 'Les enfants veulent te garder'; text = 'Presque aucune bêtise. Les parents rentrent, ravis, et te tendent 15 € en disant que c’est pour « la tranquillité ».'; }
+      else if (mess <= 4) { pay = 7; title = 'Quelques taches de peinture'; text = 'Un mur à ravoir, mais les enfants sont couchés. Les parents te donnent 7 € et t’évitent du regard.'; }
+      else { title = 'Une soirée mouvementée'; text = 'Les parents tombent sur un pot de miel dans le canapé. Pas de paiement, mais pas de reproche non plus.'; }
+      setTimeout(() => done({ title, text, pay, detail: stopped + ' bêtises stoppées, ' + mess + ' dégâts' }), 300);
+    }
+    paintHud(); raf = requestAnimationFrame(tick);
+    return () => { alive = false; cancelAnimationFrame(raf); };
+  }
+
+
+  const GAMES = { fly: runFlyers, boul: runBoulange, kids: runKids };
+  function run(kind, area, cb){
+    stop(); dead = false; area.textContent = '';
+    const box = el('div', 'panel'); area.appendChild(box);
+    stopFn = GAMES[kind](box, r => { if (!dead){ stopFn = null; cb(r); } });
+  }
+  return { run, stop };
+})();
 const PEN = (function(){
   let tok = 0, tm = null;
   function stop(){ tok++; if (tm){ clearTimeout(tm); tm = null; } }
@@ -816,24 +1049,24 @@ const SCENES = {
  boulot: {p:"Un petit boulot de dernière minute · Cormeilles",
   text:"Il est {time}. Un 31 au soir, tout le monde a besoin d'une paire de bras, et d'une paire de bras bon marché. Tu as {m} en poche. Où proposes-tu tes services ?",
   c:[
-   B("Aider la boulangère à ranger avant la fermeture", 'job_boulangere', {t:30, m:8, flag:'j_boul', need:S=>!S.flags.j_boul}),
-   B("Distribuer des flyers pour la soirée d'un bar", 'job_flyers', {t:40, m:10, flag:'j_fly', need:S=>!S.flags.j_fly}),
-   B("Garder les enfants des voisins, une heure", S=>S.pass?'job_enfants_ok':'job_enfants_ko', {t:60, flag:'j_enf', need:S=>!S.flags.j_enf, fx:S=>{ S.pass = rnd(0.65); if (S.pass) S.m += 15; }}),
+   B("Aider la boulangère à ranger avant la fermeture", 'job_boulangere', {t:30, flag:'j_boul', need:S=>!S.flags.j_boul}),
+   B("Distribuer des flyers pour la soirée d'un bar", 'job_flyers', {t:40, flag:'j_fly', need:S=>!S.flags.j_fly}),
+   B("Garder les enfants des voisins, une heure", 'job_enfants', {t:60, flag:'j_enf', need:S=>!S.flags.j_enf}),
    B("Chanter Mariah Carey devant la gare", S=>S.pass?'job_chant_ok':'job_chant_ko', {t:30, flag:'j_chant', need:S=>!S.flags.j_chant, fx:S=>{ S.pass = rnd(0.5); S.m += S.pass ? 12 : 1; }}),
    B("Retourner dans la rue", 'rue', {t:5})
   ]},
- job_boulangere: {p:"La boulangerie du coin · l'arrière-boutique",
-  text:"La boulangère te met un tablier trop grand dans les mains. Tu ranges des plaques, tu portes des sacs de farine, tu empiles des cagettes. Elle te glisse 8 € dans la poche, plus un pain au chocolat qu'elle jure ne pas avoir vu.",
-  c:[B("Remercier et retourner voir", 'boulot', {t:5})]},
- job_flyers: {p:"Devant un bar · Cormeilles",
-  text:"Tu distribues des flyers « Réveillon à prix cassé » dans le froid. La moitié finit par terre, un quart dans la poche d'un passant qui te dit « Merci monsieur ! », l'autre quart dans ton propre sac. Le patron te donne 10 € en bougonnant.",
-  c:[B("Empocher et partir", 'boulot', {t:5})]},
- job_enfants_ok: {p:"Chez les voisins · le salon",
-  text:"Deux enfants, un jeu de société, trois règles inventées en direct. À la fin, ils veulent te garder pour toujours. Les parents rentrent, ravis, et te tendent 15 € en disant que c'est pour « la tranquillité ».",
-  c:[B("Partir avant qu'ils changent d'avis", 'boulot', {t:5})]},
- job_enfants_ko: {p:"Chez les voisins · le salon",
-  text:"Les enfants ont vite compris que tu étais nouveau. Un tournevis, un pot de peinture lavable et un hamster en liberté plus tard, les parents rentrent. Ils ne te payent pas, mais ne te dénoncent pas non plus.",
-  c:[B("Rentrer sans un mot", 'boulot', {t:5})]},
+ job_boulangere: {p:"La boulangerie du coin · l'arrière-boutique", mini:'job:boul',
+  text:"La boulangère te met un tablier trop grand dans les mains. « Les baguettes avec les baguettes, les croissants avec les croissants, et ne me regarde pas comme ça. » Les cagettes t'attendent.",
+  c:[]},
+ job_flyers: {p:"Devant un bar · Cormeilles", mini:'job:fly',
+  text:"Le patron du bar te colle une pile de flyers « Réveillon à prix cassé » dans les mains. « Vingt. Pas un de plus, et pas un par terre. » Le trottoir se remplit de passants pressés.",
+  c:[]},
+ job_enfants: {p:"Chez les voisins · le salon", mini:'job:kids',
+  text:"Les parents disparaissent en trente secondes. Deux enfants te regardent avec un sourire qui n'annonce rien de bon. Un hamster fait une reconnaissance sous le canapé.",
+  c:[]},
+ job_res: {p:"Un petit boulot de dernière minute · Cormeilles",
+  text:S=>(S.jobRes ? S.jobRes.text : "")+"\n\n"+(S.jobRes && S.jobRes.pay > 0 ? "Tu empoches "+eur(S.jobRes.pay)+"." : "Tu ne gagnes rien."),
+  c:[B("Retourner voir les petits boulots", 'boulot', {t:5})]},
  job_chant_ok: {p:"Devant la gare · Cormeilles",
   text:"Tu entonnes « All I Want for Christmas Is You ». Un homme s'arrête, applaudit, et laisse un billet. Puis une dame, puis un groupe de fêtards qui fait chœur. Tu récoltes 12 €, une standing ovation et une extinction de voix.",
   c:[B("Saluer et partir", 'boulot', {t:5})]},
@@ -2100,7 +2333,7 @@ function fill(str){
   });
 }
 function val(x){ return typeof x === 'function' ? x(S) : x; }
-function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if (typeof EVA !== 'undefined') EVA.stop(); if (typeof PEN !== 'undefined') PEN.stop(); }
+function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if (typeof EVA !== 'undefined') EVA.stop(); if (typeof PEN !== 'undefined') PEN.stop(); if (typeof JOB !== 'undefined') JOB.stop(); }
 function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== id); }); }
 
 function renderStart(){
@@ -2273,7 +2506,8 @@ function showScene(id, sc){
   }
   if (sc.mini){
     const area = el('div'); box.appendChild(area);
-    if (sc.mini === 'penalty') PEN.run(area, (res, detail)=>{ pick({to: res === 'win' ? 'louis_win' : 'louis_lose', t:0, note: detail}); });
+    if (typeof sc.mini === 'string' && sc.mini.indexOf('job:') === 0) JOB.run(sc.mini.slice(4), area, r=>{ S.jobRes = r; pick({to:'job_res', t:0, m:r.pay}); });
+    else if (sc.mini === 'penalty') PEN.run(area, (res, detail)=>{ pick({to: res === 'win' ? 'louis_win' : 'louis_lose', t:0, note: detail}); });
     else S.evaGame = EVA.run(area, S.evaGame, (res, detail)=>{ pick({to: res === 'win' ? 'eva_jeux_win' : 'eva_jeux_lose', t:0, note: detail}); });
     box.scrollIntoView({block:'start'});
     return;
