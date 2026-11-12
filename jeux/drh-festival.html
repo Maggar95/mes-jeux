@@ -253,8 +253,9 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           blurb: "Le festival est enneigé, Gérard a éteint le chauffage « pour la cause ». Un poste clé se libère.",
           scenes: [
             { ty: "profile", ch: 1, tag: "Profil de poste", who: "T",
-              ctx: ["Gilbert, notre régisseur général, part à la retraite dans six mois. Dix-huit ans à monter des scènes sous la pluie. Il pilote la production technique : montage, sécurité du site et une soixantaine de techniciens.",
-                    "À toi de bâtir le profil de poste, le portrait idéal du candidat. Chaque critère se note de 1 (souhaitable) à 3 (indispensable). Tu disposes de 14 points à répartir, pas un de plus.",
+              ctx: ["Gilbert, notre régisseur général, part à la retraite dans six mois. Dix-huit ans à monter des scènes sous la pluie.",
+                    "Définition de poste. Le régisseur général pilote la production technique des trois jours : il coordonne le montage et le démontage de quatre scènes avec les prestataires et dirige une soixantaine de techniciens. Il est responsable de la sécurité du site (plans d'évacuation, relations avec les pompiers et la préfecture). Il règle les imprévus en direct : orage, panne, artiste en retard. Il travaille avec les équipes des artistes, les fournisseurs et les bénévoles.",
+                    "À toi de bâtir le profil de poste, le portrait idéal du candidat, à partir de ces missions. Chaque critère se note de 1 (souhaitable) à 3 (indispensable). Tu disposes de 14 points à répartir, pas un de plus : tout ne pourra pas être « indispensable ».",
                     "Gérard : « Mets 3 partout, ça ne coûte rien ! » (Il se trompe.)"],
               q: "Comment pondères-tu les critères ?", budget: 14,
               crit: [
@@ -1106,7 +1107,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     var sc = st.sc, mx = sceneMax(sc);
     var h = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) +
       '<p class="q">' + esc(sc.q) + '</p><div class="opts">' +
-      sc.opts.map(function (o, i) { return '<button class="opt" data-i="' + i + '"><span class="k">' + LETTERS[i] + "</span><span>" + esc(o.t) + "</span></button>"; }).join("") +
+      shuffle(sc.opts.map(function (o, i) { return i; })).map(function (i, pos) { return '<button class="opt" data-i="' + i + '"><span class="k">' + LETTERS[pos] + "</span><span>" + esc(sc.opts[i].t) + "</span></button>"; }).join("") +
       '</div><div id="fb"></div></section>';
     $main.innerHTML = h;
     var btns = $main.querySelectorAll(".opt");
@@ -1115,7 +1116,8 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
         var i = +b.getAttribute("data-i"), o = sc.opts[i];
         var dd = apply(o.d, o.pts || 0, sc.ch, mx);
         setFlags(o.flag); noteMiss(sc, o.pts || 0, mx);
-        Array.prototype.forEach.call(btns, function (x, j) {
+        Array.prototype.forEach.call(btns, function (x) {
+          var j = +x.getAttribute("data-i");
           x.disabled = true;
           if (j === i) x.classList.add(o.ok === true ? "right" : (o.ok === false ? "wrong" : "sel"));
           else if (sc.opts[j].ok === true) x.classList.add("right"); else x.classList.add("dim");
@@ -1137,7 +1139,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     function count() { var n = 0; for (var k in sel) if (sel[k]) n++; return n; }
     var h = bandBox(st) + '<section class="card"><span class="tag">' + esc(sc.tag) + "</span>" + whoBox(sc.who) + ctxBox(sc.ctx) +
       '<p class="q">' + esc(sc.q) + '</p><p class="count" id="cnt"></p><div class="opts">' +
-      sc.items.map(function (it, i) { return '<button class="opt" data-i="' + i + '" aria-pressed="false"><span class="k"></span><span>' + esc(it.t) + (it.sub ? "<small>" + esc(it.sub) + "</small>" : "") + "</span></button>"; }).join("") +
+      shuffle(sc.items.map(function (it, i) { return i; })).map(function (i) { var it = sc.items[i]; return '<button class="opt" data-i="' + i + '" aria-pressed="false"><span class="k"></span><span>' + esc(it.t) + (it.sub ? "<small>" + esc(it.sub) + "</small>" : "") + "</span></button>"; }).join("") +
       '</div><div id="fb"><button class="btn" id="ok" disabled>Valider mon choix</button></div></section>';
     $main.innerHTML = h;
     var btns = $main.querySelectorAll(".opt"), okb = document.getElementById("ok");
@@ -1145,7 +1147,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
       var n = count();
       document.getElementById("cnt").textContent = budget ? "Jetons dépensés : " + cost() + " sur " + sc.budget : "Sélection : " + n + " sur " + sc.n;
       okb.disabled = budget ? !(n >= 1 && cost() <= sc.budget) : n !== sc.n;
-      Array.prototype.forEach.call(btns, function (b, i) { b.classList.toggle("sel", !!sel[i]); b.setAttribute("aria-pressed", sel[i] ? "true" : "false"); b.querySelector(".k").textContent = sel[i] ? "✓" : ""; });
+      Array.prototype.forEach.call(btns, function (b) { var i = +b.getAttribute("data-i"); b.classList.toggle("sel", !!sel[i]); b.setAttribute("aria-pressed", sel[i] ? "true" : "false"); b.querySelector(".k").textContent = sel[i] ? "✓" : ""; });
     }
     Array.prototype.forEach.call(btns, function (b) {
       b.onclick = function () {
