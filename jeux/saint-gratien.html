@@ -2043,10 +2043,22 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
  antonin_heli: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
   text:"« Moto, c'est bien. Hélicoptère, c'est mieux. » Antonin te boucle un casque audio, vérifie trois cadrans, tape sur un quatrième. Le rotor se lance, le hangar s'envole sous vous. Cormeilles devient une carte, Saint-Gratien une constellation de guirlandes. « Parfait, on y est en quatre minutes. » Un silence. « On se pose où, au fait ? »",
   c:[
+   B("Sur le toit de chez Yann", 'antonin_heli_toit', {t:10}),
+   B("Sur le toit du Carrefour City", 'antonin_heli_cc', {t:5}),
    B("Dans le jardin de Yann", 'antonin_heli2', {t:35}),
-   B("Sur le parking du Carrefour", 'antonin_heli2', {t:35}),
    B("Sur le toit de la gare", 'antonin_heli2', {t:35})
   ]},
+ antonin_heli_toit: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
+  text:"Le pavillon de Yann apparaît sous les guirlandes. Le toit est pentu, l'antenne dépasse, la cheminée fume, et dessous on entend la musique. Antonin serre le manche, très concentré. « Je peux le faire. Enfin, je crois. Peut-être. Ça dépend du vent. » Le vent, justement, vient de changer.",
+  c:[
+   B("Insister : « Pose-nous là ! »", 'fin_heli_toit', {t:5}),
+   B("Faire demi-tour et rentrer au hangar", 'antonin_garage', {t:25, note:"Antonin souffle, soulagé : « Bonne décision. Je tiens à mes patins. »"})
+  ]},
+ antonin_heli_cc: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
+  text:"« Le toit du Carrefour City ? Non, non, non. Il y a trois blocs de ventilation, un panneau lumineux et un grillage. Ce n'est pas un héliport, c'est un toit de supérette. » Il remonte légèrement. « Choisis autre chose. »",
+  c:[B("Choisir un autre endroit", 'antonin_heli', {t:0})]},
+ fin_heli_toit: {end:'lose', h:"Atterrissage sur le toit",
+  text:"Antonin descend, descend, et le toit se rapproche beaucoup plus vite que prévu. Un patin accroche l'antenne, le rotor emporte la cheminée, l'hélicoptère bascule. Les invités, dans le salon, lèvent la tête au bruit en même temps que la musique s'arrête. Dernière image : les guirlandes qui s'éteignent une à une. Yann, en bas, qui murmure : « C'était pour moi, ça ? »"},
  antonin_heli2: {p:"Dans l'hélicoptère d'Antonin", who:'antonin',
   text:"Vous tournez au-dessus de Saint-Gratien. Le jardin de Yann a des arbres, le parking a des câbles, le toit de la gare a un contrôleur qui vous regarde. Vous essayez trois fois. Des voisins sortent sur leur balcon, certains filment, un chien aboie sans conviction. « Ah, dit Antonin. Je n'ai pas le droit de me poser ici. Je n'ai jamais eu le droit de me poser nulle part, en fait. » Vous refaites le trajet inverse en silence. Il est plus tard que prévu.",
   c:[B("Se poser au hangar d'Antonin", 'antonin_garage', {t:25, note:"Une heure de vol, zéro atterrissage. Antonin éteint le rotor : « Pour la moto, par contre, c'est sûr. »"})]},
