@@ -2,7 +2,7 @@
    Pour changer ou ajouter un code, demande à Claude de régénérer ce fichier. */
 window.MESJEUX_CODES = {
   iter: 1000000,
-  salt: "bVk4p9UPjmh+yvuKrTW9nQ==",
-  iv: "np3sjT1/BNz/LKGY",
-  data: "vtic9F/2O017+D2MrnKSV4hLExeU7dFMiYg7TqAfH1uQs4b1rFyo9gYsEpFYqWsTPewr7ZkxeDpzVhUqWUsnMlyMGB4gsvrQ7tCy1mnaNFz3/n0tBKTksyC83GPpflQQUO4baJFTMr8Pr1f4X7zfRaArvmt4RZ3Z+4pVJ+dEjSawqgk8ohaBNuzF1g=="
+  salt: "NUPW9/Pwz0Y2lVuyvWyYCg==",
+  iv: "QNkoFRZZyUn9eUns",
+  data: "anCFgTLDtHPZIACpvDlON24BiX1eZmjFzeSRaY5F7YnO8HUcqeymaNGp5lB1xHhMv9Rk7vE+dVhcqFWBzI1joTYRLqEovRkeYDgWVkt89MZYKru8SFOoMaLWY920C00NsLokgLN48N9K24vGMIo87FbA3usun3QCCzpR7Bs+lnp1FO3tfr8aBa61EwIio7jQ91PiQ6yjYf0e2DtCGx6QsOSrXAr4XXhhnIpSeu4HOdCMCLeMPyGr0V0CdEamtrfd3WJVMA+Gb3MQ6trrDkKguq/o7+1rA1xqIsVVN6HVEGMzJ2rZID0i2eSWdy+BPfnN"
 };
