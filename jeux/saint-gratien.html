@@ -958,7 +958,7 @@ const pay = n => S => S.m + 0.001 < n ? "Pas assez d'argent" : null;
 const B = (l,to,o) => Object.assign({l:l,to:to}, o || {});
 const rnd = p => Math.random() < p;
 const buy = (key,n) => S => (S.stock && S.stock[key] === false) ? 'En rupture' : pay(n)(S);
-const AVAIL = {epi_blanc:0.1, epi_cuvee:0.1, epi_mys:0.1, epi_sauc:0.1, epi_chev:0.1, epi_nature:0.1, epi_miel:0.1, epi_bonb:0.1, cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, buche:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
+const AVAIL = {epi_blanc:0.1, epi_cuvee:0.1, epi_mys:0.1, epi_sauc:0.1, epi_chev:0.1, epi_nature:0.1, epi_miel:0.1, epi_bonb:0.1, cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
 const lab = (t,k) => t + (AVAIL[k] < 0.2 ? " · presque toujours en rupture" : AVAIL[k] < 0.7 ? " · souvent en rupture" : "");
 function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AVAIL[k]); }); return o; }
 
@@ -2304,7 +2304,6 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B(lab("Des chips ondulées bacon, Leader Price (2 €)",'bacon'), 'cf_snacks', {t:5, m:-2, item:'chips_bacon', lock:buy('bacon',2)}),
    B(lab("Des chips nature (1 €)",'nature'), 'cf_snacks', {t:5, m:-1, item:'chips_nature', lock:buy('nature',1)}),
    B(lab("Des cacahuètes (2 €)",'cacahuetes'), 'cf_snacks', {t:5, m:-2, item:'cacahuetes', lock:buy('cacahuetes',2)}),
-   B(lab("Une mini-bûche (6 €)",'buche'), 'cf_snacks', {t:5, m:-6, item:'buche', lock:buy('buche',6)}),
    B(lab("Un plateau de sushis (12 €)",'sushis'), 'cf_snacks', {t:5, m:-12, item:'sushis', lock:buy('sushis',12)}),
    B("Retourner dans les rayons", 'carrefour_rayon', {t:5})
   ]},
@@ -2415,18 +2414,18 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
 
 const YQ = [["Tu as su répondre à sa question sur le blanc : il hoche la tête avec un vrai respect.","Tu as raté sa question sur le blanc, mais ce que tu as apporté t'en fait pardonner."],["Tu savais d'où vient le vinho verde : {Y} t'a regardé avec un respect nouveau.","Tu t'es trompé de pays pour le vinho verde, mais {Y} a fait semblant de ne pas l'avoir entendu."],["Tu sais ouvrir une bouteille sans faire sauter le bouchon : {Y} t'a confié la prochaine.","Tu as mal répondu sur l'ouverture du crémant : {Y} ne te laissera pas ouvrir la bouteille."],["Tu connaissais le plus petit os du corps : {Y} t'a fait un diplôme honoraire sur une serviette.","Tu as raté sa question sur l'os de l'oreille : {Y} a noté ton nom avec une croix dans un carnet imaginaire."],["Tu connaissais le temps de lavage des mains : {Y} te montre déjà où se trouve le savon.","Tu as raté sa question sur le lavage des mains : {Y} te tend le savon, par principe."]];
 function sc(S,id){ return id==='mystere' ? (S.mys?3:-2) : ITEMS[id].s; }
-const EPI_W = new Set(['blanc_epi','saucisson','chevre','miel','bonbons']), EPI_L = new Set(['vin_epicerie','chips_nature']);
+const EPI_W = new Set(['blanc_epi','saucisson','chevre','miel','bonbons']), CF_W = new Set(['cremant_cf', 'rouge_cf', 'rose_brique', 'bieres', 'chips', 'chips_bacon', 'cacahuetes', 'sushis', 'cotillons', 'boule_neige', 'fleurs']);
 function resolve(S){
   if (!S.bag.length) return 'lose_mains';
   const kill = S.bag.find(b=>ITEMS[b] && ITEMS[b].kill);
-  if (kill) { S.best = kill; return EPI_L.has(kill) ? 'lose_epicier' : 'lose_'+kill; }
+  if (kill) { S.best = kill; return 'lose_'+kill; }
   const best = S.bag.reduce((a,b)=> sc(S,b) >= sc(S,a) ? b : a);
   S.best = best;
-  if (sc(S,best) < 0) return best === 'mystere' ? 'fin_mystere' : EPI_L.has(best) ? 'lose_epicier' : 'lose_'+best;
+  if (sc(S,best) < 0) return best === 'mystere' ? 'fin_mystere' : 'lose_'+best;
   const ks = new Set(S.bag.filter(b=>sc(S,b)>0).map(b=>ITEMS[b].k));
   if (ks.size === 3) return 'win_parfait';
   if (best === 'mystere') return 'fin_mystere';
-  return EPI_W.has(best) ? 'win_epicier' : 'win_'+best;
+  return EPI_W.has(best) ? 'win_epicier' : CF_W.has(best) ? 'win_carrefour' : 'win_'+best;
 }
 function extras(S){
   const out = [];
@@ -2454,12 +2453,12 @@ function winText(S,id){
 }
 Object.keys(ITEMS).forEach(id=>{
   const it = ITEMS[id];
-  if (id === 'mystere' || EPI_W.has(id) || EPI_L.has(id)) return;
+  if (id === 'mystere' || EPI_W.has(id) || CF_W.has(id)) return;
   if (it.s < 0) SCENES['lose_'+id] = {end:'lose', h:it.h, text:it.w};
   else SCENES['win_'+id] = {end:'win', h:it.h, text:S=>winText(S,id)};
 });
 SCENES.win_epicier = {end:'win', h:"Le panier de l'épicier", text:S=>winText(S, EPI_W.has(S.best) ? S.best : 'saucisson')};
-SCENES.lose_epicier = {end:'lose', h:"Le rayon qu'il ne fallait pas prendre", text:S=>ITEMS[EPI_L.has(S.best) ? S.best : 'vin_epicerie'].w};
+SCENES.win_carrefour = {end:'win', h:"Les courses du Carrefour City", text:S=>winText(S, CF_W.has(S.best) ? S.best : 'chips')};
 
 const EVENTS = ['ev_moto','ev_cindy','ev_tarte','ev_dame','ev_livreur','ev_ados','ev_arnaque','ev_fetards','ev_meteo','ev_tiktok','ev_yann','ev_boulangere'];
 function cindyGift(S){ return ['the_cindy','biscuits_cindy','souvenir_cindy'].find(k=>S.bag.indexOf(k) >= 0) || null; }
@@ -2797,6 +2796,7 @@ const IMG = (function(){
   const dish=()=>plate(C.am,C.br2)+`<ellipse cx="0" cy="10" rx="42" ry="26" fill="${C.bl}" opacity=".28"/>`;
   const gameBottle=(b,l,cork)=>bottle(b,l,cork);
   const OBJ={
+    courses:()=>P('M-44 -4h88l-9 42h-70z','#c8372d')+L('M-44 -4q44-46 88 0','#c8372d',6)+bottle('#1e5a3c',C.li,C.li,'#1e5a3c').replace(/^/,'<g transform="translate(-18 -2) scale(.6)">')+'</g>'+bag('#7a3b1d',C.or,C.am).replace(/^/,'<g transform="translate(20 0) scale(.6)">')+'</g>',
     panier:()=>P('M-46 -6h92l-10 44h-72z',C.br)+L('M-46 -6q46-52 92 0',C.br2,6)+R(-6,-44,12,38,'#2a6a4a')+R(-7,-48,14,6,C.li)+sausage().replace(/^/,'<g transform="translate(-22 4) scale(.5)">')+'</g>'+jar(C.am,C.br2).replace(/^/,'<g transform="translate(24 2) scale(.55)">')+'</g>',
     plat_eva:dish,gants_louis:gloves,jeu_societe:boardgame,bouteille_coffre:()=>bottle('#2c3e2f',null,'#8a6b3e'),the_cindy:()=>glassPunch(C.or),biscuits_cindy:()=>tin(C.cr),biscuits_perimes:()=>tin('#9ab08a')+Ci(-8,0,5,'#3a6b3a')+Ci(14,10,4,'#3a6b3a'),
     durian:fish,objets_trouves:objectsBox,livre_mael:()=>book(C.rd)+L('M-26 -12l14 14M-6 6l12-10',C.rd,3),vin_epicerie:()=>bottle('#6b2b3a',C.br,C.br2)+L('M-12 20q6 6 12 0',C.bl,2,'opacity=".6"'),
@@ -2873,7 +2873,7 @@ const IMG = (function(){
       const key=id.replace(/^(win|lose)_/,'');
       if(id==='win_parfait') return wrap(partyRoom()+confetti(30)+['cremant','chips','saucisson','tarte','pasteis'].map((k,i)=>objectSvg(k,64,0,70+i*65,138,56)).join(''),sc.h);
       if(id==='win_epicier') return wrap(ending('panier','win'),sc.h);
-      if(id==='lose_epicier') return wrap(ending('vin_epicerie','lose'),sc.h);
+      if(id==='win_carrefour') return wrap(ending('courses','win'),sc.h);
       if(id==='fin_mystere') return wrap(ending('mystere',sc.end),sc.h);
       if(OBJ[key]) return wrap(ending(key,sc.end),sc.h||'Fin');
       return wrap(partyRoom({dark:sc.end==='lose'}),sc.h||'Fin');
@@ -2889,16 +2889,16 @@ const IMG = (function(){
 const CLS = (function(){
   const CAT = [
     ['Les fins secrètes', ['fin_teleporteur','fin_doro','fin_perdus','fin_moto_col']],
-    ['À boire gagnant', ['win_cremant','win_cremant_cf','win_rouge_cf','win_cidre','win_vinho','win_ruby','win_rose_brique','win_bieres','win_bouteille_coffre','win_the_cindy']],
-    ['À manger gagnant', ['win_chips','win_chips_bacon','win_cacahuetes','win_epicier','win_fromage_mt','win_sushis','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
-    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_boule_neige','win_fleurs','win_cotillons','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
-    ['Mauvais cadeaux', ['lose_mains','lose_epicier','lose_biscuits_perimes','lose_durian','lose_recu','lose_buche_moreau']],
+    ['À boire gagnant', ['win_cremant','win_cidre','win_vinho','win_ruby','win_bouteille_coffre','win_the_cindy']],
+    ['À manger gagnant', ['win_epicier','win_carrefour','win_fromage_mt','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
+    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
+    ['Mauvais cadeaux', ['lose_mains','lose_vin_epicerie','lose_chips_nature','lose_biscuits_perimes','lose_durian','lose_recu','lose_buche_moreau']],
     ['En chemin', ['fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
     ['Les tentations de la nuit', ['fin_eva_nuit','fin_katia','fin_casino','fin_festival','fin_carottes','fin_chien','fin_burpees','fin_salle','fin_minuit']]
   ];
   const who = n => String(n || '').trim().toLowerCase();
   const key = n => 'dsg-classeur:' + who(n);
-  const LEG = {win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',lose_vin_epicerie:'lose_epicier',lose_chips_nature:'lose_epicier',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
+  const LEG = {win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',win_cremant_cf:'win_carrefour',win_rouge_cf:'win_carrefour',win_rose_brique:'win_carrefour',win_bieres:'win_carrefour',win_chips:'win_carrefour',win_chips_bacon:'win_carrefour',win_cacahuetes:'win_carrefour',win_sushis:'win_carrefour',win_cotillons:'win_carrefour',win_boule_neige:'win_carrefour',win_fleurs:'win_carrefour',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
   function get(n){ return new Set([...rawGet(n)].map(i => LEG[i] || i)); }
   function rawGet(n){
     const out = new Set();
