@@ -72,7 +72,8 @@
 .pf{flex:none;padding:10px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));border-top:1px solid var(--line);background:var(--bg)}
 .close.wide{width:100%;min-height:52px;font-weight:700;background:var(--accent);color:var(--accent-fg);border-color:transparent}
 </style></head><body>
-<title>Direction Saint-Gratien</title>
+<title>Direction ???</title>
+<style>.scene-img{margin:0 0 14px;border-radius:14px;overflow:hidden;line-height:0}.scene-img svg{display:block;width:100%;height:auto}</style>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
 <style>
@@ -818,7 +819,7 @@ const MAP = (function(){
   function zoneOf(id, sc){ if (BYID[id]) return BYID[id]; const p = sc && typeof sc.p === 'string' ? sc.p : ''; for (const [re, z] of RULES) if (re.test(p)) return z; return null; }
   function visit(id, sc){
     load(); const z = zoneOf(id, sc); if (!z) { count(); return; }
-    here = z;
+    here = z; if (z === 'yann' && typeof S !== 'undefined' && S) S.arrived = true;
     if (!seen[z]) { seen[z] = 1; fresh = true; try { store(key(), JSON.stringify(seen)); } catch (e) {} }
     count();
   }
@@ -874,6 +875,77 @@ const MAP = (function(){
   return { visit, init, reset, count };
 })();
 
+/* Anonymisation : l'hôte et le lieu restent cachés jusqu'à l'arrivée chez lui */
+const MASK = (function(){
+  const orig = new WeakMap(), shown = new WeakMap();
+  let revealed = false, screen = true, obs = null;
+  const keyOf = () => 'dsg-reveal:' + String((typeof S !== 'undefined' && S && (S.pseudo || S.player)) || '').trim().toLowerCase();
+  const active = () => screen || (!revealed && !(typeof S !== 'undefined' && S && S.player === 'yann'));
+  function mk(t){
+    return t
+      .replace(/(^|[.!?…»«]\s*|\n\s*)Saint-Gratien\b(?=\s+(est|se|a|n[’'])\b)/g, '$1La soirée')
+      .replace(/Saint-Gratien|SAINT-GRATIEN/g, '???')
+      .replace(/d[’']Enghien|d[’']ENGHIEN/g, 'de ???')
+      .replace(/Enghien|ENGHIEN/g, '???')
+      .replace(/(^|[.!?…»«]\s*|\n\s*)Yann\b/g, "$1L'hôte")
+      .replace(/\bYann\b/g, "l'hôte");
+  }
+  function skip(n){
+    const p = n.parentElement; if (!p) return true;
+    if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE' || p.tagName === 'TEXTAREA') return true;
+    return !!p.closest('.who-grid');
+  }
+  function fix(n){
+    if (skip(n)) return;
+    const cur = n.data;
+    const o = (shown.has(n) && shown.get(n) === cur) ? orig.get(n) : cur;
+    const out = active() ? mk(o) : o;
+    if (out !== cur) n.data = out;
+    if (out !== o){ orig.set(n, o); shown.set(n, out); } else { orig.delete(n); shown.delete(n); }
+  }
+  function walk(root){
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const list = []; let n; while ((n = w.nextNode())) list.push(n);
+    list.forEach(fix);
+  }
+  function attrs(){
+    document.querySelectorAll('[aria-label],[title]').forEach(e => ['aria-label','title'].forEach(a => {
+      if (!e.hasAttribute(a)) return;
+      const k = 'orig' + a.replace('-', ''); if (e.dataset[k] == null) e.dataset[k] = e.getAttribute(a);
+      e.setAttribute(a, active() ? mk(e.dataset[k]) : e.dataset[k]);
+    }));
+  }
+  function refresh(){ walk(document.documentElement); attrs(); }
+  function start(){
+    refresh();
+    obs = new MutationObserver(recs => {
+      recs.forEach(r => {
+        if (r.type === 'characterData') fix(r.target);
+        else r.addedNodes.forEach(a => { if (a.nodeType === 3) fix(a); else if (a.nodeType === 1) walk(a); });
+      });
+      attrs();
+    });
+    obs.observe(document.documentElement, {childList:true, subtree:true, characterData:true});
+  }
+  return {
+    start,
+    unload(){ revealed = false; screen = true; refresh(); },
+    load(){ screen = false; try { revealed = localStorage.getItem(keyOf()) === '1'; } catch (e) { revealed = false; } refresh(); },
+    reveal(){ if (revealed) return; revealed = true; try { localStorage.setItem(keyOf(), '1'); } catch (e) {} refresh(); },
+    /* Un prénom qui a déjà fini une partie chez l'hôte (fin gagnante ou perdue) le sait sur tous ses appareils */
+    sync(){
+      if (revealed || !(window.MesJeux && MesJeux.ready())) return;
+      const me = String((typeof S !== 'undefined' && S && S.pseudo) || '').trim().toLowerCase(); if (!me) return;
+      MesJeux.list('saint-gratien', 5000).then(rows => {
+        if (revealed || !Array.isArray(rows)) return;
+        const ok = rows.some(r => String(r.player || '').trim().toLowerCase() === me && r.details && /^(win|lose)_/.test(String(r.details.ending || '')));
+        if (ok && String((S && S.pseudo) || '').trim().toLowerCase() === me){ revealed = true; try { localStorage.setItem(keyOf(), '1'); } catch (e) {} refresh(); }
+      }).catch(() => {});
+    },
+    on: active
+  };
+})();
+
 const NAMES = {alexandra:'Alexandra', anais:'Anaïs', antonin:'Antonin', arthur:'Arthur', audrey:'Audrey', chrisly:'Chrisly', cindy:'Cindy', eliaz:'Eliaz', eva:'Eva', gabie:'Gabie', jc:'JC', katia:'Katia', louis:'Louis', mael:'Maël', marco:'Marco', micka:'Micka', moizlard:'Moizlard', quentinm:'Quentin Morel', virgile:'Virgile', yann:'Yann', autre:'Autre (pas dans la liste)'};
 function pad(n){ return String(n).padStart(2,'0'); }
 function clockParts(t){ const n = 20*60+t; return [Math.floor(n/60)%24, n%60]; }
@@ -881,7 +953,7 @@ function fmt(t){ const p = clockParts(t); return p[0]+'h'+pad(p[1]); }
 function fmtc(t){ const p = clockParts(t); return pad(p[0])+':'+pad(p[1]); }
 function leftTxt(t){ const r = END_T - t; if (r <= 0) return 'minuit passé'; const h = Math.floor(r/60), m = r%60; return h ? h+' h '+pad(m) : m+' min'; }
 function eur(n){ n = Math.round(n*100)/100; return (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.',','))+' €'; }
-function Y(S){ return S.player === 'yann' ? 'Maël' : 'Yann'; }
+function Y(S){ return S.player === 'yann' ? 'Marco' : 'Yann'; }
 const pay = n => S => S.m + 0.001 < n ? "Pas assez d'argent" : null;
 const B = (l,to,o) => Object.assign({l:l,to:to}, o || {});
 const rnd = p => Math.random() < p;
@@ -945,7 +1017,7 @@ const ITEMS = {
 const SCENES = {
  /* ---------- Chez Eva ---------- */
  eva: {p:"Chez Eva · Cormeilles", who:'eva', alt:'eva_self',
-  text:S=>S.player==='yann' ? "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : un rappel que tu t'es programmé toi-même il y a trois semaines. « NOUVEL AN CE SOIR CHEZ MOI. Rentre avant minuit. Ils sont tous invités. » Un second message, de Maël : « J'ai ta clé de secours, je m'installe. Ce soir, c'est moi qui te juge sur ce que tu rapportes. »\n\nSaint-Gratien est à 7 ou 8 km, et minuit ne se décalera pas pour toi." : "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : Yann. « Rappel : si tu n'apportes rien qui me plaise, tu ne rentres pas. Pas de cadeau, pas de soirée. Je plaisante à moitié. »\n\nSaint-Gratien est à 7 ou 8 km, et minuit ne se décalera pas pour toi.",
+  text:S=>S.player==='yann' ? "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : un rappel que tu t'es programmé toi-même il y a trois semaines. « NOUVEL AN CE SOIR CHEZ MOI. Rentre avant minuit. Ils sont tous invités. » Un second message, de Marco : « J'ai ta clé de secours, je m'installe. Ce soir, c'est moi qui te juge sur ce que tu rapportes. »\n\nChez toi, ce n'est pas la porte à côté, et minuit ne se décalera pas pour toi." : "20h. Le before bat son plein. Vous avez enchaîné les jeux de société, et la table est couverte de pions, de cartes et de boîtes ouvertes.\n\nTon téléphone vibre : Yann. « Rappel : si tu n'apportes rien qui me plaise, tu ne rentres pas. Pas de cadeau, pas de soirée. Je plaisante à moitié. »\n\nLa soirée est proche d'ici, ou pas ? Une chose est sûre : minuit ne se décalera pas pour toi.",
   c:[
    B("Parler à Eva, qui arbitre la partie en cours", 'eva_cuisine', {t:5}),
    B("Faire le tour du before", 'eva_salon', {t:10}),
@@ -981,7 +1053,7 @@ const SCENES = {
    B("Retourner dans le salon", 'eva', {t:5})
   ]},
  eva_yann: {p:"Chez Eva · Cormeilles", who:'eva',
-  text:S=>S.player==='yann' ? "Eva réfléchit en s'essuyant les mains. « Maël ? C'est lui qui te juge ce soir. Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive le premier quelque part. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »" : "Eva réfléchit en s'essuyant les mains. « Yann ? Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive de garde. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »",
+  text:S=>S.player==='yann' ? "Eva réfléchit en s'essuyant les mains. « Marco ? C'est lui qui te juge ce soir. Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive le premier quelque part. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »" : "Eva réfléchit en s'essuyant les mains. « Yann ? Il aime le vin, surtout le blanc sec bien frais. Il aime qu'on lui explique ce qu'on apporte. Il adore manger quand il arrive de garde. Et il aime les surprises, mais pas les mauvaises. » Elle te regarde. « Prends une boisson, un truc à manger, et une surprise. Les trois, c'est le grand jeu. »",
   c:[B("Merci Eva", 'eva', {t:5})]},
  eva_jeux: {p:"La table de jeux · Cormeilles", who:'eva', mini:true,
   text:"Eva fait glisser une boîte vers toi, puis une autre, en secouant la tête. « Je choisis, tu joues. Si tu gagnes, la boîte est à toi. »",
@@ -1015,7 +1087,7 @@ const SCENES = {
  /* ---------- Cormeilles ---------- */
  rue: {p:"Cormeilles-en-Parisis",
   text:S=>S.player==='yann'
-   ? "Il est {time}. Un chat traverse la rue, une fenêtre éclairée brille au loin, et plus personne ne te dit rien.\n\nCormeilles est à toi : où passes-tu avant de rentrer chez toi, à Saint-Gratien ? Maël juge ce soir : quelque chose à boire, quelque chose à manger, et une surprise."
+   ? "Il est {time}. Un chat traverse la rue, une fenêtre éclairée brille au loin, et plus personne ne te dit rien.\n\nCormeilles est à toi : où passes-tu avant de rentrer chez toi, à Saint-Gratien ? Marco juge ce soir : quelque chose à boire, quelque chose à manger, et une surprise."
    : "Il est {time}. La nuit sent la cheminée et la rue est presque vide.\n\nCormeilles est à toi : où passes-tu avant de filer à Saint-Gratien ? Yann attend quelque chose à boire, quelque chose à manger, et une surprise.",
   c:[
    B("L'épicerie pas chère", S=>maybe(S,'epicerie'), {t:10}),
@@ -1114,7 +1186,7 @@ const SCENES = {
   ]},
  ev_yann: {p:"En chemin · au téléphone",
   text:S=>S.player==='yann'
-   ? "Ton téléphone sonne : Maël. « T'es où ? J'ai déjà goûté trois de tes bouteilles pour vérifier la cave. Dis-moi que tu rapportes quelque chose de bon. »"
+   ? "Ton téléphone sonne : Marco. « T'es où ? J'ai déjà goûté trois de tes bouteilles pour vérifier la cave. Dis-moi que tu rapportes quelque chose de bon. »"
    : "Ton téléphone sonne : Yann. « T'es où ? Je prépare le vin, j'ai déjà goûté trois bouteilles pour vérifier. Dis-moi que tu amènes quelque chose de bon. »",
   c:[
    B("Lui dire que tu as tout prévu", S=>S.next, {t:5, note:"« J'ai envie de blanc sec bien frais, hein. Et un truc à manger, j'ai pas dîné. »"}),
@@ -1823,10 +1895,10 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   text:"« Terminus. Travaux. Tout le monde descend. » Le bus s'arrête à Franconville, devant des immeubles que tu reconnais. La flûte à champagne te souhaite une bonne année.",
   c:[B("Descendre", 'franconville', {t:10})]},
  transport: {p:"Départ pour Saint-Gratien",
-  text:"Il est {time}. Saint-Gratien est à 7 ou 8 km, trop loin pour y aller à pied sans y laisser de l'énergie. Le train et le bus, ça se prend à la gare. Tu as {m} en poche. Comment tu y vas ?",
+  text:"Il est {time}. La soirée est trop loin pour y aller à pied sans y laisser de l'énergie. Le train et le bus, ça se prend à la gare. Tu as {m} en poche. Comment tu y vas ?",
   c:[
    B("VTC, tarif du 31 décembre", 'vtc_appli', {t:0}),
-   B("Y aller à pied, 7 ou 8 km", 'marche1', {t:5}),
+   B("Y aller à pied", 'marche1', {t:5}),
    B("Finalement, retourner voir les amis", 'rue', {t:5})
   ]},
  vtc_appli: {p:"L'appli VTC",
@@ -2076,12 +2148,12 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
    B("Moizlard, voiture américaine, cheville foulée", 'moizlard', {t:5}),
    B("Cindy, en Guadeloupe (cinq heures de moins là-bas)", 'cindy_appel', {who:'cindy', t:5}),
    B("Antonin, qui devrait être rentré de la montagne", S=>S.antonin?'antonin':'antonin_ko', {who:'antonin', t:5, fx:S=>{ S.antonin = rnd(0.5); }}),
-   B(S=>S.player==='yann'?"Maël, pour avoir des indices":"Yann, pour avoir des indices", 'appel_yann', {t:5}),
+   B(S=>S.player==='yann'?"Marco, pour avoir des indices":"Yann, pour avoir des indices", 'appel_yann', {t:5}),
    B("Raccrocher", 'rue', {t:0})
   ]},
  appel_yann: {p:"Un coup de fil · Yann",
   text:S=>S.player==='yann'
-   ? "Maël décroche au troisième essai. « Allô ? Je suis dans ton salon, j'ai pas le temps. » Silence. « Écoute : un blanc sec bien frais, un truc à manger, et une surprise. Ne me fais pas faire la tête à minuit. » Il raccroche. Il a déjà ouvert ton frigo."
+   ? "Marco décroche au troisième essai. « Allô ? Je suis dans ton salon, j'ai pas le temps. » Silence. « Écoute : un blanc sec bien frais, un truc à manger, et une surprise. Ne me fais pas faire la tête à minuit. » Il raccroche. Il a déjà ouvert ton frigo."
    : "Yann décroche au troisième essai. « Allô ? Je suis en train de goûter, j'ai pas le temps. » Silence. « Écoute : un blanc sec bien frais, un truc à manger, et une surprise. Ne me fais pas faire la tête à minuit. » Il raccroche. Il est déjà bien parti.",
   c:[B("Raccrocher", 'appel', {t:5})]},
  anais: {p:"Anaïs arrive", who:'anais',
@@ -2252,16 +2324,16 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   ]},
  immeuble: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
   text:S=>S.player==='yann'
-   ? "Ton pavillon, ton petit jardin, ta haie bien taillée et ton nom écrit à la main sur la boîte aux lettres. De la lumière aux fenêtres, de la musique, des rires. Maël a mis le verrou de l'intérieur par plaisanterie. Le portillon est fermé, la sonnette ne répond pas, et tu es chez toi."
+   ? "Ton pavillon, ton petit jardin, ta haie bien taillée et ton nom écrit à la main sur la boîte aux lettres. De la lumière aux fenêtres, de la musique, des rires. Marco a mis le verrou de l'intérieur par plaisanterie. Le portillon est fermé, la sonnette ne répond pas, et tu es chez toi."
    : "Un pavillon avec un petit jardin, une haie bien taillée et un nom écrit à la main sur la boîte aux lettres. De la lumière aux fenêtres, de la musique, des rires. Le portillon est fermé, la sonnette ne répond pas, et tu ne sais pas si Yann entendrait même un coup de canon.",
   c:[
-   B(S=>S.player==='yann'?"Appeler Maël":"Appeler Yann", 'immeuble_appel', {t:5}),
+   B(S=>S.player==='yann'?"Appeler Marco":"Appeler Yann", 'immeuble_appel', {t:5}),
    B("Attendre qu'un voisin sorte", 'voisine', {t:10}),
    B("Chercher un passage par la haie", 'digicode', {t:5}),
    B("Retourner au Carrefour City", 'saintgratien', {t:10})
   ]},
  immeuble_appel: {p:"Le pavillon de Yann · Saint-Gratien", z:'s',
-  text:S=>{ const Q = S.player==='yann' ? 'Maël' : 'Yann';
+  text:S=>{ const Q = S.player==='yann' ? 'Marco' : 'Yann';
     return S.bag.length
      ? Q+" décroche : « T'as ce qu'il faut ? » Il écoute ce que tu lui dis, murmure « hmm » en connaisseur, puis"+(S.player==='yann'?" : « Bon, je t'ouvre. »":", la langue un peu pâteuse : « Entre, le portillon est coincé, pousse fort. »")
      : Q+" décroche : « T'as ce qu'il faut ? » Tu hésites. Il soupire"+(S.player==='yann'?", avec toute l'autorité d'un juge officiel. « Reviens quand tu l'as. »":", avec la lenteur de quelqu'un qui n'est plus très stable. « Reviens quand tu l'as. »"); },
@@ -2277,11 +2349,11 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:"Tu cherches un passage dans la haie. Elle est parfaitement taillée, donc parfaitement hermétique. Un chien aboie dans le jardin d'à côté. Un voisin ouvre sa fenêtre : « Vous cherchez quelqu'un ? »",
   c:[
    B("Faire semblant de rien et attendre un voisin", 'voisine', {t:15}),
-   B(S=>S.player==='yann'?"Appeler Maël":"Appeler Yann", 'immeuble_appel', {t:5})
+   B(S=>S.player==='yann'?"Appeler Marco":"Appeler Yann", 'immeuble_appel', {t:5})
   ]},
  chezyann: {p:"Chez Yann · Saint-Gratien", z:'s',
   text:S=>S.player==='yann'
-   ? "Il est {time}. Tu rentres chez toi : pour une fois, c'est toi qui sonnes à ta propre porte. Maël a ouvert avec ta clé de secours et il joue le juge officiel, verre à la main."
+   ? "Il est {time}. Tu rentres chez toi : pour une fois, c'est toi qui sonnes à ta propre porte. Marco a ouvert avec ta clé de secours et il joue le juge officiel, verre à la main."
    : "Il est {time}. Yann ouvre la porte du pavillon en chaussettes, un verre déjà à la main, un bracelet d'hôpital encore au poignet. « Demain, je suis de garde, dit-il en titubant. Ce soir, je suis en vacances. » Il est totalement torché, et très content de te voir.\n\nIl te regarde : « Avant de regarder ce que t'apportes, une question. »",
   c:[B(S=>S.bag.length ? "Écouter sa question" : "Lui montrer tes mains vides", S=>S.bag.length ? 'chezyann_q'+S.yq : 'lose_mains', {t:0, fx:S=>{ S.yq = Math.floor(Math.random()*YQ.length); }})]},
  chezyann_q0: {p:"Chez Yann · L'épreuve du vin", z:'s', timer:10, tt:'chezyann_test_ko',
@@ -2326,7 +2398,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:"Yann, le verre à la main : « Montre-moi ce que tu as apporté. »",
   c:[B(S=>S.bag.length?"Tendre ce que tu apportes":"Entrer les mains vides", S=>resolve(S), {t:0})]},
  fin_minuit: {end:'lose', h:"Minuit, déjà",
-  text:S=>"Minuit sonne pendant que tu es encore en chemin. Ton téléphone vibre : « T'es où ? », « On compte sans toi ! », « "+(S.player==='yann'?'Maël a ouvert ta bouteille':'Yann est totalement torché')+". » Tu entends le compte à rebours au loin, et tu comprends que ce sera pour l'année prochaine."},
+  text:S=>"Minuit sonne pendant que tu es encore en chemin. Ton téléphone vibre : « T'es où ? », « On compte sans toi ! », « "+(S.player==='yann'?'Marco a ouvert ta bouteille':'Yann est totalement torché')+". » Tu entends le compte à rebours au loin, et tu comprends que ce sera pour l'année prochaine."},
  lose_mains: {end:'lose', h:"Le roi des rats",
   text:"{Y} baisse les yeux sur tes mains, les relève, avec la solennité d'un chirurgien qui a déjà tout vu. « Rien. Même pas un sachet de chips. » Il se tourne vers le fond du jardin, où quelques ombres filent entre les poubelles. « Tu connais la règle : celui qui arrive les mains vides ne reste pas dehors. Il règne sur ceux qui n'ont jamais rien apporté non plus. »\n\nIl te pose sur la tête une couronne en papier de galette, qui sent encore la frangipane. À minuit, tu es assis sur la margelle, couronné roi des rats, avec ta cour qui grignote une croûte de pain en te regardant avec un respect inquiet. Le compte à rebours, tu l'entends depuis ton trône : une caisse de bouteilles vides retournée."},
  lose_mystere: {end:'lose', h:"Vinaigre sans étiquette",
@@ -2374,7 +2446,7 @@ function extras(S){
 function winText(S,id){
   const it = ITEMS[id];
   const intro = S.player==='yann'
-    ? "Il est {time}. Tu rentres chez toi. Maël, qui a ouvert avec ta clé de secours, inspecte ce que tu rapportes en juge officiel."
+    ? "Il est {time}. Tu rentres chez toi. Marco, qui a ouvert avec ta clé de secours, inspecte ce que tu rapportes en juge officiel."
     : "{Y} ouvre la porte, un verre déjà à la main. Il est {time}, il reste {left} avant minuit.";
   return intro+"\n\n"+it.w+"\n\n"+extras(S);
 }
@@ -2437,13 +2509,13 @@ function clearTimer(){ if (timerId){ clearTimeout(timerId); timerId = null; } if
 function showOnly(id){ ['start','game','end'].forEach(k=>{ $(k).hidden = (k !== id); }); }
 
 function renderStart(){
-  showOnly('start'); clearTimer();
+  showOnly('start'); clearTimer(); MASK.unload(); CLS.close();
   const root = $('start'); root.textContent = '';
   const found = foundSet(store('dsg-pseudo') || '');
   const box = el('div','wrap');
   box.appendChild(el('div','eyebrow','31 décembre · 20h30'));
   box.appendChild(el('h1',null,'Direction Saint-Gratien'));
-  box.appendChild(el('p','lead',"Tu pars du before chez Eva, à Cormeilles. Yann t'attend à Saint-Gratien, à 7 ou 8 km, pour le Nouvel An. Sa règle est simple : si tu n'apportes rien qui lui plaise, tu ne rentres pas. Quelque chose à boire, quelque chose à manger, une surprise : les trois, c'est le grand jeu."));
+  box.appendChild(el('p','lead',"Tu pars du before chez Eva, à Cormeilles. Yann t'attend à Saint-Gratien pour le Nouvel An. Est-ce proche d'ici ? À toi de voir. Sa règle est simple : si tu n'apportes rien qui lui plaise, tu ne rentres pas. Quelque chose à boire, quelque chose à manger, une surprise : les trois, c'est le grand jeu."));
   box.appendChild(el('p','lead',"Entre les deux : des amis, des inconnus, un contrôleur, des mauvaises idées, une horloge qui ne s'arrête pas et un budget de 20 €. Minuit, lui, n'attendra personne."));
   const norm = t => String(t||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const keys = Object.keys(NAMES).sort((a,b)=> a==='autre' ? 1 : b==='autre' ? -1 : NAMES[a].localeCompare(NAMES[b],'fr'));
@@ -2480,6 +2552,8 @@ function renderStart(){
   ready();
   go.addEventListener('click',()=>{ const p = pseudo.value.trim().replace(/\s+/g,' '); if (chosen && p.length >= 2){ store('dsg-pseudo', p); newGame(chosen, p); } });
   box.appendChild(go);
+  const clsBtn = el('button','btn ghost','Ouvrir mon classeur'); clsBtn.type='button'; clsBtn.addEventListener('click',()=>{ const n = pseudo.value.trim().replace(/\s+/g,' '); if (n.length >= 2) CLS.open(n); else pseudo.focus(); });
+  box.appendChild(clsBtn);
   box.appendChild(el('p','small',"Ton score est enregistré tout seul à la fin de la partie, avec ce prénom."));
   box.appendChild(el('p','small',"Fins découvertes : "+found.size+" sur "+ENDS.length+". Chaque partie croise des amis et des inconnus différents : rejoue pour voir les autres."));
   root.appendChild(box);
@@ -2488,7 +2562,7 @@ function renderStart(){
 
 function newGame(p, pseudo){
   S = {player:p, pseudo:pseudo || NAMES[p], codeA:'03', codeB:'37', t:0, m:20, bag:[], flags:{}, note:'', best:null, win:false, antonin:false, pass:false, ticket:null, seen:{}, stock:newStock(), mys:false, next:'rue', kb:0, tries:0, yq:0};
-  MAP.reset();
+  MAP.reset(); MASK.load(); MASK.sync();
   showOnly('game');
   goTo('eva');
 }
@@ -2499,7 +2573,7 @@ function goTo(id){
   if (sc.who && (Array.isArray(sc.who) ? sc.who.indexOf(S.player) >= 0 : sc.who === S.player)){ id = sc.alt || 'rue'; sc = SCENES[id]; }
   S.scene = id;
   MAP.visit(id, sc);
-  if (sc.end) return showEnd(id, sc);
+  if (sc.end){ if (S.arrived) MASK.reveal(); return showEnd(id, sc); }
   showScene(id, sc);
 }
 
@@ -2582,9 +2656,357 @@ function visibleChoices(sc){
   return list;
 }
 
+const IMGS = {
+  eva: `<svg viewBox="0 0 400 200" role="img" aria-label="Le before chez Eva : une table de jeux de société sous les guirlandes">
+<rect width="400" height="200" fill="#2a2160"/>
+<rect y="150" width="400" height="50" fill="#1d1747"/>
+<rect x="250" y="22" width="110" height="84" rx="4" fill="#12103a" stroke="#5b4fc0" stroke-width="5"/>
+<path d="M305 22V106M250 64H360" stroke="#5b4fc0" stroke-width="3"/>
+<g fill="#ffe9a8"><circle cx="270" cy="38" r="1.6"/><circle cx="330" cy="46" r="1.4"/><circle cx="288" cy="86" r="1.4"/><circle cx="342" cy="90" r="1.8"/></g>
+<circle cx="60" cy="52" r="26" fill="#f3ead6"/><circle cx="60" cy="52" r="26" fill="none" stroke="#ffb347" stroke-width="4"/>
+<path d="M60 52V34M60 52L74 58" stroke="#2a2160" stroke-width="3" stroke-linecap="round"/>
+<path d="M0 14Q100 40 200 14T400 14" fill="none" stroke="#ffb347" stroke-width="2"/>
+<g><circle cx="22" cy="24" r="4.5" fill="#ff6b6b"/><circle cx="62" cy="31" r="4.5" fill="#ffd166"/><circle cx="102" cy="31" r="4.5" fill="#06d6a0"/><circle cx="142" cy="24" r="4.5" fill="#ff6b6b"/><circle cx="182" cy="17" r="4.5" fill="#ffd166"/><circle cx="222" cy="19" r="4.5" fill="#06d6a0"/><circle cx="262" cy="26" r="4.5" fill="#ff6b6b"/><circle cx="302" cy="29" r="4.5" fill="#ffd166"/><circle cx="342" cy="22" r="4.5" fill="#06d6a0"/><circle cx="382" cy="16" r="4.5" fill="#ff6b6b"/></g>
+<polygon points="150,70 250,70 280,160 120,160" fill="#ffd166" opacity=".14"/>
+<rect x="198" y="40" width="4" height="30" fill="#8e86d8"/><path d="M180 70Q200 52 220 70Z" fill="#ffb347"/>
+<rect x="70" y="128" width="260" height="12" rx="4" fill="#c9762e"/>
+<rect x="84" y="140" width="10" height="46" fill="#a45d1f"/><rect x="306" y="140" width="10" height="46" fill="#a45d1f"/>
+<rect x="150" y="116" width="70" height="12" fill="#f3ead6"/>
+<g fill="#5b4fc0"><rect x="150" y="116" width="10" height="6"/><rect x="170" y="116" width="10" height="6"/><rect x="190" y="116" width="10" height="6"/><rect x="210" y="116" width="10" height="6"/><rect x="160" y="122" width="10" height="6"/><rect x="180" y="122" width="10" height="6"/><rect x="200" y="122" width="10" height="6"/></g>
+<circle cx="165" cy="112" r="5" fill="#ff6b6b"/><circle cx="188" cy="113" r="5" fill="#06d6a0"/><circle cx="208" cy="112" r="5" fill="#ffd166"/>
+<rect x="232" y="112" width="26" height="16" rx="2" fill="#f3ead6" transform="rotate(-8 245 120)"/><rect x="240" y="110" width="26" height="16" rx="2" fill="#ff6b6b" transform="rotate(10 253 118)"/>
+<rect x="92" y="96" width="14" height="32" rx="2" fill="#2a9d8f"/><rect x="96" y="86" width="6" height="12" fill="#2a9d8f"/><rect x="95" y="84" width="8" height="3" fill="#ffd166"/>
+<path d="M118 112h12l-2 16h-8z" fill="#bfeaff" opacity=".85"/><path d="M286 112h12l-2 16h-8z" fill="#bfeaff" opacity=".85"/>
+<ellipse cx="320" cy="124" rx="18" ry="5" fill="#f3ead6"/><path d="M304 124Q320 100 336 124Z" fill="#ffb347"/>
+</svg>`
+};
+/* Illustrations « plat de nuit » : décors par lieu, objets et fins */
+const IMG = (function(){
+  const C={bg1:'#1d1b4a',bg2:'#2a2160',gr:'#1d1747',gr2:'#2b2766',pu:'#5b4fc0',pu2:'#4a3f9c',li:'#ffd166',or:'#ff7a59',pk:'#ff6b6b',gn:'#06d6a0',cr:'#f3ead6',mo:'#ffe9a8',tl:'#2a9d8f',bl:'#bfeaff',br:'#c9762e',br2:'#a45d1f',dk:'#12103a',lv:'#8e86d8',am:'#ffb347',wh:'#ffffff',rd:'#e63946'};
+  const wrap=(inner,label)=>`<svg viewBox="0 0 400 200" role="img" aria-label="${label||'Illustration'}">${inner}</svg>`;
+  const R=(x,y,w,h,f,x2='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${x2}/>`;
+  const Ci=(x,y,r,f,x2='')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" ${x2}/>`;
+  const P=(d,f,x2='')=>`<path d="${d}" fill="${f}" ${x2}/>`;
+  const L=(d,s,w=3,x2='')=>`<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${x2}/>`;
+  const stars=(n=10,seed=3)=>{let s='',x=seed*37;for(let i=0;i<n;i++){x=(x*73+41)%397;s+=Ci((x*13)%390+5,(x*7)%78+6,i%3?1.2:1.8,C.mo)}return s};
+  const sky=(o={})=>R(0,0,400,200,o.c||C.bg1)+(o.ns?'':stars(10,o.seed||3))+(o.nm?'':Ci(o.mx||348,38,17,C.mo)+Ci((o.mx||348)-8,33,15,o.c||C.bg1));
+  const ground=(y=160,c=C.gr2)=>R(0,y,400,200-y,c);
+  const win=(x,y,w,h,lit=true)=>R(x,y,w,h,lit?C.li:C.dk,'rx="1"')+(lit?`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${C.am}" opacity=".35"/>`:'');
+  const wins=(x,y,cols,rows,gx,gy,w=10,h=14,seedLit=0)=>{let s='';for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)s+=win(x+c*gx,y+r*gy,w,h,((r*7+c*3+seedLit)%4)!==0);return s};
+  const house=(x,y,w,h,col=C.pu,roof=C.pu2,o={})=>R(x,y,w,h,col)+P(`M${x-6} ${y}L${x+w/2} ${y-h*0.4}L${x+w+6} ${y}Z`,roof)+(o.nowin?'':win(x+w*0.12,y+h*0.2,w*0.22,h*0.28)+win(x+w*0.66,y+h*0.2,w*0.22,h*0.28))+(o.nodoor?'':R(x+w*0.4,y+h*0.45,w*0.2,h*0.55,C.dk));
+  const lamp=(x,y0=160,h=70,cone=true)=>(cone?`<polygon points="${x},${y0-h} ${x+34},${y0} ${x-34},${y0}" fill="${C.li}" opacity=".13"/>`:'')+R(x-2,y0-h,4,h,C.lv)+Ci(x,y0-h,7,C.li);
+  const garland=(x1,x2,y,n=8,sag=14)=>{let s=L(`M${x1} ${y}Q${(x1+x2)/2} ${y+sag*2} ${x2} ${y}`,C.am,2);const cols=[C.pk,C.li,C.gn];for(let i=0;i<=n;i++){const t=i/n;s+=Ci(x1+(x2-x1)*t,y+4*sag*t*(1-t),4,cols[i%3])}return s};
+  const tree=(x,y,s=1,c='#2c7a6b')=>R(x-2*s,y-8*s,4*s,10*s,C.br2)+`<ellipse cx="${x}" cy="${y-22*s}" rx="${16*s}" ry="${22*s}" fill="${c}"/>`;
+  const palm=(x,y,s=1)=>L(`M${x} ${y}Q${x+6*s} ${y-30*s} ${x+2*s} ${y-52*s}`,C.br2,5*s)+[[-26,-10],[-18,-22],[22,-14],[16,-26],[0,-30]].map(([a,b])=>L(`M${x+2*s} ${y-52*s}q${a*s} ${b*s-6*s} ${a*1.6*s} ${b*s+10*s}`,C.gn,4*s)).join('');
+  const car=(x,y,col=C.pk,s=1)=>P(`M${x} ${y}h${70*s}q${6*s} 0 ${6*s} ${-8*s}v${-6*s}q${-14*s} ${-4*s} ${-22*s} ${-4*s}l${-8*s} ${-12*s}h${-26*s}l${-10*s} ${12*s}h${-12*s}v${10*s}q0 ${8*s} ${6*s} ${8*s}z`,col)+P(`M${x+14*s} ${y-12*s}l${8*s} ${-10*s}h${20*s}l${6*s} ${10*s}z`,C.bl)+Ci(x+16*s,y,7*s,C.dk)+Ci(x+60*s,y,7*s,C.dk)+Ci(x+72*s,y-8*s,3*s,C.li);
+  const person=(x,y,s=1,col=C.or,hat='')=>Ci(x,y-30*s,6*s,C.cr)+P(`M${x-8*s} ${y}q0 ${-24*s} ${8*s} ${-24*s}q${8*s} 0 ${8*s} ${24*s}z`,col)+(hat==='cap'?P(`M${x-7*s} ${y-33*s}q${7*s} ${-9*s} ${14*s} 0z`,C.rd):'')+(hat==='helm'?Ci(x,y-31*s,8*s,C.gn,'opacity=".9"'):'');
+  const roadN=(y=150)=>ground(y,C.gr2)+R(0,y+14,400,3,C.pu2)+[0,1,2,3,4,5,6,7].map(i=>R(i*56+10,y+34,28,4,C.mo,'opacity=".5"')).join('');
+  const moon=()=>'';
+  const fence=(x1,x2,y,h=36)=>{let s='';for(let x=x1;x<=x2;x+=10)s+=R(x,y-h,2,h,C.lv);return s+R(x1,y-h,x2-x1,2,C.lv)+R(x1,y-h/2,x2-x1,2,C.lv)};
+  const shop=(x,y,w,h,awn=C.gn,body=C.pu,o={})=>R(x,y,w,h,body)+R(x-4,y,w+8,14,awn)+[0,1,2,3,4,5].map(i=>R(x-4+i*(w+8)/6,y,(w+8)/12,14,C.cr,'opacity=".75"')).join('')+R(x+8,y+22,w-16,h-30,C.li,'opacity=".92"')+(o.door===false?'':R(x+w*0.7,y+h*0.45,w*0.2,h*0.55,C.dk))+(o.inner||'');
+  const glow=(x,y,r,c=C.li,op=.18)=>Ci(x,y,r,c,`opacity="${op}"`);
+  const sparkle=(x,y,s=1,c=C.mo)=>P(`M${x} ${y-8*s}L${x+2*s} ${y-2*s}L${x+8*s} ${y}L${x+2*s} ${y+2*s}L${x} ${y+8*s}L${x-2*s} ${y+2*s}L${x-8*s} ${y}L${x-2*s} ${y-2*s}Z`,c);
+  const confetti=(n=30)=>{let s='',x=11;const cols=[C.pk,C.li,C.gn,C.bl,C.or];for(let i=0;i<n;i++){x=(x*91+17)%401;s+=R(x,(x*5+i*13)%180,5,3,cols[i%5],`transform="rotate(${(i*37)%90} ${x} 20)"`)}return s};
+
+  /* ---------- décors ---------- */
+  const LOC={
+    rue:()=>sky()+house(20,112,90,48)+house(290,108,90,52,C.pu2,C.pu)+tree(150,160,.9)+ground(160)+lamp(220)+garland(10,390,24,9,6)+roadN(160),
+    gare:()=>sky({mx:70})+R(110,70,190,90,C.pu)+P('M100 70L205 40L310 70Z',C.pu2)+Ci(205,64,13,C.cr)+L('M205 64V55M205 64L212 68',C.dk,2)+R(190,110,30,50,C.dk)+wins(125,86,4,1,40,0,18,16)+ground(160)+lamp(60)+lamp(340)+R(0,170,400,4,C.pu2),
+    quai:()=>sky({nm:1})+R(0,120,400,50,C.pu2)+R(0,150,400,50,C.gr2)+R(0,164,400,3,C.li,'opacity=".6"')+P('M30 120h250q30 0 30 24v6h-310z',C.tl)+[0,1,2,3,4].map(i=>win(48+i*52,126,30,16,true)).join('')+lamp(340,150,70)+garland(0,400,22,10,5),
+    train:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.pu2)+[0,1].map(i=>R(40+i*190,26,150,74,C.dk,'rx="6"')+Ci(70+i*190,60,2,C.mo)+Ci(150+i*190,48,1.6,C.mo)+L(`M${40+i*190} 100H${190+i*190}`,C.pu,3)).join('')+[0,1,2].map(i=>R(30+i*130,118,92,34,C.pk,'rx="8"')+R(30+i*130,108,92,14,C.or,'rx="6"')).join('')+L('M0 40H400',C.am,2,'opacity=".5"'),
+    bus:()=>sky()+ground(150)+R(60,86,240,64,C.am,'rx="8"')+[0,1,2,3,4].map(i=>win(78+i*44,98,34,22,true)).join('')+R(60,126,240,6,C.or)+Ci(110,152,13,C.dk)+Ci(250,152,13,C.dk)+Ci(110,152,5,C.lv)+Ci(250,152,5,C.lv)+R(330,70,4,80,C.lv)+R(318,66,28,12,C.gn,'rx="3"')+lamp(30,150,64,false),
+    busint:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.pu2)+[0,1,2].map(i=>R(30+i*120,60,100,64,C.dk,'rx="6"')+Ci(50+i*120,80,1.6,C.mo)).join('')+[0,1,2].map(i=>R(40+i*120,120,80,28,C.or,'rx="8"')).join('')+L('M0 40H400',C.li,4)+[0,1,2,3].map(i=>L(`M${60+i*90} 40v26`,C.lv,3)+Ci(60+i*90,70,5,C.cr)).join(''),
+    lycee:()=>sky()+R(40,70,320,90,C.pu)+R(40,60,320,14,C.pu2)+wins(56,86,10,2,30,32,16,18,1)+R(180,120,40,40,C.dk)+R(196,40,2,24,C.lv)+P('M198 40h20v10h-20z',C.pk)+ground(160)+fence(10,390,172,26),
+    maison:()=>sky()+house(30,90,150,70,C.pu,C.pu2)+house(210,90,150,70,C.pu2,C.pu)+ground(160)+tree(195,160,.8)+lamp(195,160,80)+R(0,164,400,4,C.pu2)+garland(30,360,70,6,6),
+    city:()=>sky()+ground(140,C.pu2)+R(0,150,400,50,C.gr2)+fence(20,380,150,50)+L('M70 150V108h-30M330 150V108h30',C.cr,4)+L('M70 108h-30M330 108h30',C.cr,4)+lamp(200,150,100)+Ci(190,140,7,C.or)+Ci(220,124,7,C.cr)+person(110,150,1,C.gn,'cap')+person(300,150,1,C.pk),
+    phone:()=>R(0,0,400,200,C.bg2)+stars(8)+R(150,20,100,160,C.dk,'rx="14"')+R(158,32,84,120,C.pu,'rx="6"')+Ci(200,92,22,C.gn)+P('M192 84q-2 12 12 20l6-6-6-4-4 2q-4-4-4-8l2-4-4-6z',C.dk)+[1,2,3].map(i=>L(`M${232+i*14} ${70}q${10+i*3} 22 0 44`,C.mo,3,`opacity="${1-i*.2}"`)).join('')+Ci(200,166,6,C.lv),
+    pavillon:()=>sky()+R(0,0,0,0,C.bg1)+house(110,92,180,68,C.pu,C.pu2)+ground(160)+R(95,150,210,10,C.gr)+tree(60,160,1)+tree(340,160,.9)+lamp(335,160,60,false)+garland(110,290,76,7,6)+R(0,164,400,3,C.pu2)+fence(60,350,170,20),
+    fete:()=>sky()+house(100,92,200,68,C.pu,C.pu2)+ground(160)+tree(50,160,1)+tree(350,160,.9)+garland(100,300,76,8,6)+[0,1,2,3,4].map(i=>sparkle(120+i*40,60-(i%2)*14,.9,C.li)).join(''),
+    boulange:()=>sky()+shop(70,70,260,90,C.or,C.br2,{door:true,inner:P('M110 130q30-18 60 0z',C.am)+R(190,122,70,8,C.am,'rx="4"')+R(200,112,52,10,C.br,'rx="5"')})+ground(160)+lamp(40)+lamp(360),
+    pdf:()=>sky()+shop(70,70,260,90,C.pk,C.pu2,{door:true,inner:R(120,112,60,26,C.cr,'rx="3"')+Ci(150,106,7,C.pk)+R(210,118,50,22,C.am,'rx="3"')})+ground(160)+lamp(36),
+    carrefour:()=>sky()+shop(60,66,280,94,C.gn,C.pu,{door:true,inner:wins(110,92,4,1,44,0,26,24,0)})+R(130,52,140,14,C.cr,'rx="3"')+ground(160)+lamp(36)+lamp(364),
+    epicerie:()=>sky()+shop(70,66,260,94,C.br,C.pu2,{door:true,inner:[0,1,2].map(i=>R(100+i*60,100,30,40,C.dk,'opacity=".5"')+Ci(115+i*60,118,8,C.or)).join('')})+ground(160)+lamp(40),
+    reserve:()=>R(0,0,400,200,C.dk)+R(0,150,400,50,C.gr)+[0,1].map(i=>R(30+i*180,40,150,6,C.br2)+R(30+i*180,86,150,6,C.br2)+R(30+i*180,130,150,6,C.br2)+[0,1,2,3].map(j=>R(40+j*34+i*180,24,24,16,C.am)+R(40+j*34+i*180,70,24,16,C.pk)+R(40+j*34+i*180,114,24,16,C.gn)).join('')).join('')+R(160,96,80,64,C.lv,'rx="6"')+Ci(200,128,14,C.dk)+L('M200 128v-8M200 128l8 4',C.li,3)+Ci(170,160,0,C.li)+glow(200,110,70,C.li,.06),
+    citycand:()=>'',
+    plessis:()=>sky({nm:1,seed:5})+R(0,120,400,46,C.pu2)+R(0,140,400,60,C.gr2)+R(130,60,140,60,C.pu)+P('M122 60L200 30L278 60Z',C.pu2)+R(180,84,40,36,C.dk)+R(40,128,70,8,C.br)+R(46,136,4,14,C.br2)+R(100,136,4,14,C.br2)+L('M0 170H400M0 182H400',C.lv,3)+tree(340,140,1),
+    egout:()=>R(0,0,400,200,C.dk)+`<ellipse cx="200" cy="100" rx="190" ry="96" fill="${C.pu2}"/><ellipse cx="200" cy="106" rx="150" ry="74" fill="${C.dk}"/>`+R(0,150,400,50,C.tl,'opacity=".55"')+L('M50 160q50-8 100 0t100 0t100 0',C.bl,3,'opacity=".6"')+glow(200,70,50,C.gn,.2)+Ci(200,70,5,C.gn)+[0,1,2].map(i=>R(60+i*110,0,3,40+i*10,C.lv)+Ci(61+i*110,42+i*10,4,C.am)).join(''),
+    heights:()=>sky({mx:70})+P('M0 150L90 90L170 130L260 70L400 140V200H0Z',C.pu2)+P('M0 170L120 120L230 160L330 110L400 150V200H0Z',C.pu)+[0,1,2,3,4,5,6].map(i=>Ci(40+i*52,176-(i%3)*8,2.4,C.li)).join('')+garland(0,400,16,10,4),
+    casino:()=>sky()+R(60,60,280,100,C.pk)+R(50,50,300,16,C.dk)+[...Array(14)].map((_,i)=>Ci(60+i*21,58,4,i%2?C.li:C.mo)).join('')+R(160,96,80,64,C.dk)+[0,1,2].map(i=>Ci(110+i*0,0,0,C.li)).join('')+wins(76,80,2,1,0,0,0,0)+[0,1].map(i=>R(76+i*196,84,48,50,C.li,'opacity=".9"')+sparkle(100+i*196,108,1.4,C.pk)).join('')+ground(160)+R(150,160,100,10,C.rd),
+    stationserv:()=>sky()+R(80,60,240,12,C.pk)+R(100,72,6,88,C.lv)+R(294,72,6,88,C.lv)+ground(160)+[0,1].map(i=>R(160+i*50,108,28,52,C.or,'rx="4"')+R(166+i*50,116,16,12,C.dk)+L(`M${188+i*50} 124q10 4 8 20`,C.dk,3)).join('')+lamp(40,160,80,false)+glow(200,80,80,C.li,.08),
+    atm:()=>sky()+R(40,40,320,120,C.pu)+R(160,60,80,100,C.lv,'rx="4"')+R(172,72,56,28,C.dk,'rx="2"')+L('M180 86h40',C.gn,3)+R(180,112,40,8,C.dk)+[0,1,2].map(i=>R(180+i*14,128,10,8,C.cr)).join('')+ground(160)+Ci(60,140,10,C.li)+glow(200,100,110,C.gn,.06),
+    drive:()=>sky()+R(210,60,170,100,C.pu)+R(230,80,70,50,C.li)+R(300,100,10,30,C.dk)+ground(160)+car(60,150,C.or,1.1)+R(180,150,4,10,C.rd)+garland(210,380,52,5,4),
+    voiture:()=>sky()+roadN(150)+car(140,160,C.pk,1.7)+P('M0 150L150 154L130 156Z',C.li,'opacity=".08"')+lamp(40,150,80,false)+lamp(360,150,80,false),
+    vtc:()=>sky()+roadN(150)+car(130,162,C.dk,1.8)+Ci(262,100,0,C.li)+R(168,86,36,8,C.li,'rx="2"')+lamp(40,150,80,false)+lamp(360,150,80,false)+R(168,86,36,8,C.li),
+    taxi:()=>'',
+    heli:()=>sky()+L('M200 112V100',C.cr,3)+R(120,98,160,5,C.mo,'rx="2"')+`<ellipse cx="200" cy="130" rx="46" ry="26" fill="${C.or}"/>`+P('M236 126l60-10v10l-60 14z',C.or)+Ci(298,121,9,'none',`stroke="${C.mo}" stroke-width="3"`)+P('M170 122q10-16 30-14l10 22h-40z',C.bl)+L('M160 168h80M172 154v14M228 154v14',C.mo,4)+[0,1,2,3,4,5,6,7].map(i=>sparkle(30+i*50,175+((i*17)%14),.5,C.li)).join(''),
+    hangar:()=>R(0,0,400,200,C.bg1)+stars(8)+ground(160,C.gr2)+P('M10 92L105 60L200 92Z',C.pu2)+R(20,92,170,68,C.pu)+R(50,110,110,50,C.dk)+garland(12,198,96,8,6)+`<ellipse cx="290" cy="130" rx="42" ry="22" fill="${C.or}"/>`+P('M326 126l50-9v9l-50 12z',C.or)+P('M264 122q9-14 26-12l8 20h-34z',C.bl)+L('M290 108V98M232 98h116',C.mo,4)+L('M262 156h62',C.mo,4)+lamp(220,160,60,false),
+    moto:()=>sky()+ground(150)+L('M60 140l50-46h40l30 46M110 94l20-14h20',C.or,6)+Ci(70,148,22,'none',`stroke="${C.mo}" stroke-width="7"`)+Ci(250,148,22,'none',`stroke="${C.mo}" stroke-width="7"`)+P('M150 100h60l34 48h-22l-26-26h-46z',C.pk)+person(160,120,.9,C.am,'helm')+P('M0 150L120 108L220 130L330 80L400 130V150Z',C.pu2,'opacity=".6"'),
+    table:()=>R(0,0,400,200,C.bg2)+garland(0,400,16,10,5)+glow(200,110,150,C.am,.1)+R(60,120,280,12,C.br,'rx="4"')+R(76,132,10,56,C.br2)+R(314,132,10,56,C.br2)+[...Array(5)].map((_,i)=>Ci(130+i*34,110,8,[C.pk,C.gn,C.li,C.bl,C.or][i])).join('')+R(140,100,120,20,C.cr)+[0,1,2,3,4,5].map(i=>R(140+i*20,100+(i%2)*10,20,10,C.pu)).join('')+R(280,102,30,18,C.pk,'rx="2"'),
+    canape:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.gr)+R(70,90,260,70,C.pu,'rx="16"')+R(50,110,40,60,C.pu2,'rx="12"')+R(310,110,40,60,C.pu2,'rx="12"')+R(100,100,90,40,C.lv,'rx="10"')+R(210,100,90,40,C.lv,'rx="10"')+garland(0,400,20,8,5)+R(160,40,80,30,C.dk,'rx="3"')+Ci(200,55,8,C.am),
+    boulot:()=>R(0,0,400,200,C.bg2)+stars(6)+ground(150,C.gr)+[0,1,2,3].map(i=>R(90+i*50,70+(i%2)*14,38,50,C.cr,'rx="3"',`transform="rotate(${(i%2?-8:6)} ${109+i*50} 100)"`)+L(`M${98+i*50} ${86+(i%2)*14}h20M${98+i*50} ${96+(i%2)*14}h20`,C.pk,3)).join('')+person(60,150,1.2,C.gn,'cap')+person(340,150,1.2,C.or),
+    cindy:()=>sky({mx:70})+house(120,100,150,60,C.pu,C.pu2)+palm(310,160,1.3)+palm(80,160,1)+ground(160,'#2b6a6a')+garland(120,270,86,6,5)+Ci(330,30,26,C.or,'opacity=".25"'),
+    bar:()=>sky()+R(60,62,280,98,C.pu2)+R(60,50,280,16,C.rd)+R(80,84,240,50,C.dk)+[0,1,2,3,4].map(i=>R(96+i*46,100,10,24,[C.gn,C.li,C.pk,C.bl,C.or][i],'rx="2"')).join('')+Ci(200,160,0,C.li)+ground(160)+[0,1,2].map(i=>Ci(120+i*80,152,8,C.lv)+R(118+i*80,152,4,16,C.lv)).join(''),
+    voisins:()=>LOC.maison(),
+    appli:()=>LOC.phone()+car(180,176,C.dk,.8),
+    casque:()=>R(0,0,400,200,C.dk)+`<ellipse cx="200" cy="100" rx="190" ry="90" fill="${C.bg2}"/>`+`<path d="M20 100q180-110 360 0q-20 70-180 74q-160-4-180-74z" fill="${C.dk}" opacity=".6"/>`+roadN(120)+lamp(80,140,60,false)+lamp(320,140,60,false)+L('M10 40q190-60 380 0',C.lv,4,'opacity=".4"'),
+    paris:()=>sky()+ground(160,C.gr)+P('M200 28l6 40q10 40 30 92h-72q20-52 30-92z',C.li,'opacity=".9"')+R(176,100,48,4,C.dk)+[0,1,2,3,4,5].map(i=>P(`M${60+i*54} 0l${20} 150h-40z`,[C.pk,C.gn,C.pu,C.am,C.bl,C.or][i],'opacity=".18"')).join('')+confetti(18),
+    def:()=>LOC.rue()
+  };
+  /* ---------- objets (centrés en 0,0, ~100×100) ---------- */
+  const bottle=(b='#2a9d8f',l=C.cr,cork=C.li,neck=null)=>R(-14,-6,28,56,b,'rx="5"')+R(-6,-40,12,38,neck||b)+R(-7,-44,14,6,cork,'rx="2"')+(l?R(-14,12,28,22,l,'rx="1"'):'')+R(-9,-6,5,40,C.wh,'opacity=".18"');
+  const bag=(c1='#ff7a59',c2=C.li,mark=C.cr)=>P('M-30 -38h60l6 76h-72z',c1)+R(-30,-38,60,8,c2)+Ci(0,0,16,mark)+Ci(0,0,9,c2,'opacity=".9"')+P('M-30 38h60l1 6h-62z',c2,'opacity=".6"');
+  const box=(c=C.pk,rib=C.li)=>R(-34,-24,68,52,c,'rx="3"')+R(-38,-34,76,14,c,'rx="3"')+R(-6,-34,12,62,rib)+P('M0 -34q-12-16-20-4t20 4q12-16 20-4t-20 4z',rib);
+  const plate=(food=C.am,top=null)=>`<ellipse cx="0" cy="22" rx="46" ry="12" fill="${C.cr}"/>`+`<ellipse cx="0" cy="16" rx="38" ry="22" fill="${food}"/>`+(top?[...Array(6)].map((_,i)=>Ci(-22+i*9,10+((i*5)%12),5,top)).join(''):'');
+  const pie=(c=C.am,top=C.br)=>`<ellipse cx="0" cy="12" rx="46" ry="18" fill="${c}"/>`+`<ellipse cx="0" cy="4" rx="46" ry="18" fill="${top}"/>`+`<ellipse cx="0" cy="2" rx="34" ry="12" fill="${c}" opacity=".6"/>`;
+  const logcake=(big=1,c=C.br2)=>`<g transform="scale(${big})">`+R(-46,-12,92,40,c,'rx="18"')+`<ellipse cx="46" cy="8" rx="9" ry="20" fill="${C.br}"/>`+L('M-34 -4q10 8 20 0t20 0t20 0',C.cr,4)+Ci(-20,-18,5,C.pk)+Ci(10,-20,5,C.gn)+P('M-30 -12q20-18 50-6',C.cr,'opacity=".5"')+`</g>`;
+  const jar=(c=C.am,lid=C.br2)=>R(-24,-24,48,58,c,'rx="10"','opacity=".95"')+R(-26,-34,52,12,lid,'rx="3"')+R(-24,-6,48,10,C.cr,'opacity=".6"')+R(-18,-20,6,48,C.wh,'opacity=".25"');
+  const book=(c=C.pk)=>R(-36,-30,72,56,c,'rx="3"')+R(-30,-24,62,44,C.cr,'opacity=".25"')+L('M-20 -10h40M-20 0h40M-20 10h28',C.cr,3)+R(-36,24,72,5,C.cr);
+  const jacket=(c=C.rd,stripe=C.cr)=>P('M-18 -34l-24 18 10 26 12-6v38h40v-38l12 6 10-26-24-18q-10 10-18 10t-18-10z',c)+L('M0 -26v54',stripe,3)+R(-28,-8,12,5,stripe,'opacity=".8"');
+  const dog=()=>`<ellipse cx="0" cy="14" rx="36" ry="22" fill="#9c7a5b"/>`+Ci(30,-10,18,'#9c7a5b')+P('M42 -22l12 -10l2 18z',C.br2)+Ci(36,-12,3,C.dk)+Ci(46,-4,4,C.dk)+R(-26,30,8,18,'#9c7a5b')+R(14,30,8,18,'#9c7a5b')+L('M-36 4q-14 -18 -4 -30',C.br2,6)+P('M24 -8q4 12 14 6',C.pk);
+  const glassPunch=(c=C.or)=>P('M-28 -34h56l-8 52q0 12-20 12t-20-12z',c)+P('M-28 -34h56l-2 12h-52z',C.cr,'opacity=".4"')+L('M8 -50l14 40',C.gn,4)+Ci(-6,-40,8,C.mo)+R(-14,30,28,4,C.lv);
+  const tin=(c=C.cr)=>Ci(0,10,40,C.br2)+Ci(0,6,40,c)+[[-16,2],[8,-10],[14,12],[-12,18],[0,2]].map(([x,y])=>Ci(x,y,9,C.am)+Ci(x+2,y-2,2,C.br)).join('');
+  const tray=(items)=>R(-50,10,100,16,C.br2,'rx="4"')+items;
+  const envelope=()=>R(-40,-24,80,52,C.cr,'rx="3"')+L('M-40 -24l40 30l40 -30',C.lv,3)+Ci(0,6,8,C.rd);
+  const receipt=()=>R(-26,-40,52,82,C.cr)+L('M-16 -26h32M-16 -14h24M-16 -2h32M-16 10h20',C.lv,3)+L('M-12 30l24-14M-12 18l0 0',C.rd,0)+Ci(-8,28,5,C.rd)+Ci(10,18,5,C.rd)+L('M-12 34l22-22',C.rd,3);
+  const lego=()=>R(-40,-6,80,36,C.rd,'rx="3"')+[0,1,2,3].map(i=>Ci(-30+i*20,-12,7,C.rd)).join('')+R(-24,-30,48,26,C.li,'rx="3"')+[0,1].map(i=>Ci(-10+i*20,-34,6,C.li)).join('');
+  const gloves=()=>[[-22,1],[22,-1]].map(([x,s])=>P(`M${x-14} 30v-40q0-10 8-10t8 10v-16q0-8 8-8t8 8v50z`,C.rd)+R(x-14,24,32,8,C.cr)+R(x-14,-6,0,0,C.cr)).join('');
+  const jerseyLorient=()=>P('M-20 -36l-26 20 12 26 14-6v38h44v-38l14 6 12-26-26-20q-10 10-20 10t-20-10z',C.or)+[0,1,2].map(i=>R(-18+i*14,-30,6,66,C.dk,'opacity=".85"')).join('')+Ci(0,-8,6,C.cr);
+  const sausage=()=>P('M-44 -6q0-16 16-16h56q16 0 16 16t-16 16h-56q-16 0-16-16z',C.pk,'opacity=".9"')+[...Array(7)].map((_,i)=>Ci(-34+i*12,-6+((i*7)%8)-4,3,C.cr,'opacity=".7"')).join('')+L('M-44 -6q-8 -20 4 -28M48 -6q8 -20-4 -28',C.br,3);
+  const cheeseLog=(c=C.cr)=>R(-44,-14,88,38,c,'rx="14"')+R(-44,-14,88,12,C.lv,'rx="8"','opacity=".5"')+Ci(-30,10,3,C.lv)+Ci(0,6,3,C.lv)+Ci(26,12,3,C.lv);
+  const wedge=(wr=C.br)=>P('M-44 20L40 -10L44 20z',C.li)+P('M-44 20L40 -10L40 -22L-44 8z',C.am)+Ci(0,8,5,C.am)+Ci(20,2,3,C.am)+R(-46,18,92,12,wr);
+  const candy=()=>jar(C.bl,C.pk)+[[-8,0],[6,8],[-4,16],[10,-4],[-12,14]].map(([x,y],i)=>Ci(x,y,5,[C.pk,C.gn,C.li,C.or,C.pu][i])).join('');
+  const carton=(c=C.pk)=>R(-24,-34,48,72,c)+P('M-24 -34l24-12l24 12z',C.cr)+R(-24,-6,48,20,C.cr,'opacity=".5"')+Ci(0,4,6,C.rd);
+  const sixpack=()=>[0,1,2].map(i=>R(-42+i*30,-14,22,52,C.am,'rx="4"')+R(-38+i*30,-30,14,18,C.am)+R(-38+i*30,-32,14,5,C.li)).join('')+R(-46,8,92,10,C.br,'opacity=".8"');
+  const sushiTray=()=>R(-50,6,100,22,C.br2,'rx="6"')+[0,1,2,3].map(i=>R(-42+i*24,-8,20,18,C.cr,'rx="8"')+R(-44+i*24,-12,24,10,i%2?C.or:C.pk,'rx="5"')).join(''); 
+  const bouquet=(wilted=true)=>L('M0 40v-50',C.gn,5)+[[-18,-24],[18,-28],[0,-40],[-26,-6],[24,-8]].map(([x,y],i)=>Ci(x,y+(wilted?8:0),10,[C.pk,C.li,C.or,C.cr,C.pk][i])+Ci(x,y+(wilted?8:0),3,C.am)).join('')+P('M-24 30l24-26l24 26z',C.cr);
+  const cotillon=()=>P('M-30 30l14-60l16 60z',C.pk)+P('M-8 30l16-56l14 56z',C.gn)+Ci(-16,-32,5,C.li)+Ci(8,-28,5,C.li)+L('M30 20q20-20 38 0t-18 14',C.or,5);
+  const snowglobe=()=>Ci(0,-6,36,C.bl,'opacity=".35"')+R(-26,26,52,16,C.br2,'rx="4"')+P('M-12 24l12-34l12 34z',C.gn)+[...Array(8)].map((_,i)=>Ci(-22+i*7,-24+((i*11)%30),1.6,C.wh)).join('');
+  const fish=()=>P('M-44 0q40-34 84 0q-44 34-84 0z',C.br)+P('M40 0l16-16v32z',C.br2)+Ci(-30,-4,3,C.dk)+L('M-34 -4q0-4 6 0',C.dk,0)+L('M-20 -10q4 10 0 20M-8 -14q4 14 0 28',C.br2,3);
+  const tartePoo=()=>`<ellipse cx="0" cy="14" rx="46" ry="16" fill="${C.br2}"/>`+`<ellipse cx="0" cy="6" rx="46" ry="16" fill="${C.br}"/>`+[[-20,2],[10,-2],[24,8],[-4,12]].map(([x,y])=>P(`M${x-8} ${y+6}q0-14 8-14t8 14z`,'#5b3a1c')).join('');
+  const peanut=()=>P('M-26 -32h52l6 70h-64z',C.br)+R(-26,-32,52,8,C.rd)+[0,1,2].map(i=>`<ellipse cx="${-12+i*12}" cy="${-2+(i%2)*14}" rx="7" ry="11" fill="${C.am}" stroke="${C.br2}" stroke-width="2" transform="rotate(${20-i*20} ${-12+i*12} ${i*7})"/>`).join('');
+  const bricks=()=>carton(C.pk);
+  const wrapped=()=>R(-36,-26,72,54,C.cr,'rx="3"')+L('M-30 -14h60M-30 -2h50M-30 10h60M-30 22h40',C.dk,2,'opacity=".5"')+L('M-36 -26l72 54',C.rd,3)+Ci(0,0,10,C.gn);
+  const objectsBox=()=>R(-40,-10,80,44,C.br,'rx="3"')+P('M-44 -10h88l-6-14h-76z',C.br2)+gloves().replace(/<path/g,'<path transform="translate(-6 -28) scale(.5)"').slice(0,0)+Ci(-14,-18,10,C.pu)+R(6,-30,16,20,C.rd);
+  const boardgame=()=>R(-42,-26,84,54,C.pu,'rx="3"')+[0,1,2,3].map(i=>R(-30+i*15,-14,13,13,i%2?C.cr:C.pk)).join('')+[0,1,2,3].map(i=>R(-30+i*15,-1,13,13,i%2?C.pk:C.cr)).join('')+Ci(-20,-20,5,C.gn)+Ci(10,18,5,C.li);
+  const cakeSlice=()=>P('M-40 20L40 20L40 -4L0 -28L-40 -4z',C.pk,'opacity="0"')+P('M-44 22h88v-32l-44 -22l-44 22z',C.cr)+R(-44,0,88,8,C.pk)+Ci(0,-30,10,C.rd)+L('M0 -40v-8',C.gn,3);
+  const pasteis=()=>[[-26,8],[0,8],[26,8],[-13,-14],[13,-14]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+4}" rx="16" ry="9" fill="${C.br}"/>`+`<ellipse cx="${x}" cy="${y}" rx="14" ry="8" fill="${C.li}"/>`+Ci(x,y-1,3,C.br2)).join('');
+  const dish=()=>plate(C.am,C.br2)+`<ellipse cx="0" cy="10" rx="42" ry="26" fill="${C.bl}" opacity=".28"/>`;
+  const gameBottle=(b,l,cork)=>bottle(b,l,cork);
+  const OBJ={
+    plat_eva:dish,gants_louis:gloves,jeu_societe:boardgame,bouteille_coffre:()=>bottle('#2c3e2f',null,'#8a6b3e'),the_cindy:()=>glassPunch(C.or),biscuits_cindy:()=>tin(C.cr),biscuits_perimes:()=>tin('#9ab08a')+Ci(-8,0,5,'#3a6b3a')+Ci(14,10,4,'#3a6b3a'),
+    durian:fish,objets_trouves:objectsBox,livre_mael:()=>book(C.rd)+L('M-26 -12l14 14M-6 6l12-10',C.rd,3),vin_epicerie:()=>bottle('#6b2b3a',C.br,C.br2)+L('M-12 20q6 6 12 0',C.bl,2,'opacity=".6"'),
+    chips_bacon:()=>bag('#d9482b',C.am,C.pk),chips_nature:()=>bag('#e8c14a',C.cr,C.li),chips:()=>bag('#7a3b1d',C.or,C.am),ruby:()=>bottle('#8d1d3a',C.pk,C.li),vinho:()=>bottle('#58a05a',C.cr,C.cr),pasteis,gateau_pdf:cakeSlice,enveloppe:envelope,chien:dog,recu:receipt,
+    cremant:()=>bottle('#1e5a3c',C.li,C.li,'#1e5a3c')+Ci(-4,-46,0,C.li),lego,vintage:()=>jacket(C.rd,C.cr),lorient:jerseyLorient,poesie:()=>book(C.lv)+L('M20 -40q14 -20 22 -4',C.cr,3),cremant_cf:()=>bottle('#2a6a4a',C.cr,C.am),rouge_cf:()=>bottle('#7d1f2e',C.cr,C.rd),cidre:()=>bottle('#b9822f',C.gn,C.li)+Ci(0,22,6,C.rd),quiche:()=>pie(C.li,C.br),
+    buche_moreau:()=>logcake(1.9,C.br2),buche:()=>logcake(1,C.br2),confettis:cotillon,blanc_epi:()=>bottle('#e6d58a',C.cr,C.am),saucisson:sausage,chevre:()=>cheeseLog(C.cr),miel:()=>jar(C.am,C.br2),bonbons:candy,rose_brique:()=>carton(C.pk),bieres:sixpack,cacahuetes:peanut,sushis:sushiTray,fleurs:bouquet,cotillons:cotillon,boule_neige:snowglobe,tarte:tartePoo,fromage_mt:()=>wedge(C.br),souvenir_cindy:wrapped,mystere:()=>bottle('#3a3550',null,'#55496e')+R(-14,-6,28,56,C.wh,'opacity=".08"')
+  };
+  const bbCache={};
+  const measure=(key)=>{
+    if(bbCache[key]) return bbCache[key];
+    let bb={x:-50,y:-50,width:100,height:100};
+    try{
+      const sv=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      sv.setAttribute('style','position:absolute;left:-9999px;top:0;width:10px;height:10px;visibility:hidden');
+      sv.innerHTML='<g>'+(OBJ[key]||OBJ.mystere)()+'</g>';
+      document.body.appendChild(sv);
+      const b=sv.firstChild.getBBox(); if(b.width>0&&b.height>0) bb={x:b.x,y:b.y,width:b.width,height:b.height};
+      document.body.removeChild(sv);
+    }catch(e){}
+    return bbCache[key]=bb;
+  };
+  /* pose l'objet sur la table : centré en x=cx, base à y=base */
+  const objectSvg=(key,maxH=104,rot=0,cx=200,base=136,maxW=230)=>{
+    const b=measure(key),sc=Math.min(maxH/b.height,maxW/b.width,2.2);
+    const ox=-(b.x+b.width/2)*sc, oy=-(b.y+b.height)*sc;
+    return `<g transform="translate(${cx} ${base}) rotate(${rot}) translate(${ox} ${oy}) scale(${sc})">${(OBJ[key]||OBJ.mystere)()}</g>`;
+  };
+  const partyRoom=(o={})=>R(0,0,400,200,o.dark?'#16133a':C.bg2)+R(0,150,400,50,o.dark?'#100e2c':C.gr)+garland(0,400,16,10,5)+glow(200,100,150,C.am,o.dark?.03:.07)+R(70,132,260,12,C.br,'rx="4"')+R(86,144,10,50,C.br2)+R(304,144,10,50,C.br2)+R(250,24,100,70,C.dk,'rx="3"')+L('M300 24V94M250 59H350',C.pu,4)+Ci(268,40,1.5,C.mo)+Ci(330,72,1.5,C.mo);
+  const ending=(key,kind)=>{
+    const win=kind==='win',hid=kind==='hidden';
+    return partyRoom({dark:!win&&!hid})+(win||hid?confetti(26)+sparkle(110,52,1.3,C.li)+sparkle(300,40,1,C.mo)+sparkle(340,104,.8,C.li):'')+
+      objectSvg(key,win?112:100,win?0:-12,200,138)+
+      (win?'':`<rect width="400" height="200" fill="#1a0a14" opacity=".28"/>`+L('M338 150l24 24M362 150l-24 24',C.rd,5));
+  };
+  /* ---------- fins spéciales ---------- */
+  const END={
+    fin_riche:()=>R(0,0,400,200,'#15402f')+[...Array(18)].map((_,i)=>Ci(40+((i*61)%320),30+((i*37)%140),12,C.li)+Ci(40+((i*61)%320),30+((i*37)%140),7,C.am)).join('')+R(130,50,140,100,C.cr,'rx="6"')+Ci(200,100,26,C.gn)+L('M200 84v32M192 92h16M192 108h16',C.dk,4)+L('M320 40l30 30M350 40l-30 30',C.rd,6),
+    fin_eva_nuit:()=>R(0,0,400,200,'#3a2b60')+Ci(70,60,34,C.li,'opacity=".9"')+R(0,150,400,50,C.gr)+R(120,100,190,50,C.pu,'rx="14"')+R(104,112,34,48,C.pu2,'rx="10"')+boardgame().replace(/^/,'<g transform="translate(220 122) scale(.7)">')+'</g>'+Ci(340,50,20,C.cr)+L('M340 50v-12M340 50l10 6',C.dk,3)+P('M0 0h400v10h-400z',C.am,'opacity=".3"')+[0,1,2].map(i=>sparkle(40+i*28,150+i*4,.4,C.pk)).join(''),
+    fin_arnaque:()=>sky({nm:1})+roadN(140)+car(110,160,C.dk,1.9)+R(176,142,60,12,C.bl,'opacity="0"')+L('M10 40q190-60 380 0',C.lv,3,'opacity=".3"')+Ci(150,110,0,C.li)+P('M300 150l70-20l4 12z',C.li,'opacity=".15"')+L('M96 156l70 0',C.rd,0)+R(100,152,26,10,C.dk,'opacity="0"')+L('M335 70l20-12M350 90l24-4',C.mo,3),
+    fin_carottes:()=>R(0,0,400,200,C.bg2)+glow(200,100,150,C.am,.12)+`<ellipse cx="200" cy="106" rx="90" ry="64" fill="${C.am}"/>`+`<ellipse cx="200" cy="106" rx="76" ry="52" fill="${C.pk}" opacity=".9"/>`+[...Array(26)].map((_,i)=>L(`M${150+((i*29)%100)} ${80+((i*17)%50)}l${10} ${6}`,C.or,5)).join('')+garland(0,400,16,10,5),
+    fin_festival:()=>R(0,0,400,200,'#ffb347')+Ci(310,50,34,C.li)+P('M0 150L90 80L180 150Z',C.pk)+P('M120 150L220 70L320 150Z',C.pu)+R(0,150,400,50,'#3b8f5b')+R(120,110,60,40,C.cr,'rx="3"','transform="rotate(-8 150 130)"')+R(200,112,60,40,C.cr,'rx="3"','transform="rotate(6 230 132)"')+L('M130 124h40M130 136h30M210 126h40M210 138h30',C.pk,3)+[0,1,2,3].map(i=>sparkle(40+i*100,40+(i%2)*20,.8,C.cr)).join(''),
+    fin_katia:()=>sky()+R(0,130,400,70,C.br2)+R(0,126,400,10,C.br)+[0,1,2].map(i=>P(`M${90+i*80} 56h50l-8 70h-34z`,'#ff9ecb','opacity=".95"')+Ci(115+i*80,60,0,C.li)+L(`M${140+i*80} 44l-16 24`,C.gn,4)).join('')+Ci(340,60,28,C.cr)+L('M340 60v-14M340 60l12 8',C.dk,3)+garland(0,400,20,10,5),
+    fin_teleporteur:()=>R(0,0,400,200,'#143a55')+Ci(70,36,22,C.mo)+palm(60,170,1.2)+palm(340,170,1.1)+R(0,166,400,34,'#d9b46b')+`<ellipse cx="200" cy="100" rx="44" ry="66" fill="none" stroke="${C.gn}" stroke-width="10"/>`+`<ellipse cx="200" cy="100" rx="30" ry="50" fill="${C.pu}" opacity=".85"/>`+`<ellipse cx="200" cy="100" rx="16" ry="30" fill="${C.bl}" opacity=".8"/>`+[0,1,2,3,4,5].map(i=>sparkle(120+i*30,40+((i*37)%110),.7,C.li)).join(''),
+    fin_burpees:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.gr)+person(140,150,2.2,C.gn,'')+L('M240 150h110M254 150v-26M336 150v-26',C.lv,6)+Ci(254,124,12,C.cr)+Ci(336,124,12,C.cr)+L('M60 60l40-12M70 90l44-4',C.mo,3)+garland(0,400,16,10,4),
+    fin_chien:()=>R(0,0,400,200,C.bg2)+garland(0,400,16,10,5)+R(0,150,400,50,C.gr)+`<g transform="translate(240 120) scale(1.7)">${dog()}</g>`+person(100,152,2,C.or)+R(130,40,100,40,C.cr,'rx="10"')+P('M160 80l-8 16l22-16z',C.cr)+L('M150 52h60M150 64h40',C.pk,5),
+    coffre_police:()=>R(0,0,400,200,'#121a33')+[0,1,2,3,4,5,6,7].map(i=>R(40+i*44,0,8,200,C.lv)).join('')+R(0,60,400,8,C.lv)+R(0,140,400,8,C.lv)+glow(70,100,90,C.rd,.18)+glow(330,100,90,'#4a7bff',.2)+Ci(70,100,16,C.rd)+Ci(330,100,16,'#4a7bff'),
+    fin_egout_rave:()=>LOC.egout()+[0,1,2,3,4].map(i=>P(`M200 40L${40+i*80} 170L${64+i*80} 170Z`,[C.pk,C.gn,C.li,C.bl,C.or][i],'opacity=".28"')).join('')+Ci(200,36,16,C.cr)+[0,1,2,3,4,5].map(i=>R(190+(i%3)*8,26+i*0,4,4,C.dk,'opacity=".5"')).join('')+person(110,164,1.2,C.pk)+person(290,164,1.2,C.gn),
+    fin_casino:()=>R(0,0,400,200,'#2a0f2f')+R(110,26,180,150,C.rd,'rx="12"')+R(130,50,140,50,C.cr,'rx="4"')+[0,1,2].map(i=>R(136+i*44,56,36,38,C.wh,'rx="3"')+L(`M${144+i*44} 66h20l-12 22`,C.rd,5)).join('')+R(130,112,140,14,C.dk)+Ci(300,60,10,C.li)+L('M300 60l50 30',C.mo,5)+[...Array(10)].map((_,i)=>sparkle(30+((i*43)%340),20+((i*29)%150),.6,C.li)).join(''),
+    fin_doro:()=>LOC.paris(),
+    fin_salle:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.gr)+L('M90 150h220',C.mo,8)+Ci(90,150,18,C.lv)+Ci(310,150,18,C.lv)+book(C.pk).replace(/^/,'<g transform="translate(200 90) scale(1.2)">')+'</g>'+garland(0,400,16,10,4),
+    fin_perdus:()=>sky()+ground(170,C.gr2)+R(196,50,8,120,C.lv)+[[-1,60,C.pk],[1,86,C.gn],[-1,112,C.li],[1,138,C.or]].map(([d,y,c])=>P(d<0?`M200 ${y}h-70l-16 10l16 10h70z`:`M200 ${y}h70l16 10l-16 10h-70z`,c)).join('')+Ci(344,48,6,C.mo)+L('M60 60q8-14 18 0q-6 10-8 18',C.mo,4)+Ci(70,86,3,C.mo),
+    fin_heli_toit:()=>sky()+house(110,120,180,50,C.pu,C.pu2,{nowin:false})+R(176,66,4,40,C.lv)+L('M168 80h20M170 90h16',C.lv,3)+`<g transform="rotate(-24 200 80)"><ellipse cx="200" cy="80" rx="46" ry="24" fill="${C.or}"/>${P('M236 76l56-8v10l-56 12z',C.or)}${L('M120 50h160',C.mo,4)}</g>`+[...Array(8)].map((_,i)=>sparkle(120+i*20,100+((i*13)%40),.6,i%2?C.li:C.pk)).join('')+L('M150 140q-10-40 20-60',C.mo,0),
+    fin_moto_solo:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.gr)+[0,1,2,3].map(i=>Ci(60+i*30,130-(i%2)*6,16,C.dk)+Ci(60+i*30,130-(i%2)*6,6,C.lv)).join('')+`<g transform="translate(260 150) rotate(-18) scale(.9)">${L('M-60 -4l50-46h40l30 46',C.or,6)}${Ci(-60,0,22,'none',`stroke="${C.mo}" stroke-width="7"`)}${Ci(50,0,22,'none',`stroke="${C.mo}" stroke-width="7"`)}${P('M-30 -50h60l30 48h-22l-26-24h-42z',C.pk)}</g>`+[0,1,2].map(i=>sparkle(180+i*40,70+i*10,.7,C.li)).join(''),
+    fin_moto_col:()=>sky({nm:1,seed:7})+P('M0 160L100 70L180 130L260 50L400 150V200H0Z',C.pu2)+P('M0 180L140 110L240 160L330 100L400 160V200H0Z',C.pu)+R(160,116,80,44,C.br,'rx="3"')+P('M152 116L200 86L248 116Z',C.br2)+win(176,126,18,18)+win(206,126,18,18)+[0,1,2,3,4,5].map(i=>Ci(120+i*30,150,6,[C.pk,C.li,C.gn][i%3])+R(116+i*30,156,8,14,C.dk)).join('')+glow(200,134,70,C.li,.1),
+    fin_minuit:()=>R(0,0,400,200,'#10133a')+Ci(200,100,62,C.cr)+Ci(200,100,56,'#fff7e2')+L('M200 100V58M200 100V58',C.dk,5)+[...Array(12)].map((_,i)=>Ci(200+50*Math.sin(i*Math.PI/6),100-50*Math.cos(i*Math.PI/6),2.4,C.dk)).join('')+[0,1,2,3,4,5,6].map(i=>sparkle(40+i*52,30+((i*41)%130),1.1,[C.pk,C.li,C.gn,C.bl][i%4])).join('')+confetti(24),
+    lose_mains:()=>R(0,0,400,200,C.bg2)+R(0,150,400,50,C.gr)+`<ellipse cx="200" cy="130" rx="70" ry="38" fill="#8a8794"/>`+Ci(244,100,22,'#8a8794')+Ci(236,92,8,'#8a8794')+Ci(256,90,9,'#8a8794')+P('M222 84l8-18l8 12l8-14l8 18z',C.li)+Ci(250,104,3,C.dk)+Ci(266,98,4,C.pk)+L('M130 130q-60 10-50 40',C.pk,5)+garland(0,400,16,10,5)
+  };
+  /* ---------- sélection ---------- */
+  const REGEXES=[
+    [/^Chez Eva|^Le before|^La table de jeux/,'table'],[/^Le canapé|^Chez toi/,'canape'],
+    [/En voiture|En route avec|Dans le casque/,'voiture'],[/Cormeilles-en-Parisis$|^Dans la rue|^En chemin|^À pied|^En route/,'rue'],
+    [/Parvis|Devant la gare|^La gare|^Les bornes|^Départ pour/,'gare'],[/^Le quai/,'quai'],[/^Dans le train/,'train'],[/^L'arrêt de bus/,'bus'],[/^Dans le bus/,'busint'],
+    [/lycée/i,'lycee'],[/Marielle|Micka|deux maisons|^Chez les voisins/,'maison'],[/city-stade/i,'city'],[/coup de fil/,'phone'],[/appli VTC/,'appli'],
+    [/Part de Folie/,'pdf'],[/boulangerie/i,'boulange'],[/Réserve du Carrefour/,'reserve'],[/Carrefour City/,'carrefour'],[/L'épicerie/,'epicerie'],
+    [/^Sous Le Plessis/,'egout'],[/^Le Plessis|^Anaïs$|^Moizlard$|^Anaïs arrive|^Moizlard arrive|^Antonin arrive/,'plessis'],[/^Franconville/,'rue'],
+    [/hauteurs/,'heights'],[/casino/i,'casino'],[/Station-service/,'stationserv'],[/distributeur/i,'atm'],[/drive/i,'drive'],
+    [/VTC/,'vtc'],[/En voiture|En route avec|Dans le casque/,'voiture'],[/hélicoptère/i,'heli'],[/hangar/i,'hangar'],[/moto/i,'moto'],
+    [/petit boulot/i,'boulot'],[/Devant chez Cindy/,'cindy'],[/Devant un bar/,'bar'],
+    [/^Le pavillon/,'pavillon'],[/^Chez Yann/,'fete'],[/^Saint-Gratien$/,'rue']
+  ];
+  function forScene(id,sc){
+    if(sc.end){
+      if(END[id]) return wrap(END[id](),sc.h||'Fin');
+      const key=id.replace(/^(win|lose)_/,'');
+      if(id==='win_parfait') return wrap(partyRoom()+confetti(30)+['cremant','chips','saucisson','tarte','pasteis'].map((k,i)=>objectSvg(k,64,0,70+i*65,138,56)).join(''),sc.h);
+      if(OBJ[key]) return wrap(ending(key,sc.end),sc.h||'Fin');
+      return wrap(partyRoom({dark:sc.end==='lose'}),sc.h||'Fin');
+    }
+    const p=sc.p||'';
+    for(const [re,k] of REGEXES) if(re.test(p)) return wrap(LOC[k](),p);
+    return null;
+  }
+  return {forScene,LOC,END,OBJ,objectSvg};
+})();
+
+/* Classeur de collection : une carte par fin, grisée tant qu'elle n'est pas débloquée, par joueur */
+const CLS = (function(){
+  const CAT = [
+    ['Les fins secrètes', ['fin_teleporteur','fin_doro','fin_perdus','fin_moto_col']],
+    ['À boire gagnant', ['win_cremant','win_cremant_cf','win_rouge_cf','win_blanc_epi','win_cidre','win_vinho','win_ruby','win_rose_brique','win_bieres','win_mystere','win_bouteille_coffre','win_the_cindy']],
+    ['À manger gagnant', ['win_chips','win_chips_bacon','win_cacahuetes','win_saucisson','win_chevre','win_fromage_mt','win_sushis','win_quiche','win_pasteis','win_tarte','win_miel','win_bonbons','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
+    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_boule_neige','win_fleurs','win_cotillons','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','win_parfait']],
+    ['Mauvais cadeaux', ['lose_mains','lose_mystere','lose_biscuits_perimes','lose_durian','lose_vin_epicerie','lose_chips_nature','lose_recu','lose_buche_moreau']],
+    ['En chemin', ['fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
+    ['Les tentations de la nuit', ['fin_eva_nuit','fin_katia','fin_casino','fin_festival','fin_carottes','fin_chien','fin_burpees','fin_salle','fin_minuit']]
+  ];
+  const who = n => String(n || '').trim().toLowerCase();
+  const key = n => 'dsg-classeur:' + who(n);
+  function get(n){
+    const out = new Set();
+    try { const a = JSON.parse(store(key(n)) || '[]'); if (Array.isArray(a)) a.forEach(i => out.add(i)); } catch (e) {}
+    try { const m = (window.Endings && Endings.found(n)) || {}; Object.keys(m).forEach(i => out.add(i)); } catch (e) {}
+    return out;
+  }
+  const ALL = CAT.reduce((a, c) => a + c[1].length, 0);
+  const PAL = [[10,'Collectionneur','#c9803a'],[25,'Chasseur de fins','#b8c2d6'],[50,'Maître des fins','#ffd166'],[ALL,'Légende du Nouvel An','#9be7ff']];
+  const count = set => [...set].filter(i => CAT.some(c => c[1].includes(i))).length;
+  const titleOf = c => { let t = null; PAL.forEach(p => { if (c >= p[0]) t = p; }); return t; };
+  function add(n, id){
+    if (!n) return null; const s = get(n); if (s.has(id)) return null;
+    const before = count(s); s.add(id); try { store(key(n), JSON.stringify([...s])); } catch (e) {}
+    const a = titleOf(count(s)), b = titleOf(before);
+    return a && (!b || a[0] !== b[0]) ? a : null;
+  }
+  function medal(p, got){
+    const c = got ? p[2] : 'currentColor';
+    return '<svg viewBox="0 0 60 80" aria-hidden="true" style="opacity:' + (got ? 1 : .35) + '"><path d="M18 0h10l6 28H22z" fill="' + (got ? '#ff6b6b' : c) + '"/><path d="M32 0h10L38 28H26z" fill="' + (got ? '#4a3f9c' : c) + '"/><circle cx="30" cy="50" r="22" fill="' + c + '"/><circle cx="30" cy="50" r="16" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="3"/>' + (got ? '<path d="M30 38l4 8 9 1-6.5 6 1.8 9L30 58l-8.3 4 1.8-9L17 47l9-1z" fill="rgba(0,0,0,.28)"/>' : '<path d="M30 40v14M30 60v1" stroke="rgba(0,0,0,.4)" stroke-width="5" stroke-linecap="round"/>') + '</svg>';
+  }
+  function diploma(n, c){
+    const d = document.createElement('div'); d.className = 'cls-detail';
+    const nm = (typeof NAMES !== 'undefined' && NAMES[n]) ? NAMES[n] : n;
+    d.innerHTML = '<div class="cls-box cls-dip"><svg viewBox="0 0 400 140" aria-hidden="true"><rect width="400" height="140" fill="#1d1b4a"/><g fill="#ffd166">' + [30,70,110,150,190,230,270,310,350].map((x,i) => '<circle cx="' + x + '" cy="' + (18 + (i % 2) * 8) + '" r="4"/>').join('') + '</g><path d="M200 34l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3z" fill="#ffd166"/><g fill="none" stroke="#06d6a0" stroke-width="4" stroke-linecap="round"><path d="M160 116q-52-8-56-72"/><path d="M240 116q52-8 56-72"/></g><g fill="#06d6a0"><ellipse cx="140" cy="106" rx="9" ry="4" transform="rotate(-20 140 106)"/><ellipse cx="122" cy="92" rx="9" ry="4" transform="rotate(-50 122 92)"/><ellipse cx="112" cy="74" rx="9" ry="4" transform="rotate(-70 112 74)"/><ellipse cx="106" cy="56" rx="9" ry="4" transform="rotate(-85 106 56)"/><ellipse cx="260" cy="106" rx="9" ry="4" transform="rotate(20 260 106)"/><ellipse cx="278" cy="92" rx="9" ry="4" transform="rotate(50 278 92)"/><ellipse cx="288" cy="74" rx="9" ry="4" transform="rotate(70 288 74)"/><ellipse cx="294" cy="56" rx="9" ry="4" transform="rotate(85 294 56)"/></g></svg></div>';
+    const box = d.firstChild;
+    box.appendChild(el('span','badge hidden','Collection complète'));
+    box.appendChild(el('h3',null,'Légende du Nouvel An'));
+    box.appendChild(el('p',null,nm + ' a découvert les ' + ALL + ' fins du jeu. Plus rien ne t\'échappe, ni les bons cadeaux, ni les mauvais.'));
+    const x = el('button','btn','Fermer'); x.type = 'button'; x.addEventListener('click', () => d.remove()); box.appendChild(x);
+    d.addEventListener('click', e => { if (e.target === d) d.remove(); });
+    document.getElementById('classeur').appendChild(d);
+  }
+  function owner(){ return (typeof S !== 'undefined' && S) ? (S.pseudo || S.player) : null; }
+  function close(){ const o = document.getElementById('classeur'); if (o) o.remove(); document.body.style.overflow = ''; }
+  function card(id, got){
+    const sc = SCENES[id];
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cls-card' + (got ? ' got' : '');
+    if (got){
+      const im = (typeof sceneImage === 'function') ? sceneImage(id, sc) : null;
+      const th = document.createElement('div'); th.className = 'cls-img'; th.innerHTML = im || ''; b.appendChild(th);
+      b.appendChild(el('span','cls-name',fill(sc.h)));
+      b.setAttribute('aria-label', 'Fin débloquée : ' + fill(sc.h));
+      b.addEventListener('click', () => detail(id));
+    } else {
+      const th = document.createElement('div'); th.className = 'cls-img lock';
+      th.innerHTML = '<svg viewBox="0 0 400 200" aria-hidden="true"><rect width="400" height="200" fill="currentColor" opacity=".18"/><g fill="currentColor" opacity=".5"><rect x="170" y="88" width="60" height="46" rx="6"/><path d="M180 88v-14a20 20 0 0 1 40 0v14" fill="none" stroke="currentColor" stroke-width="9"/></g></svg>';
+      b.appendChild(th); b.appendChild(el('span','cls-name','???'));
+      b.setAttribute('aria-label', 'Fin non débloquée'); b.disabled = true;
+    }
+    return b;
+  }
+  function detail(id){
+    const sc = SCENES[id], d = document.createElement('div'); d.className = 'cls-detail';
+    const im = (typeof sceneImage === 'function') ? sceneImage(id, sc) : '';
+    d.innerHTML = '<div class="cls-box"><div class="cls-img big">' + (im || '') + '</div></div>';
+    const box = d.firstChild;
+    box.appendChild(el('span','badge '+sc.end, sc.end==='win' ? 'Fin gagnante' : sc.end==='hidden' ? 'Fin cachée' : 'Fin perdue'));
+    box.appendChild(el('h3',null,fill(sc.h)));
+    const x = el('button','btn','Fermer'); x.type = 'button'; x.addEventListener('click', () => d.remove()); box.appendChild(x);
+    d.addEventListener('click', e => { if (e.target === d) d.remove(); });
+    document.getElementById('classeur').appendChild(d);
+  }
+  function open(name){
+    close();
+    const n = name || owner(); const got = get(n);
+    const all = CAT.reduce((a, c) => a + c[1].length, 0);
+    const o = document.createElement('div'); o.id = 'classeur'; o.className = 'cls'; o.setAttribute('role','dialog'); o.setAttribute('aria-label','Classeur de collection');
+    const head = el('div','cls-head'); head.appendChild(el('h2',null,'Classeur de ' + (typeof NAMES !== 'undefined' && NAMES[n] ? NAMES[n] : n)));
+    const cnt = count(got), tt = titleOf(cnt), nx = PAL.find(p => cnt < p[0]);
+    head.appendChild(el('p','cls-count', cnt + ' fins sur ' + all + ' débloquées' + (tt ? ' · ' + tt[1] : '')));
+    const pal = el('div','cls-pal');
+    PAL.forEach(p => { const it = el('div','cls-medal' + (cnt >= p[0] ? ' got' : '')); it.innerHTML = medal(p, cnt >= p[0]); it.appendChild(el('span',null,p[1])); it.appendChild(el('small',null,cnt >= p[0] ? 'Obtenu' : p[0] + ' fins')); pal.appendChild(it); });
+    head.appendChild(pal);
+    if (nx) head.appendChild(el('p','cls-next','Prochain titre : ' + nx[1] + ', encore ' + (nx[0] - cnt) + ' fin' + (nx[0] - cnt > 1 ? 's' : '') + '.'));
+    if (cnt >= ALL){ const dp = el('button','btn','Voir mon diplôme'); dp.type = 'button'; dp.addEventListener('click', () => diploma(n, cnt)); head.appendChild(dp); }
+    const x = el('button','btn ghost','Fermer'); x.type = 'button'; x.addEventListener('click', close); head.appendChild(x);
+    o.appendChild(head);
+    CAT.forEach(([title, ids]) => {
+      const ok = ids.filter(i => SCENES[i] && got.has(i)).length;
+      const sec = el('section','cls-sec');
+      sec.appendChild(el('h3',null,title + ' · ' + ok + '/' + ids.length));
+      const g = el('div','cls-grid');
+      ids.filter(i => SCENES[i]).forEach(i => g.appendChild(card(i, got.has(i))));
+      sec.appendChild(g); o.appendChild(sec);
+    });
+    document.body.appendChild(o); document.body.style.overflow = 'hidden'; o.scrollTop = 0; x.focus();
+    if (window.MesJeux && MesJeux.ready() && !open.busy){
+      open.busy = true;
+      MesJeux.list('saint-gratien', 5000).then(rows => {
+        open.busy = false;
+        const extra = (rows || []).filter(r => who(r.player) === who(n) && r.details && SCENES[r.details.ending] && SCENES[r.details.ending].end && !got.has(r.details.ending)).map(r => r.details.ending);
+        if (!extra.length || !document.getElementById('classeur')) return;
+        const s2 = get(n); extra.forEach(i => s2.add(i)); try { store(key(n), JSON.stringify([...s2])); } catch (e) {}
+        open(n);
+      }).catch(() => { open.busy = false; });
+    }
+  }
+  const css = document.createElement('style');
+  css.textContent = '.cls{position:fixed;inset:0;z-index:50;background:var(--bg);color:var(--fg);overflow:auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}'
+   + '.cls-head{max-width:760px;margin:0 auto 12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}.cls-head h2{margin:0;flex:1 1 200px}.cls-count{margin:0;color:var(--muted);flex:1 1 100%}.cls-pal{flex:1 1 100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cls-medal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;font-size:.78rem;line-height:1.2;color:var(--muted)}.cls-medal.got{color:var(--fg)}.cls-medal svg{width:42px;height:auto}.cls-medal small{color:var(--muted)}.cls-next{margin:0;flex:1 1 100%;color:var(--muted);font-size:.9rem}.cls-dip p{margin:0}.palier{margin:0;padding:10px 12px;border-radius:10px;border:1px solid var(--accent);background:var(--panel2);font-weight:600}'
+   + '.cls-sec{max-width:760px;margin:0 auto 20px}.cls-sec h3{margin:0 0 8px;font-size:1.05rem}'
+   + '.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}'
+   + '.cls-card{display:flex;flex-direction:column;gap:6px;padding:6px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font:inherit;text-align:left;cursor:pointer;min-width:0}'
+   + '.cls-card:disabled{cursor:default;opacity:.75}.cls-card.got:hover{border-color:var(--accent)}'
+   + '.cls-img{border-radius:8px;overflow:hidden;line-height:0}.cls-img svg{display:block;width:100%;height:auto}.cls-img.lock{color:var(--muted);background:var(--panel2)}'
+   + '.cls-name{font-size:.82rem;line-height:1.25;padding:0 2px 2px;overflow-wrap:anywhere}'
+   + '.cls-detail{position:fixed;inset:0;z-index:60;background:rgba(5,8,25,.78);display:grid;place-items:center;padding:16px}'
+   + '.cls-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:10px}.cls-box h3{margin:0}.cls-img.big{border-radius:10px}';
+  document.head.appendChild(css);
+  return {open, close, add, get, owner, CAT};
+})();
+
+function sceneImage(id, sc){ try { return IMGS[id] || IMG.forScene(id, sc); } catch (e) { return null; } }
 function showScene(id, sc){
   updateBoard(sc);
   const box = $('scene'); box.textContent = '';
+  { const im = sceneImage(id, sc); if (im){ const fg = document.createElement('div'); fg.className = 'scene-img'; fg.innerHTML = im; box.appendChild(fg); } }
   const place = el('div','place',sc.p || '');
   if (sc.who && !Array.isArray(sc.who) && NAMES[sc.who]) place.appendChild(el('span','with','avec '+NAMES[sc.who]));
   box.appendChild(place);
@@ -2632,6 +3054,7 @@ function showScene(id, sc){
 }
 
 function showEnd(id, sc){
+  const newTitle = CLS.add(CLS.owner(), id);
   foundSet(S.pseudo);
   const map = foundMap(S.pseudo); const isNew = !map[id]; map[id] = fill(sc.h);
   store(Endings.key(S.pseudo), JSON.stringify(map));
@@ -2640,8 +3063,10 @@ function showEnd(id, sc){
   const root = $('end'); root.textContent = '';
   const card = el('div','endcard');
   const kind = sc.end;
+  { const im = sceneImage(id, sc); if (im){ const fg = document.createElement('div'); fg.className = 'scene-img'; fg.innerHTML = im; card.appendChild(fg); } }
   card.appendChild(el('span','badge '+kind, kind==='win' ? 'Fin gagnante' : kind==='hidden' ? 'Fin cachée' : 'Fin perdue'));
   card.appendChild(el('h2',null,fill(sc.h)));
+  if (newTitle) card.appendChild(el('p','palier','Nouveau titre débloqué : ' + newTitle[1] + ' !'));
   const txt = el('div','txt');
   fill(val(sc.text)).split('\n\n').forEach(par=>txt.appendChild(el('p',null,par)));
   card.appendChild(txt);
@@ -2654,7 +3079,8 @@ function showEnd(id, sc){
   const row = el('div','row');
   const again = el('button','btn','Recommencer'); again.type='button'; again.addEventListener('click',()=>newGame(S.player, S.pseudo));
   const change = el('button','btn ghost','Changer de joueur'); change.type='button'; change.addEventListener('click',renderStart);
-  row.appendChild(again); row.appendChild(change);
+  const cl = el('button','btn ghost','Mon classeur'); cl.type='button'; cl.addEventListener('click',()=>CLS.open(CLS.owner()));
+  row.appendChild(again); row.appendChild(change); row.appendChild(cl);
   card.appendChild(row);
   card.appendChild(el('p','small','Fins découvertes : '+found.size+' sur '+ENDS.length));
   const ul = el('ul','found');
@@ -2683,7 +3109,7 @@ function recordAndShow(points, id, kind, title, status, boardBody){
   }).catch(()=>{ boardBody.textContent = ''; boardBody.appendChild(el('p','small',"Le classement n'a pas pu être lu pour le moment.")); });
 }
 
-renderStart();
+MASK.start(); renderStart();
 </script>
 
 </body></html>

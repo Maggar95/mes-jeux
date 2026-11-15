@@ -62,16 +62,16 @@ window.MESJEUX_GAMES = [
   {
     id: "saint-gratien",
     section: "perso",
-    title: "Direction Saint-Gratien",
+    title: "Direction ???",
     file: "jeux/saint-gratien.html",
-    blurb: "Le 31 au soir, tu pars de Cormeilles avec 20 € pour rejoindre Yann. Rapporte de quoi boire, de quoi manger et une surprise avant minuit.",
+    blurb: "Le 31 au soir, tu pars de Cormeilles avec 20 € pour rejoindre la soirée. Rapporte de quoi boire, de quoi manger et une surprise avant minuit.",
     rank: "endings",          /* classement par nombre de fins différentes découvertes */
     scoreLabel: "Fins",
     unit: " fins",
     bg: "#0d1530", fg: "#ffc629",
     detail: function (r) {
       var d = r.details || {};
-      return d.title || "";
+      return String(d.title || "").replace(/Yann/g, "l'hôte").replace(/Saint-Gratien|Enghien/g, "???");
     }
   }
 ];

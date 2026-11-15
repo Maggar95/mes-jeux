@@ -82,3 +82,10 @@ Le joueur saisit d'abord **son prénom** (il apparaît dans le classement et ser
 2. Ajouter une entrée dans `js/games.js`, avec sa rubrique (`section`) et, si besoin, `codeHash`. En Terminale, ajouter aussi `sub: "msdgn"` ou `sub: "rhc"` pour le ranger dans la bonne matière (les sous-catégories sont déclarées dans `subs` de la rubrique).
 3. Dans la page du jeu, charger `games.js` et `access.js`, et déclarer `window.MESJEUX_GAME = "identifiant"`.
 4. À la fin de la partie, appeler `MesJeux.save("identifiant", pseudo, score, details)`.
+
+## Direction Saint-Gratien : anonymat, images et classeur
+
+- **Anonymat** : tant qu'on n'a pas fini une partie chez l'hôte, le jeu masque son nom (« l'hôte ») et le lieu (« ??? ») partout (textes, carte, fins, page d'accueil du site). Le filtre est dans `MASK` (affichage seulement, les scènes gardent les vrais noms). Une fois une fin gagnante ou perdue atteinte chez l'hôte, les vrais noms apparaissent pour ce prénom, sur tous les appareils (la fin est retrouvée dans la table `scores`).
+- **Images** : un dessin par scène et par fin, généré dans le code (`IMG`, SVG) ; une photo peut remplacer n'importe lequel.
+- **Classeur** : une carte par fin (71), grisée tant que la fin n'est pas trouvée, rangée en 7 catégories, par prénom. Paliers de titres à 10, 25, 50 et 71 fins (diplôme à 71).
+
