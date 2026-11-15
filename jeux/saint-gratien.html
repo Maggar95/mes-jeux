@@ -958,7 +958,7 @@ const pay = n => S => S.m + 0.001 < n ? "Pas assez d'argent" : null;
 const B = (l,to,o) => Object.assign({l:l,to:to}, o || {});
 const rnd = p => Math.random() < p;
 const buy = (key,n) => S => (S.stock && S.stock[key] === false) ? 'En rupture' : pay(n)(S);
-const AVAIL = {cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, buche:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
+const AVAIL = {epi_blanc:0.1, epi_cuvee:0.1, epi_mys:0.1, epi_sauc:0.1, epi_chev:0.1, epi_nature:0.1, epi_miel:0.1, epi_bonb:0.1, cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, buche:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
 const lab = (t,k) => t + (AVAIL[k] < 0.2 ? " · presque toujours en rupture" : AVAIL[k] < 0.7 ? " · souvent en rupture" : "");
 function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AVAIL[k]); }); return o; }
 
@@ -1238,31 +1238,31 @@ const SCENES = {
  epi_vin: {p:"L'épicerie pas chère · le rayon vin",
   text:"Deux étagères. La « Cuvée du Patron » à 3,49 €. Dans une caisse en bois, au fond, quelques bouteilles de blanc sec « de la cave du patron ». Et, tout en bas, dans un carton sans nom, une bouteille sans étiquette. Une écriture au feutre : « Spécial. »",
   c:[
-   B("Prendre le blanc sec de la cave (9 €)", 'epicerie', {t:5, m:-9, item:'blanc_epi', lock:pay(9), note:"L'épicier te le tend avec une solennité exagérée : « Vous direz à votre ami qu'il vient de chez moi. »"}),
-   B("Prendre la Cuvée du Patron (3,49 €)", 'epicerie', {t:5, m:-3.49, item:'vin_epicerie', lock:pay(3.49), note:"L'épicier hoche la tête avec une gravité excessive."}),
-   B("Prendre la bouteille sans étiquette (6 €)", 'epicerie', {t:5, m:-6, item:'mystere', lock:pay(6), fx:S=>{ S.mys = rnd(0.5); }, note:"Personne ne sait ce que c'est. Surtout pas toi."}),
+   B(lab("Prendre le blanc sec de la cave (9 €)",'epi_blanc'), 'epicerie', {t:5, m:-9, item:'blanc_epi', lock:buy('epi_blanc',9), note:"L'épicier te le tend avec une solennité exagérée : « Vous direz à votre ami qu'il vient de chez moi. »"}),
+   B(lab("Prendre la Cuvée du Patron (3,49 €)",'epi_cuvee'), 'epicerie', {t:5, m:-3.49, item:'vin_epicerie', lock:buy('epi_cuvee',3.49), note:"L'épicier hoche la tête avec une gravité excessive."}),
+   B(lab("Prendre la bouteille sans étiquette (6 €)",'epi_mys'), 'epicerie', {t:5, m:-6, item:'mystere', lock:buy('epi_mys',6), fx:S=>{ S.mys = rnd(0.5); }, note:"Personne ne sait ce que c'est. Surtout pas toi."}),
    B("Retourner voir l'épicier", 'epicerie', {t:5})
   ]},
  epi_snack: {p:"L'épicerie pas chère · le rayon frais",
   text:"Un saucisson accroché à un clou, un fromage de chèvre sous cloche, et des chips « au goût de chips » (nature, donc), vendues avec fierté. Rien de tout ça n'est au Carrefour City.",
   c:[
-   B("Le saucisson de l'épicier (7 €)", 'epicerie', {t:5, m:-7, item:'saucisson', lock:pay(7)}),
-   B("Le fromage de chèvre affiné (6 €)", 'epicerie', {t:5, m:-6, item:'chevre', lock:pay(6)}),
-   B("Des chips nature (1 €)", 'epicerie', {t:5, m:-1, item:'chips_nature', lock:pay(1)}),
+   B(lab("Le saucisson de l'épicier (7 €)",'epi_sauc'), 'epicerie', {t:5, m:-7, item:'saucisson', lock:buy('epi_sauc',7)}),
+   B(lab("Le fromage de chèvre affiné (6 €)",'epi_chev'), 'epicerie', {t:5, m:-6, item:'chevre', lock:buy('epi_chev',6)}),
+   B(lab("Des chips nature (1 €)",'epi_nature'), 'epicerie', {t:5, m:-1, item:'chips_nature', lock:buy('epi_nature',1)}),
    B("Retourner voir l'épicier", 'epicerie', {t:5})
   ]},
  epi_bazar: {p:"L'épicerie pas chère · le bazar",
   text:"Au fond, des étagères où se mélangent bougies, pots de miel, clés à molette et bocaux de bonbons en vrac. Une pancarte écrite à la main : « Cadeaux possibles ».",
   c:[
-   B("Un pot de miel (5 €)", 'epicerie', {t:5, m:-5, item:'miel', lock:pay(5)}),
-   B("Des bonbons d'enfance en vrac (3 €)", 'epicerie', {t:5, m:-3, item:'bonbons', lock:pay(3)}),
+   B(lab("Un pot de miel (5 €)",'epi_miel'), 'epicerie', {t:5, m:-5, item:'miel', lock:buy('epi_miel',5)}),
+   B(lab("Des bonbons d'enfance en vrac (3 €)",'epi_bonb'), 'epicerie', {t:5, m:-3, item:'bonbons', lock:buy('epi_bonb',3)}),
    B("Retourner voir l'épicier", 'epicerie', {t:5})
   ]},
  epi_epicier: {p:"L'épicerie pas chère · l'épicier",
   text:"L'épicier s'appuie sur son comptoir comme sur un bar. Il parle lentement, de tout : de son frère, du prix des tomates, des clients du 31 qui achètent « toujours la même chose, sauf ce soir ».",
   c:[
    B("Lui demander ce qu'il a que Carrefour n'a pas", 'epicerie', {t:5, note:"« Le blanc sec de ma cave, le saucisson de mon cousin, le chèvre de ma sœur, et des bonbons que personne ne fabrique plus. Chez Carrefour, vous aurez du cellophane. »"}),
-   B("Négocier la bouteille sans étiquette à 3 €", 'epicerie', {t:10, fx:S=>{ S.pass = rnd(0.5); if (S.pass && S.m >= 3 && S.bag.length < 3) { S.m -= 3; S.mys = rnd(0.5); if (S.bag.indexOf('mystere') < 0) S.bag.push('mystere'); } }, note:"Il a regardé la bouteille, puis toi, puis la bouteille. Si le marché a été conclu, elle est dans ton sac. Sinon, il garde les 3 € de ta dignité."}),
+   B("Négocier la bouteille sans étiquette à 3 €", 'epicerie', {t:10, fx:S=>{ S.pass = S.stock.epi_mys !== false && rnd(0.5); if (S.pass && S.m >= 3 && S.bag.length < 3) { S.m -= 3; S.mys = rnd(0.5); if (S.bag.indexOf('mystere') < 0) S.bag.push('mystere'); } }, note:"Il a regardé la bouteille, puis toi, puis la bouteille. Si le marché a été conclu, elle est dans ton sac. Sinon, il garde les 3 € de ta dignité."}),
    B("Lui demander s'il connaît Yann", 'epicerie', {t:5, note:"« Le chirurgien ? Il achète du blanc sec bien frais, et il corrige mes étiquettes. » L'épicier soupire : « Je vous le dis gratuitement. »"}),
    B("Écouter son histoire de tomates", 'epicerie', {t:15, note:"Tu en sais maintenant beaucoup sur les tomates. Rien d'utile pour Yann."}),
    B("Retourner dans le magasin", 'epicerie', {t:5})
@@ -2401,10 +2401,10 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
   text:S=>"Minuit sonne pendant que tu es encore en chemin. Ton téléphone vibre : « T'es où ? », « On compte sans toi ! », « "+(S.player==='yann'?'Marco a ouvert ta bouteille':'Yann est totalement torché')+". » Tu entends le compte à rebours au loin, et tu comprends que ce sera pour l'année prochaine."},
  lose_mains: {end:'lose', h:"Le roi des rats",
   text:"{Y} baisse les yeux sur tes mains, les relève, avec la solennité d'un chirurgien qui a déjà tout vu. « Rien. Même pas un sachet de chips. » Il se tourne vers le fond du jardin, où quelques ombres filent entre les poubelles. « Tu connais la règle : celui qui arrive les mains vides ne reste pas dehors. Il règne sur ceux qui n'ont jamais rien apporté non plus. »\n\nIl te pose sur la tête une couronne en papier de galette, qui sent encore la frangipane. À minuit, tu es assis sur la margelle, couronné roi des rats, avec ta cour qui grignote une croûte de pain en te regardant avec un respect inquiet. Le compte à rebours, tu l'entends depuis ton trône : une caisse de bouteilles vides retournée."},
- lose_mystere: {end:'lose', h:"Vinaigre sans étiquette",
-  text:"{Y} débouche la bouteille sans étiquette, hume, hésite, goûte, grimace. « Vinaigre. » Il le dit calmement, avec la tristesse d'un médecin qui annonce une mauvaise nouvelle. La porte se referme doucement. Tu comprends ce que « Spécial » voulait dire."},
- win_mystere: {end:'win', h:"Un grand cru oublié",
-  text:S=>"{Y} débouche la bouteille sans étiquette, hume, goûte, reste silencieux. « Mais… c'est excellent. Où tu as trouvé ça ? » Tu réponds : « Dans une épicerie pas chère. » Il te regarde avec un respect nouveau. Il te sert le premier verre.\n\n"+extras(S)},
+ fin_mystere: {get end(){ try { return (S && S.mys) ? 'win' : 'lose'; } catch (e) { return 'lose'; } }, h:"La bouteille sans étiquette",
+  text:S=> S.mys
+   ? "{Y} débouche la bouteille sans étiquette, hume, goûte, reste silencieux. « Mais… c'est excellent. Où tu as trouvé ça ? » Tu réponds : « Dans une épicerie pas chère. » Il te regarde avec un respect nouveau. Il te sert le premier verre.\n\n"+extras(S)
+   : "{Y} débouche la bouteille sans étiquette, hume, hésite, goûte, grimace. « Vinaigre. » Il le dit calmement, avec la tristesse d'un médecin qui annonce une mauvaise nouvelle. La porte se referme doucement. Tu comprends ce que « Spécial » voulait dire."},
  win_parfait: {end:'win', h:"La liste complète",
   text:S=>{
     const by = {};
@@ -2415,16 +2415,18 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
 
 const YQ = [["Tu as su répondre à sa question sur le blanc : il hoche la tête avec un vrai respect.","Tu as raté sa question sur le blanc, mais ce que tu as apporté t'en fait pardonner."],["Tu savais d'où vient le vinho verde : {Y} t'a regardé avec un respect nouveau.","Tu t'es trompé de pays pour le vinho verde, mais {Y} a fait semblant de ne pas l'avoir entendu."],["Tu sais ouvrir une bouteille sans faire sauter le bouchon : {Y} t'a confié la prochaine.","Tu as mal répondu sur l'ouverture du crémant : {Y} ne te laissera pas ouvrir la bouteille."],["Tu connaissais le plus petit os du corps : {Y} t'a fait un diplôme honoraire sur une serviette.","Tu as raté sa question sur l'os de l'oreille : {Y} a noté ton nom avec une croix dans un carnet imaginaire."],["Tu connaissais le temps de lavage des mains : {Y} te montre déjà où se trouve le savon.","Tu as raté sa question sur le lavage des mains : {Y} te tend le savon, par principe."]];
 function sc(S,id){ return id==='mystere' ? (S.mys?3:-2) : ITEMS[id].s; }
+const EPI_W = new Set(['blanc_epi','saucisson','chevre','miel','bonbons']), EPI_L = new Set(['vin_epicerie','chips_nature']);
 function resolve(S){
   if (!S.bag.length) return 'lose_mains';
   const kill = S.bag.find(b=>ITEMS[b] && ITEMS[b].kill);
-  if (kill) { S.best = kill; return 'lose_'+kill; }
+  if (kill) { S.best = kill; return EPI_L.has(kill) ? 'lose_epicier' : 'lose_'+kill; }
   const best = S.bag.reduce((a,b)=> sc(S,b) >= sc(S,a) ? b : a);
   S.best = best;
-  if (sc(S,best) < 0) return best === 'mystere' ? 'lose_mystere' : 'lose_'+best;
+  if (sc(S,best) < 0) return best === 'mystere' ? 'fin_mystere' : EPI_L.has(best) ? 'lose_epicier' : 'lose_'+best;
   const ks = new Set(S.bag.filter(b=>sc(S,b)>0).map(b=>ITEMS[b].k));
   if (ks.size === 3) return 'win_parfait';
-  return 'win_'+best;
+  if (best === 'mystere') return 'fin_mystere';
+  return EPI_W.has(best) ? 'win_epicier' : 'win_'+best;
 }
 function extras(S){
   const out = [];
@@ -2452,10 +2454,12 @@ function winText(S,id){
 }
 Object.keys(ITEMS).forEach(id=>{
   const it = ITEMS[id];
-  if (id === 'mystere') return;
+  if (id === 'mystere' || EPI_W.has(id) || EPI_L.has(id)) return;
   if (it.s < 0) SCENES['lose_'+id] = {end:'lose', h:it.h, text:it.w};
   else SCENES['win_'+id] = {end:'win', h:it.h, text:S=>winText(S,id)};
 });
+SCENES.win_epicier = {end:'win', h:"Le panier de l'épicier", text:S=>winText(S, EPI_W.has(S.best) ? S.best : 'saucisson')};
+SCENES.lose_epicier = {end:'lose', h:"Le rayon qu'il ne fallait pas prendre", text:S=>ITEMS[EPI_L.has(S.best) ? S.best : 'vin_epicerie'].w};
 
 const EVENTS = ['ev_moto','ev_cindy','ev_tarte','ev_dame','ev_livreur','ev_ados','ev_arnaque','ev_fetards','ev_meteo','ev_tiktok','ev_yann','ev_boulangere'];
 function cindyGift(S){ return ['the_cindy','biscuits_cindy','souvenir_cindy'].find(k=>S.bag.indexOf(k) >= 0) || null; }
@@ -2793,6 +2797,7 @@ const IMG = (function(){
   const dish=()=>plate(C.am,C.br2)+`<ellipse cx="0" cy="10" rx="42" ry="26" fill="${C.bl}" opacity=".28"/>`;
   const gameBottle=(b,l,cork)=>bottle(b,l,cork);
   const OBJ={
+    panier:()=>P('M-46 -6h92l-10 44h-72z',C.br)+L('M-46 -6q46-52 92 0',C.br2,6)+R(-6,-44,12,38,'#2a6a4a')+R(-7,-48,14,6,C.li)+sausage().replace(/^/,'<g transform="translate(-22 4) scale(.5)">')+'</g>'+jar(C.am,C.br2).replace(/^/,'<g transform="translate(24 2) scale(.55)">')+'</g>',
     plat_eva:dish,gants_louis:gloves,jeu_societe:boardgame,bouteille_coffre:()=>bottle('#2c3e2f',null,'#8a6b3e'),the_cindy:()=>glassPunch(C.or),biscuits_cindy:()=>tin(C.cr),biscuits_perimes:()=>tin('#9ab08a')+Ci(-8,0,5,'#3a6b3a')+Ci(14,10,4,'#3a6b3a'),
     durian:fish,objets_trouves:objectsBox,livre_mael:()=>book(C.rd)+L('M-26 -12l14 14M-6 6l12-10',C.rd,3),vin_epicerie:()=>bottle('#6b2b3a',C.br,C.br2)+L('M-12 20q6 6 12 0',C.bl,2,'opacity=".6"'),
     chips_bacon:()=>bag('#d9482b',C.am,C.pk),chips_nature:()=>bag('#e8c14a',C.cr,C.li),chips:()=>bag('#7a3b1d',C.or,C.am),ruby:()=>bottle('#8d1d3a',C.pk,C.li),vinho:()=>bottle('#58a05a',C.cr,C.cr),pasteis,gateau_pdf:cakeSlice,enveloppe:envelope,chien:dog,recu:receipt,
@@ -2867,6 +2872,9 @@ const IMG = (function(){
       if(END[id]) return wrap(END[id](),sc.h||'Fin');
       const key=id.replace(/^(win|lose)_/,'');
       if(id==='win_parfait') return wrap(partyRoom()+confetti(30)+['cremant','chips','saucisson','tarte','pasteis'].map((k,i)=>objectSvg(k,64,0,70+i*65,138,56)).join(''),sc.h);
+      if(id==='win_epicier') return wrap(ending('panier','win'),sc.h);
+      if(id==='lose_epicier') return wrap(ending('vin_epicerie','lose'),sc.h);
+      if(id==='fin_mystere') return wrap(ending('mystere',sc.end),sc.h);
       if(OBJ[key]) return wrap(ending(key,sc.end),sc.h||'Fin');
       return wrap(partyRoom({dark:sc.end==='lose'}),sc.h||'Fin');
     }
@@ -2881,23 +2889,25 @@ const IMG = (function(){
 const CLS = (function(){
   const CAT = [
     ['Les fins secrètes', ['fin_teleporteur','fin_doro','fin_perdus','fin_moto_col']],
-    ['À boire gagnant', ['win_cremant','win_cremant_cf','win_rouge_cf','win_blanc_epi','win_cidre','win_vinho','win_ruby','win_rose_brique','win_bieres','win_mystere','win_bouteille_coffre','win_the_cindy']],
-    ['À manger gagnant', ['win_chips','win_chips_bacon','win_cacahuetes','win_saucisson','win_chevre','win_fromage_mt','win_sushis','win_quiche','win_pasteis','win_tarte','win_miel','win_bonbons','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
-    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_boule_neige','win_fleurs','win_cotillons','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','win_parfait']],
-    ['Mauvais cadeaux', ['lose_mains','lose_mystere','lose_biscuits_perimes','lose_durian','lose_vin_epicerie','lose_chips_nature','lose_recu','lose_buche_moreau']],
+    ['À boire gagnant', ['win_cremant','win_cremant_cf','win_rouge_cf','win_cidre','win_vinho','win_ruby','win_rose_brique','win_bieres','win_bouteille_coffre','win_the_cindy']],
+    ['À manger gagnant', ['win_chips','win_chips_bacon','win_cacahuetes','win_epicier','win_fromage_mt','win_sushis','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
+    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_boule_neige','win_fleurs','win_cotillons','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
+    ['Mauvais cadeaux', ['lose_mains','lose_epicier','lose_biscuits_perimes','lose_durian','lose_recu','lose_buche_moreau']],
     ['En chemin', ['fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
     ['Les tentations de la nuit', ['fin_eva_nuit','fin_katia','fin_casino','fin_festival','fin_carottes','fin_chien','fin_burpees','fin_salle','fin_minuit']]
   ];
   const who = n => String(n || '').trim().toLowerCase();
   const key = n => 'dsg-classeur:' + who(n);
-  function get(n){
+  const LEG = {win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',lose_vin_epicerie:'lose_epicier',lose_chips_nature:'lose_epicier',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
+  function get(n){ return new Set([...rawGet(n)].map(i => LEG[i] || i)); }
+  function rawGet(n){
     const out = new Set();
     try { const a = JSON.parse(store(key(n)) || '[]'); if (Array.isArray(a)) a.forEach(i => out.add(i)); } catch (e) {}
     try { const m = (window.Endings && Endings.found(n)) || {}; Object.keys(m).forEach(i => out.add(i)); } catch (e) {}
     return out;
   }
   const ALL = CAT.reduce((a, c) => a + c[1].length, 0);
-  const PAL = [[10,'Collectionneur','#c9803a'],[25,'Chasseur de fins','#b8c2d6'],[50,'Maître des fins','#ffd166'],[ALL,'Légende du Nouvel An','#9be7ff']];
+  const PAL = [[10,'Collectionneur','#c9803a'],[25,'Chasseur de fins','#b8c2d6'],[45,'Maître des fins','#ffd166'],[ALL,'Légende du Nouvel An','#9be7ff']];
   const count = set => [...set].filter(i => CAT.some(c => c[1].includes(i))).length;
   const titleOf = c => { let t = null; PAL.forEach(p => { if (c >= p[0]) t = p; }); return t; };
   function add(n, id){
