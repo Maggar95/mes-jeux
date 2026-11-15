@@ -1007,7 +1007,7 @@ const ITEMS = {
   sushis: {k:'m', n:"Plateau de sushis", s:2, h:"Les sushis du 31", w:"Un plateau de sushis du Carrefour City. {Y} le regarde, ému : « Tu m'as vu sortir de garde, toi. » Le plateau est vide à 23h40."},
   fleurs: {k:'s', n:"Bouquet presque fané", s:1, h:"Un bouquet très naturel", w:"Un bouquet presque fané du Carrefour City. {Y} le met dans un vase en expliquant que c'est « très naturel ». Il oubliera de le jeter jusqu'en février."},
   cotillons: {k:'s', n:"Pack de cotillons", s:1.5, h:"Les cotillons", w:"Un pack de cotillons. À minuit, tout le monde porte une couronne en carton et un sifflet, et {Y} souffle dans le sien avec le sérieux d'un chef d'orchestre."},
-  boule_neige: {k:'s', n:"Boule à neige", s:1.5, h:"Une boule à neige, faute de mieux", w:"Une boule à neige du Carrefour City. {Y} la secoue longuement, « C'est le Nouvel An, quand même. Tu aurais pu faire un effort. » Il la pose à côté du vin, la secoue encore, et finit par en faire la mascotte de la soirée. Faute de mieux."},
+  boule_neige: {k:'s', n:"Boule à neige", s:1.5, h:"Une boule à neige, faute de mieux", w:"Une boule à neige du Carrefour City. {Y} la secoue longuement. « C'est le Nouvel An, quand même. Tu aurais pu faire un effort. » Il la pose à côté du vin, la secoue encore, et finit par en faire la mascotte de la soirée. Faute de mieux."},
   tarte: {k:'m', n:"Tarte aux cacas de Gabie et Arthur", s:2, h:"La tarte aux cacas", w:"La tarte aux cacas de Gabie et d'Arthur, signée au glaçage. {Y} la regarde longtemps, très longtemps. « C'est du chocolat ? » Il goûte. « C'est du chocolat. » Il rit, il en reprend. À minuit, il demande la recette, que personne ne veut donner."},
   fromage_mt: {k:'m', n:"Fromage de montagne, paquet kraft", s:2, h:"Le fromage tombé d'une moto", w:"Un fromage de montagne emballé dans du papier kraft, sur lequel est écrit au feutre : « Pour Yann. A. ». {Y} le renifle, ferme les yeux. « D'où ça vient ? » Tu dis la vérité : d'une moto sans phare. Il hoche la tête, il comprend, il ne pose pas d'autre question."},
   souvenir_cindy: {k:'s', n:"Souvenir de Guadeloupe (peut-être)", s:2.5, h:"Un souvenir qui ne vient peut-être pas de Guadeloupe", w:"Un petit objet lourd, enveloppé dans une page de journal tachée de rhum. {Y} le déballe. « C'est de Cindy, non ? » Tu dis oui. « Elle est où, en ce moment ? » Personne ne sait. Il le pose au milieu de la table, et jusqu'à minuit chacun lui prête une origine différente."},
@@ -2414,6 +2414,7 @@ lycee_vintage: {p:"Le lycée Philippe Kieffer · la cour", who:'marco',
 
 const YQ = [["Tu as su répondre à sa question sur le blanc : il hoche la tête avec un vrai respect.","Tu as raté sa question sur le blanc, mais ce que tu as apporté t'en fait pardonner."],["Tu savais d'où vient le vinho verde : {Y} t'a regardé avec un respect nouveau.","Tu t'es trompé de pays pour le vinho verde, mais {Y} a fait semblant de ne pas l'avoir entendu."],["Tu sais ouvrir une bouteille sans faire sauter le bouchon : {Y} t'a confié la prochaine.","Tu as mal répondu sur l'ouverture du crémant : {Y} ne te laissera pas ouvrir la bouteille."],["Tu connaissais le plus petit os du corps : {Y} t'a fait un diplôme honoraire sur une serviette.","Tu as raté sa question sur l'os de l'oreille : {Y} a noté ton nom avec une croix dans un carnet imaginaire."],["Tu connaissais le temps de lavage des mains : {Y} te montre déjà où se trouve le savon.","Tu as raté sa question sur le lavage des mains : {Y} te tend le savon, par principe."]];
 function sc(S,id){ return id==='mystere' ? (S.mys?3:-2) : ITEMS[id].s; }
+const EF_W = new Set(['chips_bacon','rose_brique','boule_neige']);
 const EPI_W = new Set(['blanc_epi','saucisson','chevre','miel','bonbons']), CF_W = new Set(['cremant_cf', 'rouge_cf', 'bieres', 'chips', 'cacahuetes', 'sushis', 'cotillons', 'fleurs']);
 function resolve(S){
   if (!S.bag.length) return 'lose_mains';
@@ -2425,7 +2426,7 @@ function resolve(S){
   const ks = new Set(S.bag.filter(b=>sc(S,b)>0).map(b=>ITEMS[b].k));
   if (ks.size === 3) return 'win_parfait';
   if (best === 'mystere') return 'fin_mystere';
-  return EPI_W.has(best) ? 'win_epicier' : CF_W.has(best) ? 'win_carrefour' : 'win_'+best;
+  return EPI_W.has(best) ? 'win_epicier' : CF_W.has(best) ? 'win_carrefour' : EF_W.has(best) ? 'win_effort' : 'win_'+best;
 }
 function extras(S){
   const out = [];
@@ -2453,11 +2454,12 @@ function winText(S,id){
 }
 Object.keys(ITEMS).forEach(id=>{
   const it = ITEMS[id];
-  if (id === 'mystere' || EPI_W.has(id) || CF_W.has(id)) return;
+  if (id === 'mystere' || EPI_W.has(id) || CF_W.has(id) || EF_W.has(id)) return;
   if (it.s < 0) SCENES['lose_'+id] = {end:'lose', h:it.h, text:it.w};
   else SCENES['win_'+id] = {end:'win', h:it.h, text:S=>winText(S,id)};
 });
 SCENES.win_epicier = {end:'win', h:"Le panier de l'épicier", text:S=>winText(S, EPI_W.has(S.best) ? S.best : 'saucisson')};
+SCENES.win_effort = {end:'win', h:"Tu aurais pu ramener mieux", text:S=>winText(S, EF_W.has(S.best) ? S.best : 'chips_bacon')};
 SCENES.win_carrefour = {end:'win', h:"Les courses du Carrefour City", text:S=>winText(S, CF_W.has(S.best) ? S.best : 'chips')};
 
 const EVENTS = ['ev_moto','ev_cindy','ev_tarte','ev_dame','ev_livreur','ev_ados','ev_arnaque','ev_fetards','ev_meteo','ev_tiktok','ev_yann','ev_boulangere'];
@@ -2873,6 +2875,7 @@ const IMG = (function(){
       const key=id.replace(/^(win|lose)_/,'');
       if(id==='win_parfait') return wrap(partyRoom()+confetti(30)+['cremant','chips','saucisson','tarte','pasteis'].map((k,i)=>objectSvg(k,64,0,70+i*65,138,56)).join(''),sc.h);
       if(id==='win_epicier') return wrap(ending('panier','win'),sc.h);
+      if(id==='win_effort') return wrap(ending('chips_bacon','win'),sc.h);
       if(id==='win_carrefour') return wrap(ending('courses','win'),sc.h);
       if(id==='fin_mystere') return wrap(ending('mystere',sc.end),sc.h);
       if(OBJ[key]) return wrap(ending(key,sc.end),sc.h||'Fin');
@@ -2889,16 +2892,16 @@ const IMG = (function(){
 const CLS = (function(){
   const CAT = [
     ['Les fins secrètes', ['fin_teleporteur','fin_doro','fin_perdus','fin_moto_col']],
-    ['À boire gagnant', ['win_cremant','win_rose_brique','win_cidre','win_vinho','win_ruby','win_bouteille_coffre','win_the_cindy']],
-    ['À manger gagnant', ['win_epicier','win_carrefour','win_chips_bacon','win_fromage_mt','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
-    ['Cadeaux et surprises', ['win_jeu_societe','win_boule_neige','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
+    ['À boire gagnant', ['win_cremant','win_cidre','win_vinho','win_ruby','win_bouteille_coffre','win_the_cindy']],
+    ['À manger gagnant', ['win_epicier','win_carrefour','win_effort','win_fromage_mt','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
+    ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
     ['Mauvais cadeaux', ['lose_mains','lose_vin_epicerie','lose_chips_nature','lose_biscuits_perimes','lose_durian','lose_recu','lose_buche_moreau']],
     ['En chemin', ['fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
     ['Les tentations de la nuit', ['fin_eva_nuit','fin_katia','fin_casino','fin_festival','fin_carottes','fin_chien','fin_burpees','fin_salle','fin_minuit']]
   ];
   const who = n => String(n || '').trim().toLowerCase();
   const key = n => 'dsg-classeur:' + who(n);
-  const LEG = {win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',win_cremant_cf:'win_carrefour',win_rouge_cf:'win_carrefour',win_bieres:'win_carrefour',win_chips:'win_carrefour',win_cacahuetes:'win_carrefour',win_sushis:'win_carrefour',win_cotillons:'win_carrefour',win_fleurs:'win_carrefour',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
+  const LEG = {win_chips_bacon:'win_effort',win_rose_brique:'win_effort',win_boule_neige:'win_effort',win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',win_cremant_cf:'win_carrefour',win_rouge_cf:'win_carrefour',win_bieres:'win_carrefour',win_chips:'win_carrefour',win_cacahuetes:'win_carrefour',win_sushis:'win_carrefour',win_cotillons:'win_carrefour',win_fleurs:'win_carrefour',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
   function get(n){ return new Set([...rawGet(n)].map(i => LEG[i] || i)); }
   function rawGet(n){
     const out = new Set();
