@@ -35,7 +35,9 @@
     opt = opt || {};
     if (!document.getElementById("en-css")) { var st = document.createElement("style"); st.id = "en-css"; st.textContent = CSS; document.head.appendChild(st); }
     var list = rank(rows), total = 0;
-    rows.forEach(function (r) { var t = r.details && r.details.total; if (t > total) total = t; });
+    /* total = celui de la partie la plus récente (il baisse quand des fins sont regroupées) */
+    var latest = "";
+    rows.forEach(function (r) { var t = r.details && r.details.total; if (t && String(r.created_at || "") >= latest) { latest = String(r.created_at || ""); total = t; } });
     box.textContent = "";
     if (!list.length) { var p = document.createElement("p"); p.className = "note small"; p.textContent = "Aucune fin découverte pour l’instant."; box.appendChild(p); return; }
     /* Phrase de synthèse : place du joueur et écart avec la place au-dessus */
