@@ -229,16 +229,16 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   /*  PERSONNAGES                                                        */
   /* ================================================================== */
   var W = {
-    T: { n: "M. Tambour", e: "🥁", r: "Directeur du festival, ex-batteur" },
+    T: { n: "M. Valcourt", e: "🥁", r: "Directeur du festival, ex-batteur" },
     G: { n: "Gérard", e: "🧮", r: "Directeur financier, ennemi du café" },
     K: { n: "Kévin", e: "📱", r: "Stagiaire communication" },
     P: { n: "Mme Pérignon", e: "✊", r: "Déléguée du personnel" },
     L: { n: "Luigi", e: "🍕", r: "Chef des bars, roi de la cooptation" },
     B: { n: "Inspectrice Bertoli", e: "🕵️", r: "Inspection du travail" },
-    N: { n: "Lina", e: "🎟️", r: "Responsable accueil et billetterie" },
-    Th: { n: "Mylan", e: "🎚️", r: "Technicien son" },
-    I: { n: "Anissa", e: "💡", r: "Régisseuse lumière" },
-    Le: { n: "Lyana", e: "📣", r: "Ambassadrice indépendante" },
+    N: { n: "Nadia", e: "🎟️", r: "Responsable accueil et billetterie" },
+    Th: { n: "Théo", e: "🎚️", r: "Technicien son" },
+    I: { n: "Inès", e: "💡", r: "Régisseuse lumière" },
+    Le: { n: "Léa", e: "📣", r: "Ambassadrice indépendante" },
     Ka: { n: "Karim B.", e: "🦺", r: "Candidat, responsable sécurité" },
     D: { n: "Dylan", e: "🕶️", r: "Ambassadeur indépendant" },
     S: { n: "Serge", e: "📦", r: "Magasinier, 22 ans de maison" },
@@ -258,7 +258,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     {
       title: "Édition 1 · Premiers pas",
       intro: [
-        "Bienvenue au Décibel Festival : trois jours, 25 000 festivaliers, 40 permanents, 300 saisonniers et un directeur, M. Tambour, qui prend encore les frigos pour des grosses caisses.",
+        "Bienvenue au Décibel Festival : trois jours, 25 000 festivaliers, 40 permanents, 300 saisonniers et un directeur, M. Valcourt, qui prend encore les frigos pour des grosses caisses.",
         "Tu es son nouveau DRH. Ta mission : que la boîte tourne trois éditions de suite. Chaque décision fait bouger la trésorerie, l'ambiance et la conformité au droit. Si l'une des trois tombe à zéro, c'est la fin du concert."
       ],
       quarters: [
@@ -266,14 +266,14 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           blurb: "Le festival est enneigé, Gérard a éteint le chauffage « pour la cause ». Un poste clé se libère.",
           scenes: [
             { ty: "choice", ch: 1, tag: "Anticiper les besoins", who: "T",
-              ctx: ["Tambour déroule un tableau sur ton bureau : quatre départs en retraite d'ici deux ans (régie, sécurité, bars, comptabilité), la billetterie qui passe au tout-numérique, et un festival qui veut grandir. Gilbert, le régisseur général, part dans six mois.",
+              ctx: ["Valcourt déroule un tableau sur ton bureau : quatre départs en retraite d'ici deux ans (régie, sécurité, bars, comptabilité), la billetterie qui passe au tout-numérique, et un festival qui veut grandir. Gilbert, le régisseur général, part dans six mois.",
                     "« Comment on s'y prend pour ne pas se retrouver le bec dans l'eau ? »"],
               q: "Que mets-tu en place ?",
               opts: [
                 { t: "Un plan de GPEC : anticiper les départs et l'évolution des métiers, puis former et organiser les mobilités", d: [-2, 4, 2], pts: 50, ok: true,
                   fb: "La GPEC (gestion prévisionnelle des emplois et des compétences) permet d'anticiper les conséquences de l'environnement et de la stratégie sur les emplois, puis de définir des actions à court et moyen terme. Gilbert est le premier dossier de la liste." },
                 { t: "On verra quand chacun partira : on recrutera au dernier moment", d: [-6, -4, 0], pts: -15, ok: false,
-                  fb: "Recruter en urgence coûte plus cher, et tout le savoir-faire de Gilbert part avec lui, sans transmission. Tambour « se souvient » alors qu'il a déjà vécu ça avec le régisseur lumière." },
+                  fb: "Recruter en urgence coûte plus cher, et tout le savoir-faire de Gilbert part avec lui, sans transmission. Valcourt « se souvient » alors qu'il a déjà vécu ça avec le régisseur lumière." },
                 { t: "Embaucher dix personnes dès maintenant, à tout hasard", d: [-10, 0, 0], pts: -10, ok: false,
                   fb: "Anticiper ne veut pas dire recruter sans savoir quoi ni qui. Gérard demande à voir la liste des postes. Elle n'existe pas." }
               ],
@@ -297,16 +297,16 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "Le profil de poste", text: "Portrait idéal du candidat : il reprend la définition du poste et pondère les compétences requises (1 souhaitable, 2 important, 3 indispensable). Il sert à trier les candidatures puis à évaluer les candidats." } },
 
             { ty: "choice", ch: 1, tag: "Interne ou externe", who: "T",
-              ctx: ["Deux candidats sérieux. Eléonore, cheffe de plateau depuis 4 ans : l'équipe l'adore, mais elle n'a jamais dirigé plus de 15 personnes. Hector, tour manager passé par trois festivals géants : regard neuf, idées à la pelle, mais 8 k€ de plus par an et aucune idée d'où sont les toilettes.",
+              ctx: ["Deux candidats sérieux. Sandrine, cheffe de plateau depuis 4 ans : l'équipe l'adore, mais elle n'a jamais dirigé plus de 15 personnes. Hector, tour manager passé par trois festivals géants : regard neuf, idées à la pelle, mais 8 k€ de plus par an et aucune idée d'où sont les toilettes.",
                     "Gérard : « Prends Hector, il a un blouson en cuir, ça rassure les sponsors. »"],
               q: "Qui nommes-tu régisseur général ?",
               opts: [
-                { t: "Eléonore, avec un parcours de formation au management", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
-                  fb: "Promouvoir en interne motive toute la troupe (« un jour ce sera moi ») et Eléonore connaît déjà la culture : intégration express. À toi de combler son manque d'expérience avec de la formation." },
+                { t: "Sandrine, avec un parcours de formation au management", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
+                  fb: "Promouvoir en interne motive toute la troupe (« un jour ce sera moi ») et Sandrine connaît déjà la culture : intégration express. À toi de combler son manque d'expérience avec de la formation." },
                 { t: "Hector, le tour manager au blouson en cuir", d: [-8, -6, 0], pts: 30, flag: "externe",
-                  fb: "Un regard neuf et un signal de dynamisme vers l'extérieur. Mais salaire plus élevé, intégration plus longue, et Eléonore regarde désormais son badge d'un air sombre. Défendable, mais ça se paie." },
-                { t: "Hector, mais sans prévenir Eléonore : elle l'apprendra bien assez tôt", d: [-8, -15, 0], pts: -10, ok: false,
-                  fb: "Kévin a posté la photo d'accueil d'Hector avant que tu parles à Eléonore. Elle l'apprend en story. Le climat social tombe dans la fosse." }
+                  fb: "Un regard neuf et un signal de dynamisme vers l'extérieur. Mais salaire plus élevé, intégration plus longue, et Sandrine regarde désormais son badge d'un air sombre. Défendable, mais ça se paie." },
+                { t: "Hector, mais sans prévenir Sandrine : elle l'apprendra bien assez tôt", d: [-8, -15, 0], pts: -10, ok: false,
+                  fb: "Kévin a posté la photo d'accueil d'Hector avant que tu parles à Sandrine. Elle l'apprend en story. Le climat social tombe dans la fosse." }
               ],
               rule: { ref: "Recrutement interne ou externe", text: "Interne : intégration simplifiée, fidélisation, motivation des équipes, mais profils limités et risque de routine. Externe : regard neuf, nouvelles idées, image dynamique, mais coût plus élevé, intégration plus longue et tension possible en interne." } }
 ,
@@ -412,7 +412,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           blurb: "Les feuilles tombent, les objectifs aussi. C'est la saison des entretiens.",
           scenes: [
             { ty: "choice", ch: 3, tag: "Choisir le bon entretien", who: "G",
-              ctx: ["Lina, responsable accueil et billetterie, a terminé l'édition avec les résultats suivants.",
+              ctx: ["Nadia, responsable accueil et billetterie, a terminé l'édition avec les résultats suivants.",
                     "Attente aux portiques inférieure à 4 minutes : 3 min 12, objectif atteint. Taux d'erreurs de scan inférieur à 1 % : 0,8 %, objectif atteint. Ventes de pass VIP en hausse de 10 % : +6 %, partiellement atteint.",
                     "Elle attend son rendez-vous avec toi."],
               q: "Quel type d'entretien organises-tu ?",
@@ -420,46 +420,46 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
                 { t: "Un entretien périodique", d: [0, 4, 0], pts: 60, ok: true, flag: "periodique",
                   fb: "Des résultats chiffrés comparés à des objectifs fixés : c'est l'objet de l'entretien périodique. Il n'est imposé par aucun texte de loi, mais l'entreprise est libre de le mettre en place." },
                 { t: "Un entretien professionnel", d: [0, -2, 0], pts: 10, ok: false,
-                  fb: "Il est obligatoire tous les 2 ans, mais il sert à parler d'évolution et de formation, pas à comparer des résultats à des objectifs. Tu le feras plus tard, mais là, Lina attendait ses chiffres." },
+                  fb: "Il est obligatoire tous les 2 ans, mais il sert à parler d'évolution et de formation, pas à comparer des résultats à des objectifs. Tu le feras plus tard, mais là, Nadia attendait ses chiffres." },
                 { t: "Un bilan de compétences", d: [0, -6, -4], pts: -15, ok: false,
                   fb: "Le bilan de compétences se fait à l'initiative du salarié et son contenu est confidentiel : tu ne peux pas le convoquer, ni t'en servir pour juger ses résultats." }
               ],
               rule: { ref: "Les trois objets d'évaluation", text: "L'évaluation porte sur les résultats (ce qui a été produit), les compétences (ce que le salarié sait faire) ou le potentiel (ce qu'il pourrait faire demain). Chaque objet appelle ses outils : l'entretien périodique est celui des résultats." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 1/3", who: "N",
-              ctx: ["Vous êtes face à face, avec des cafés (pas de Gérard dans les parages). Lina, un peu tendue : « Alors, verdict ? »"],
+              ctx: ["Vous êtes face à face, avec des cafés (pas de Gérard dans les parages). Nadia, un peu tendue : « Alors, verdict ? »"],
               q: "Comment commences-tu ?",
               opts: [
                 { t: "Je compare ses résultats aux objectifs fixés, un par un", d: [0, 4, 0], pts: 40, ok: true,
-                  fb: "Atteint, atteint, partiellement atteint : factuel, lisible, sans surprise. Lina sait exactement où elle en est." },
+                  fb: "Atteint, atteint, partiellement atteint : factuel, lisible, sans surprise. Nadia sait exactement où elle en est." },
                 { t: "« Globalement, c'est plutôt pas mal, quoi. »", d: [0, -4, 0], pts: -5, ok: false,
-                  fb: "Aucun objectif cité, aucune information utile. Lina ressort aussi avancée qu'elle est entrée, mais un peu plus inquiète." },
+                  fb: "Aucun objectif cité, aucune information utile. Nadia ressort aussi avancée qu'elle est entrée, mais un peu plus inquiète." },
                 { t: "« Tom, lui, fait mieux que toi sur les VIP. »", d: [0, -10, 0], pts: -15, ok: false,
-                  fb: "On évalue par rapport aux objectifs fixés, pas par rapport à un collègue. Lina vient de te répondre par un silence qui a duré trois siècles." }
+                  fb: "On évalue par rapport aux objectifs fixés, pas par rapport à un collègue. Nadia vient de te répondre par un silence qui a duré trois siècles." }
               ],
               rule: { ref: "Entretien périodique · 1er temps", text: "Premier temps : les résultats de la période écoulée sont comparés aux objectifs fixés." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 2/3", who: "N",
-              ctx: ["Lina : « Mes ventes VIP ont reculé, mais on a perdu deux vendeurs en mars et ils n'ont pas été remplacés. »"],
+              ctx: ["Nadia : « Mes ventes VIP ont reculé, mais on a perdu deux vendeurs en mars et ils n'ont pas été remplacés. »"],
               q: "Que réponds-tu ?",
               opts: [
                 { t: "« Je note. On analyse les causes et on en tient compte pour la suite. »", d: [0, 5, 0], pts: 40, ok: true,
-                  fb: "Tu distingues ce qui dépend d'elle de ce qui n'en dépend pas, et tu prépares de nouveaux objectifs réalistes. Lina respire pour la première fois depuis mars." },
+                  fb: "Tu distingues ce qui dépend d'elle de ce qui n'en dépend pas, et tu prépares de nouveaux objectifs réalistes. Nadia respire pour la première fois depuis mars." },
                 { t: "« Les excuses, ce n'est pas mon sujet. »", d: [0, -8, 0], pts: -10, ok: false,
                   fb: "Écouter les causes ne revient pas à excuser. Tu viens de transformer un entretien en tribunal." },
                 { t: "« Tu as raison, objectif annulé, tout va bien ! »", d: [0, 3, -2], pts: 5,
-                  fb: "Sympa, mais l'entretien perd son sens si les objectifs ne comptent plus. Lina est contente, l'entreprise un peu moins." }
+                  fb: "Sympa, mais l'entretien perd son sens si les objectifs ne comptent plus. Nadia est contente, l'entreprise un peu moins." }
               ],
               rule: { ref: "Comprendre les écarts", text: "L'entretien ne se limite pas à constater : il permet de comprendre pourquoi un objectif est atteint ou non, comme le dit un salarié, afin de repartir sur de bonnes bases." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 3/3", who: "N",
-              ctx: ["Dernier temps du rendez-vous : l'année prochaine. Lina, prudente : « Et pour la suite ? Je trouve dommage qu'on ne parle presque que de chiffres. »"],
+              ctx: ["Dernier temps du rendez-vous : l'année prochaine. Nadia, prudente : « Et pour la suite ? Je trouve dommage qu'on ne parle presque que de chiffres. »"],
               q: "Comment conclus-tu ?",
               opts: [
                 { t: "On fixe ensemble de nouveaux objectifs clairs et réalistes, et je lui propose de parler évolution lors de l'entretien professionnel", d: [0, 6, 2], pts: 50, ok: true,
                   fb: "Deuxième temps de l'entretien périodique : définir les nouveaux objectifs. Et tu complètes avec l'entretien professionnel, légalement tous les 2 ans, où elle pourra parler compétences et envies d'évolution. Bien joué." },
                 { t: "Je lui impose +50 % de ventes VIP, point.", d: [0, -10, 0], pts: -15, ok: false,
-                  fb: "Un objectif irréaliste imposé sans discussion est le meilleur moyen de démotiver. Lina réfléchit à un CDD chez Mégawatt." },
+                  fb: "Un objectif irréaliste imposé sans discussion est le meilleur moyen de démotiver. Nadia réfléchit à un CDD chez Mégawatt." },
                 { t: "On ne fixe rien : on se revoit l'an prochain.", d: [0, -4, 0], pts: -10, ok: false,
                   fb: "Sans nouveaux objectifs, la moitié de l'entretien manque. Personne ne saura quoi viser, même pas toi." }
               ],
@@ -475,21 +475,21 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
       title: "Édition 2 · Ça grossit",
       intro: [
         "Le Décibel Festival a doublé son public. Les sponsors t'envoient des paniers garnis, Mégawatt, le festival rival, t'envoie des regards noirs.",
-        "Cette année, M. Tambour veut un réseau d'« Ambassadeurs », un nouveau cadre pour la sécurité et, accessoirement, qu'on arrête de lui poser des questions sur les contrats."
+        "Cette année, M. Valcourt veut un réseau d'« Ambassadeurs », un nouveau cadre pour la sécurité et, accessoirement, qu'on arrête de lui poser des questions sur les contrats."
       ],
       quarters: [
         { label: "T1 · Hiver", chap: "Les relations de travail",
-          blurb: "L'idée de Tambour : des ambassadeurs qui vendent nos pass lors de soirées playlist chez des particuliers.",
+          blurb: "L'idée de Valcourt : des ambassadeurs qui vendent nos pass lors de soirées playlist chez des particuliers.",
           scenes: [
             { ty: "choice", ch: 2, tag: "Salarié ou indépendant", who: "T",
-              ctx: ["Lyana veut devenir ambassadrice. Elle veut garder son emploi de jour, choisir ses soirées et ne dépendre de personne.",
+              ctx: ["Léa veut devenir ambassadrice. Elle veut garder son emploi de jour, choisir ses soirées et ne dépendre de personne.",
                     "Deux statuts existent chez nous : les conseillers VRP, salariés, et les VDI, vendeurs à domicile indépendants."],
               q: "Quel statut lui proposes-tu ?",
               opts: [
                 { t: "VDI : indépendante, sous contrat de distribution et à la commission", d: [3, 4, 0], pts: 50, ok: true,
-                  fb: "Autonomie, horaires libres, activité en plus d'un emploi principal : le statut VDI colle à Lyana. Pour toi : pas de salaire fixe, pas de charges de salarié." },
+                  fb: "Autonomie, horaires libres, activité en plus d'un emploi principal : le statut VDI colle à Léa. Pour toi : pas de salaire fixe, pas de charges de salarié." },
                 { t: "VRP salariée en CDI à temps plein", d: [-8, 0, 0], pts: 10,
-                  fb: "Sécurité d'un CDI, évolution possible dans la maison. Mais Lyana veut garder son emploi : temps plein incompatible. Beau contrat, mauvaise personne pour ce contrat." },
+                  fb: "Sécurité d'un CDI, évolution possible dans la maison. Mais Léa veut garder son emploi : temps plein incompatible. Beau contrat, mauvaise personne pour ce contrat." },
                 { t: "Indépendante… mais avec horaires imposés, uniforme et présence obligatoire le lundi", d: [4, -8, -14], pts: -25, ok: false,
                   fb: "Indépendante sur le papier, salariée dans les faits. À force de tout imposer, tu te retrouves avec les contraintes de l'un et les risques de l'autre. L'inspectrice Bertoli adore les contrats qui mentent." }
               ],
@@ -525,7 +525,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           ] },
 
         { label: "T2 · Printemps", chap: "Le besoin en recrutement",
-          blurb: "Gilbert est en pêche à Capri, Eléonore aussi (en pensée). Il faut un responsable sécurité et logistique.",
+          blurb: "Gilbert est en pêche à Capri, Sandrine aussi (en pensée). Il faut un responsable sécurité et logistique.",
           scenes: [
             { ty: "pick", ch: 1, tag: "Canaux de recrutement", who: "G", budget: 5, ctxCands: true,
               ctx: ["Poste à pourvoir : responsable sécurité et logistique (profil : sécurité, management, gestion du stress indispensables). Gérard t'accorde un budget de 5 jetons de communication, pas un de plus.",
@@ -606,12 +606,12 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           scenes: [
             { ty: "event" },
             { ty: "choice", ch: 2, tag: "Animer le réseau", who: "Le",
-              ctx: ["Lyana t'avoue entre deux sandwichs : « Je n'ai vendu que 3 pass en 6 semaines. Je ne comprends pas bien les trois formules, et mes soirées sont tristes. »",
+              ctx: ["Léa t'avoue entre deux sandwichs : « Je n'ai vendu que 3 pass en 6 semaines. Je ne comprends pas bien les trois formules, et mes soirées sont tristes. »",
                     "Elle est indépendante. Mais elle est aussi notre ambassadrice."],
               q: "Que fais-tu ?",
               opts: [
                 { t: "Formation produit, accompagnement par un responsable de secteur sur ses premières soirées, et challenge de l'été", d: [-3, 6, 0], pts: 50, ok: true,
-                  fb: "Formation, accompagnement, challenge : des outils complémentaires. Le responsable de secteur anime l'équipe, la formation apporte la maîtrise des produits, le challenge relance la motivation. Lyana vend 14 pass le week-end suivant." },
+                  fb: "Formation, accompagnement, challenge : des outils complémentaires. Le responsable de secteur anime l'équipe, la formation apporte la maîtrise des produits, le challenge relance la motivation. Léa vend 14 pass le week-end suivant." },
                 { t: "Lui imposer un planning de 20 soirées par mois", d: [0, -8, -10], pts: -20, ok: false,
                   fb: "Imposer des horaires et des objectifs à une indépendante, c'est la traiter comme une salariée sans le contrat. La différence se paie chez l'inspectrice Bertoli." },
                 { t: "La laisser se débrouiller : c'est une indépendante", d: [0, -4, 0], pts: 5,
@@ -620,12 +620,12 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "Motiver et fidéliser les indépendants", text: "Rencontres régulières, accompagnement par le responsable de secteur, formation continue, organisation souple, challenges : des dispositifs complémentaires. Risques d'un recours aux indépendants : moindre maîtrise, fidélité plus faible, risque de requalification si l'on contrôle trop." } },
 
             { ty: "choice", ch: 2, tag: "Dilemme", who: "P",
-              ctx: ["Mme Pérignon pose un dossier sur ton bureau : « Fares, 22 ans, « bénévole » depuis mai : 40 heures par semaine à la régie, contre des tickets-boisson. Il est excellent. Il demande un contrat. »",
+              ctx: ["Mme Pérignon pose un dossier sur ton bureau : « Sofiane, 22 ans, « bénévole » depuis mai : 40 heures par semaine à la régie, contre des tickets-boisson. Il est excellent. Il demande un contrat. »",
                     "Gérard, depuis le fond de la pièce : « Gardons-le gratuit, c'est parfait ! »"],
               q: "Que décides-tu ?",
               opts: [
                 { t: "Je lui propose un CDD saisonnier rémunéré", d: [-4, 8, 4], pts: 40, ok: true,
-                  fb: "Une activité régulière, encadrée, qui occupe un vrai poste est du travail : elle doit être rémunérée sous contrat. Fares est ravi, Mme Pérignon te salue d'un clin d'œil rare." },
+                  fb: "Une activité régulière, encadrée, qui occupe un vrai poste est du travail : elle doit être rémunérée sous contrat. Sofiane est ravi, Mme Pérignon te salue d'un clin d'œil rare." },
                 { t: "Je continue comme ça : c'est gratuit", d: [3, -8, -14], pts: -25, ok: false,
                   fb: "Tu économisais 4 k€, tu t'exposes à bien davantage. Du travail déguisé en bénévolat, c'est exactement ce que cherche l'inspection du travail." },
                 { t: "Je le remercie : il devient gênant", d: [0, -10, -6], pts: -20, ok: false,
@@ -640,50 +640,50 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           blurb: "Fin de l'année : on regarde qui peut grandir.",
           scenes: [
             { ty: "choice", ch: 3, tag: "Choisir le bon entretien", who: "T",
-              ctx: ["Mylan, technicien son depuis 6 ans, ne rate jamais un branchement. Tambour : « Il m'a dit un soir, sans musique de fond : « Je rêve de devenir régisseur son. » Et il n'a pas eu d'entretien depuis plus de deux ans ! »"],
+              ctx: ["Théo, technicien son depuis 6 ans, ne rate jamais un branchement. Valcourt : « Il m'a dit un soir, sans musique de fond : « Je rêve de devenir régisseur son. » Et il n'a pas eu d'entretien depuis plus de deux ans ! »"],
               q: "Quel entretien organises-tu ?",
               opts: [
                 { t: "Un entretien professionnel", d: [0, 4, 3], pts: 60, ok: true,
-                  fb: "Perspectives d'évolution, formations : c'est le cœur de l'entretien professionnel, obligatoire tous les 2 ans pour tous les salariés. Tambour a raison de s'inquiéter." },
+                  fb: "Perspectives d'évolution, formations : c'est le cœur de l'entretien professionnel, obligatoire tous les 2 ans pour tous les salariés. Valcourt a raison de s'inquiéter." },
                 { t: "Un entretien périodique", d: [0, -2, 0], pts: 10, ok: false,
-                  fb: "Faire le point sur ses résultats alors que Mylan parle d'évolution : à côté. Tu ne remplis pas non plus l'obligation légale." },
+                  fb: "Faire le point sur ses résultats alors que Théo parle d'évolution : à côté. Tu ne remplis pas non plus l'obligation légale." },
                 { t: "Un bilan de compétences", d: [0, -3, -3], pts: -10, ok: false,
-                  fb: "Il relève de l'initiative du salarié et son contenu est confidentiel : tu ne peux pas l'imposer à Mylan." }
+                  fb: "Il relève de l'initiative du salarié et son contenu est confidentiel : tu ne peux pas l'imposer à Théo." }
               ],
               rule: { ref: "L'entretien professionnel (art. L. 6315-1)", text: "Obligatoire pour tous les salariés, quelle que soit la taille de l'entreprise, tous les 2 ans : perspectives d'évolution professionnelle, qualifications, emploi et formations qui peuvent y contribuer. Il donne lieu à un compte rendu écrit." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 1/3", who: "Th",
-              ctx: ["Mylan, les mains dans les poches : « Moi, ce que j'aimerais, c'est piloter une régie. Mais je ne sais pas si c'est possible. »"],
+              ctx: ["Théo, les mains dans les poches : « Moi, ce que j'aimerais, c'est piloter une régie. Mais je ne sais pas si c'est possible. »"],
               q: "Que réponds-tu ?",
               opts: [
                 { t: "« Je note ton souhait, on regarde les formations déjà suivies et celles qui te manquent. »", d: [0, 6, 0], pts: 40, ok: true,
                   fb: "Tu recueilles le souhait et tu fais le point sur le parcours : c'est exactement l'objet de l'entretien professionnel." },
                 { t: "« Régisseur ? Tu es technicien, restons-en là. »", d: [0, -10, 0], pts: -15, ok: false,
-                  fb: "Tu éteins en une phrase six ans de loyauté. Mylan ira bientôt chercher un régisseur à embaucher chez Mégawatt." },
+                  fb: "Tu éteins en une phrase six ans de loyauté. Théo ira bientôt chercher un régisseur à embaucher chez Mégawatt." },
                 { t: "« On verra, je ne promets rien. »", d: [0, -3, 0], pts: 0,
-                  fb: "Ni oui, ni non, ni suite. Mylan repart avec un sourire poli et zéro information." }
+                  fb: "Ni oui, ni non, ni suite. Théo repart avec un sourire poli et zéro information." }
               ],
               rule: { ref: "Entretien professionnel · souhait d'évolution", text: "L'entretien professionnel recueille le souhait d'évolution du salarié et fait le point sur les formations suivies depuis le dernier entretien." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 2/3", who: "G",
-              ctx: ["Gérard se glisse dans le couloir : « Pas de formation, ça coûte ! » Mylan demande quelles suites peuvent être envisagées."],
+              ctx: ["Gérard se glisse dans le couloir : « Pas de formation, ça coûte ! » Théo demande quelles suites peuvent être envisagées."],
               q: "Que lui proposes-tu ?",
               opts: [
                 { t: "Une formation complémentaire en gestion d'équipe", d: [-6, 8, 2], pts: 45, ok: true,
                   fb: "Une suite concrète qui prépare son évolution. Pour l'entreprise : un régisseur son en interne, et un budget formation qui sert vraiment." },
                 { t: "« Tu seras régisseur dès l'an prochain, promis. »", d: [0, 4, -2], pts: -10, ok: false,
-                  fb: "Tu promets ce que tu ne maîtrises pas. Mylan adore la promesse… jusqu'au jour où il la rappelle." },
+                  fb: "Tu promets ce que tu ne maîtrises pas. Théo adore la promesse… jusqu'au jour où il la rappelle." },
                 { t: "Rien : le budget formation est gelé", d: [3, -8, -4], pts: -15, ok: false,
-                  fb: "L'entretien professionnel porte aussi sur les formations qui peuvent contribuer à l'évolution du salarié. Gérard est content ; Mylan, non." }
+                  fb: "L'entretien professionnel porte aussi sur les formations qui peuvent contribuer à l'évolution du salarié. Gérard est content ; Théo, non." }
               ],
               rule: { ref: "Entretien professionnel · suites", text: "L'entretien débouche sur des suites concrètes (formation, évolution possible) : le compte rendu en garde la trace, avec un point d'étape prévu." } },
 
             { ty: "choice", ch: 3, tag: "Mener l'entretien · 3/3", who: "Th",
-              ctx: ["Fin d'entretien. Il reste à conclure. Mylan : « Et pour la suite, ça se passe comment ? »"],
+              ctx: ["Fin d'entretien. Il reste à conclure. Théo : « Et pour la suite, ça se passe comment ? »"],
               q: "Comment formalises-tu l'entretien ?",
               opts: [
                 { t: "Un compte rendu écrit : souhait, formations, suites, et point d'étape dans 12 mois", d: [0, 3, 5], pts: 40, ok: true,
-                  fb: "Le compte rendu écrit est obligatoire. Mylan repart avec une trace claire de ce qui a été dit et promis, toi avec une obligation légale respectée." },
+                  fb: "Le compte rendu écrit est obligatoire. Théo repart avec une trace claire de ce qui a été dit et promis, toi avec une obligation légale respectée." },
                 { t: "Rien d'écrit, on se fait confiance", d: [0, 0, -10], pts: -20, ok: false,
                   fb: "L'entretien professionnel donne obligatoirement lieu à un compte rendu écrit. Sans lui, l'entreprise ne peut pas prouver qu'elle a respecté son obligation." },
                 { t: "Un compte rendu qui note surtout ses résultats chiffrés de l'année", d: [0, -2, 0], pts: 10,
@@ -700,7 +700,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     {
       title: "Édition 3 · Le grand final",
       intro: [
-        "Dernière édition. Mégawatt a débauché la moitié du paysage, le sponsor principal commence à regarder le plafond, et M. Tambour dit qu'il partira « après le dernier rappel ».",
+        "Dernière édition. Mégawatt a débauché la moitié du paysage, le sponsor principal commence à regarder le plafond, et M. Valcourt dit qu'il partira « après le dernier rappel ».",
         "Tout ce que tu as semé va revenir : bons choix, mauvais choix, questions d'entretien qu'on aurait mieux fait de ne pas poser. Bonne chance."
       ],
       quarters: [
@@ -708,7 +708,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           blurb: "Karim, ton nouveau responsable sécurité, arrive lundi. Il va falloir l'accueillir.",
           scenes: [
             { ty: "pick", ch: 1, tag: "Accueillir et intégrer", who: "T", n: 3,
-              ctx: ["Karim arrive lundi. Tambour : « Fais-lui un accueil au top, je me souviens encore de mon premier jour : j'ai eu un sandwich et une clé de la mauvaise porte. »",
+              ctx: ["Karim arrive lundi. Valcourt : « Fais-lui un accueil au top, je me souviens encore de mon premier jour : j'ai eu un sandwich et une clé de la mauvaise porte. »",
                     "Tu peux mettre en place trois actions d'accueil et d'intégration."],
               q: "Lesquelles retiens-tu ?",
               items: [
@@ -723,7 +723,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "L'onboarding", text: "Processus qui facilite l'arrivée d'un nouveau salarié : créer des liens avec l'équipe, se familiariser avec l'environnement, prendre son poste sereinement et avec engagement. Une plateforme en ligne ne suffit pas : l'accueil humain par le manager est indispensable." } },
 
             { ty: "choice", ch: 1, tag: "Fidéliser", who: "T",
-              ctx: ["Mégawatt propose à Karim un salaire supérieur de 10 %. Tambour s'étrangle. « Fidéliser, c'est important, hein ? Dis-moi pourquoi. »"],
+              ctx: ["Mégawatt propose à Karim un salaire supérieur de 10 %. Valcourt s'étrangle. « Fidéliser, c'est important, hein ? Dis-moi pourquoi. »"],
               q: "Que fais-tu ?",
               opts: [
                 { t: "Lui offrir des perspectives (formation, évolution), pas seulement un chèque", d: [-3, 6, 0], pts: 40, ok: true,
@@ -766,11 +766,11 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "Autres relations de travail", text: "Micro-entrepreneur : travailleur indépendant qui contracte directement avec le client. Association intermédiaire : elle emploie des personnes sans emploi pour favoriser leur insertion et vend leurs services aux entreprises, associations ou particuliers." } },
 
             { ty: "choice", ch: 2, tag: "Intérim durable", who: "G",
-              ctx: ["Giovani, intérimaire, est présent depuis 14 mois « en attendant ». Il tient le poste de gestionnaire de stocks, un emploi permanent. L'agence Interim'Aire a prolongé son contrat six fois."],
+              ctx: ["Jordan, intérimaire, est présent depuis 14 mois « en attendant ». Il tient le poste de gestionnaire de stocks, un emploi permanent. L'agence Interim'Aire a prolongé son contrat six fois."],
               q: "Que fais-tu ?",
               opts: [
                 { t: "Lui proposer un CDI et arrêter l'intérim", d: [-3, 6, 4], pts: 45, ok: true,
-                  fb: "Le contrat de travail temporaire ne peut pas servir à pourvoir durablement un emploi permanent. Tu régularises, et Giovani découvre le bonheur d'un contrat sans date de fin." },
+                  fb: "Le contrat de travail temporaire ne peut pas servir à pourvoir durablement un emploi permanent. Tu régularises, et Jordan découvre le bonheur d'un contrat sans date de fin." },
                 { t: "Continuer à prolonger : c'est confortable", d: [2, -4, -12], pts: -20, ok: false,
                   fb: "C'est le contraire de ce que permet l'intérim : tâches ponctuelles et temporaires. Le risque juridique grossit à chaque renouvellement." },
                 { t: "Le remplacer par un autre intérimaire", d: [-3, -6, -8], pts: -20, ok: false,
@@ -845,26 +845,26 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "Gérer les compétences en période de difficultés", text: "En cas de difficultés, l'entreprise peut s'appuyer sur ses dispositifs d'évaluation et de gestion des compétences pour accompagner les salariés (plan de départs volontaires, mobilité, formation) plutôt que de supprimer des postes sans méthode." } },
 
             { ty: "choice", ch: 3, tag: "Le bilan de compétences", who: "I",
-              ctx: ["Anissa, régisseuse lumière depuis 8 ans, a fait le tour du poste. Elle rêve de piloter la transition écologique du festival (les groupes électrogènes à l'huile de friture, ça la fait rêver). Mais elle hésite entre plusieurs pistes et ne veut pas en parler à sa hiérarchie avant d'y voir clair."],
+              ctx: ["Inès, régisseuse lumière depuis 8 ans, a fait le tour du poste. Elle rêve de piloter la transition écologique du festival (les groupes électrogènes à l'huile de friture, ça la fait rêver). Mais elle hésite entre plusieurs pistes et ne veut pas en parler à sa hiérarchie avant d'y voir clair."],
               q: "Que lui conseilles-tu ?",
               opts: [
                 { t: "Lui présenter le bilan de compétences : à son initiative, possible hors temps de travail, sans avoir à t'en informer", d: [0, 6, 3], pts: 50, ok: true,
                   fb: "Le bilan de compétences se fait à l'initiative du salarié, analyse ses compétences, ses aptitudes et ses motivations pour définir un projet professionnel. Il n'a pas à être signalé à l'employeur s'il est réalisé hors temps de travail." },
                 { t: "Lui proposer l'entretien professionnel (c'est bientôt son tour)", d: [0, 2, 0], pts: 25,
-                  fb: "Pas faux : il existe aussi, tous les 2 ans, et parle d'évolution. Mais Anissa veut un accompagnement extérieur avant d'en parler en interne : le bilan colle mieux à sa situation." },
+                  fb: "Pas faux : il existe aussi, tous les 2 ans, et parle d'évolution. Mais Inès veut un accompagnement extérieur avant d'en parler en interne : le bilan colle mieux à sa situation." },
                 { t: "Lui imposer un bilan, et demander qu'on t'envoie les résultats", d: [0, -8, -10], pts: -25, ok: false,
                   fb: "Un bilan à la demande de l'employeur nécessite l'accord du salarié, et son contenu reste confidentiel : il n'est communiqué qu'avec son autorisation." }
               ],
               rule: { ref: "Le bilan de compétences", text: "Démarche permettant à un salarié d'analyser ses compétences, ses aptitudes et ses motivations pour définir un projet professionnel ou de formation. À son initiative ou avec son accord ; contenu confidentiel ; trois phases : préliminaire, investigation, conclusion." } },
 
             { ty: "choice", ch: 3, tag: "Après le bilan", who: "I",
-              ctx: ["Quelques mois plus tard, Anissa revient avec le document de synthèse remis à l'issue de son bilan. Elle a trouvé sa voie : responsable développement durable."],
+              ctx: ["Quelques mois plus tard, Inès revient avec le document de synthèse remis à l'issue de son bilan. Elle a trouvé sa voie : responsable développement durable."],
               q: "Que lui réponds-tu ?",
               opts: [
                 { t: "« Je ne te le demande pas : c'est à toi de choisir ce que tu en partages. »", d: [0, 6, 3], pts: 40, ok: true,
-                  fb: "Le contenu d'un bilan est confidentiel. Anissa, rassurée, choisit de te montrer son projet : le document de synthèse reste à elle. Tu viens de gagner une alliée." },
+                  fb: "Le contenu d'un bilan est confidentiel. Inès, rassurée, choisit de te montrer son projet : le document de synthèse reste à elle. Tu viens de gagner une alliée." },
                 { t: "« Je le garde pour le dossier. »", d: [0, -8, -10], pts: -25, ok: false,
-                  fb: "Le document de synthèse est remis au seul bénéficiaire et ne peut être communiqué à un tiers qu'avec son autorisation. Anissa regarde déjà son avocat." },
+                  fb: "Le document de synthèse est remis au seul bénéficiaire et ne peut être communiqué à un tiers qu'avec son autorisation. Inès regarde déjà son avocat." },
                 { t: "« Je le photocopie, ça m'aidera à la placer. »", d: [0, -10, -12], pts: -30, ok: false,
                   fb: "Pire encore : tu copies un document confidentiel sans son accord. La confiance, ça ne se photocopie pas." }
               ],
@@ -874,10 +874,10 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
           ] },
 
         { label: "T4 · Automne", chap: "L'évaluation professionnelle",
-          blurb: "Le grand final. M. Tambour range ses baguettes. Reste à choisir qui prendra la suite.",
+          blurb: "Le grand final. M. Valcourt range ses baguettes. Reste à choisir qui prendra la suite.",
           scenes: [
             { ty: "sort", ch: 3, tag: "Quel dispositif ?", who: "T",
-              ctx: ["Tambour te tend une feuille de papier avec six phrases : « Dis-moi à quel dispositif elles correspondent. Après ça, tu auras mérité ton chapeau de DRH. »"],
+              ctx: ["Valcourt te tend une feuille de papier avec six phrases : « Dis-moi à quel dispositif elles correspondent. Après ça, tu auras mérité ton chapeau de DRH. »"],
               buckets: ["Entretien périodique", "Entretien professionnel", "Bilan de compétences"],
               items: [
                 { t: "Comparer les résultats de l'année aux objectifs fixés.", b: 0, why: "Résultats et objectifs : entretien périodique." },
@@ -892,7 +892,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
               rule: { ref: "Trois dispositifs d'évaluation", text: "Entretien périodique : résultats, non obligatoire. Entretien professionnel : évolution et formation, obligatoire tous les 2 ans, compte rendu écrit. Bilan de compétences : initiative du salarié, confidentiel, projet professionnel." } },
 
             { ty: "choice", ch: 3, tag: "Le grand final", who: "T",
-              ctx: ["Dernier dossier avant que je range les baguettes : choisir mon successeur parmi trois salariés, Lina, Mylan et Anissa, qui ont chacun beaucoup grandi. Sur quoi t'appuies-tu pour juger ?"],
+              ctx: ["Dernier dossier avant que je range les baguettes : choisir mon successeur parmi trois salariés, Nadia, Théo et Inès, qui ont chacun beaucoup grandi. Sur quoi t'appuies-tu pour juger ?"],
               q: "Comment évalues-tu ?",
               opts: [
                 { t: "Sur les trois objets : résultats, compétences et potentiel, avec des grilles et des entretiens structurés", d: [0, 5, 4], pts: 60, ok: true,
@@ -913,14 +913,14 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   /* Variantes : à chaque partie, une de ces scènes remplace (une fois sur deux) la scène de même titre */
   var ALT = {
     "CDD ou CDI": { ty: "choice", ch: 2, tag: "CDD ou CDI", who: "G",
-      ctx: ["Bruno, de la logistique, s'est cassé la jambe en démontant une scène : arrêt de cinq mois. Les palettes, elles, ne s'arrêtent pas.",
+      ctx: ["Hugo, de la logistique, s'est cassé la jambe en démontant une scène : arrêt de cinq mois. Les palettes, elles, ne s'arrêtent pas.",
             "Gérard : « Il suffit de demander aux autres de faire ses heures en plus ! »"],
       q: "Quel contrat proposes-tu pour le remplacer ?",
       opts: [
-        { t: "Un CDD de remplacement, jusqu'au retour de Bruno", d: [-3, 3, 0], pts: 60, ok: true,
-          fb: "Remplacer un salarié absent est un cas de CDD. Le contrat est écrit et s'arrête au retour de Bruno. Les palettes sont soulagées." },
+        { t: "Un CDD de remplacement, jusqu'au retour de Hugo", d: [-3, 3, 0], pts: 60, ok: true,
+          fb: "Remplacer un salarié absent est un cas de CDD. Le contrat est écrit et s'arrête au retour de Hugo. Les palettes sont soulagées." },
         { t: "Un CDI : un bon cariste ne se laisse pas passer", d: [-10, 1, -3], pts: -10, ok: false,
-          fb: "Un contrat sans date de fin pour une absence de cinq mois : au retour de Bruno, tu auras deux personnes pour un seul chariot élévateur." },
+          fb: "Un contrat sans date de fin pour une absence de cinq mois : au retour de Hugo, tu auras deux personnes pour un seul chariot élévateur." },
         { t: "Un intérimaire via une agence", d: [-6, 0, 0], pts: 30,
           fb: "Possible aussi pour un remplacement, mais l'agence prend sa commission et le contrat se fait à trois. Plus cher que le CDD direct." }
       ],
@@ -954,26 +954,26 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
       rule: { ref: "Motifs de CDD", text: "Remplacement d'un salarié absent, accroissement temporaire d'activité, emplois saisonniers : ces cas permettent le CDD. L'intérim répond au même type de besoin ponctuel, mais via une entreprise de travail temporaire." } },
 
     "Interne ou externe": { ty: "choice", ch: 1, tag: "Interne ou externe", who: "T",
-      ctx: ["Le responsable des bars part pour un autre festival. Deux candidats : Mélina, barmaid depuis 6 ans, que tous les saisonniers adorent mais qui n'a jamais géré de budget. Et Maxime, venu d'une grande chaîne de restauration rapide, très organisé, qui dit « process » toutes les 12 secondes.",
-            "Luigi : « Mélina, évidemment. » Gérard : « Maxime, il parle en tableaux. »"],
+      ctx: ["Le responsable des bars part pour un autre festival. Deux candidats : Paola, barmaid depuis 6 ans, que tous les saisonniers adorent mais qui n'a jamais géré de budget. Et Maxime, venu d'une grande chaîne de restauration rapide, très organisé, qui dit « process » toutes les 12 secondes.",
+            "Luigi : « Paola, évidemment. » Gérard : « Maxime, il parle en tableaux. »"],
       q: "Qui nommes-tu responsable des bars ?",
       opts: [
-        { t: "Mélina, avec une formation à la gestion", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
-          fb: "La promotion interne motive les équipes et Mélina connaît déjà les lieux. Il te reste à combler son manque d'expérience en gestion, par la formation." },
+        { t: "Paola, avec une formation à la gestion", d: [-3, 8, 0], pts: 50, ok: true, flag: "interne",
+          fb: "La promotion interne motive les équipes et Paola connaît déjà les lieux. Il te reste à combler son manque d'expérience en gestion, par la formation." },
         { t: "Maxime, le spécialiste des process", d: [-8, -6, 0], pts: 30, flag: "externe",
-          fb: "Un regard neuf et des méthodes éprouvées. Mais salaire plus élevé, intégration plus longue, et Mélina se met soudain à servir très lentement. Défendable, si tu l'assumes." },
-        { t: "Maxime, sans prévenir Mélina", d: [-8, -15, 0], pts: -10, ok: false,
-          fb: "Mélina l'apprend par un saisonnier au détour d'une bière. Le climat social tombe dans la fosse." }
+          fb: "Un regard neuf et des méthodes éprouvées. Mais salaire plus élevé, intégration plus longue, et Paola se met soudain à servir très lentement. Défendable, si tu l'assumes." },
+        { t: "Maxime, sans prévenir Paola", d: [-8, -15, 0], pts: -10, ok: false,
+          fb: "Paola l'apprend par un saisonnier au détour d'une bière. Le climat social tombe dans la fosse." }
       ],
       rule: { ref: "Recrutement interne ou externe", text: "Interne : intégration simplifiée, fidélisation, motivation des équipes, mais profils limités et risque de routine. Externe : regard neuf et nouvelles compétences, mais coût plus élevé, intégration plus longue et risque de démotivation en interne." } },
 
     "Intérim durable": { ty: "choice", ch: 2, tag: "Intérim durable", who: "G",
-      ctx: ["Lauriane, intérimaire, occupe depuis 11 mois le poste d'assistante paie, un emploi permanent. L'agence a renouvelé son contrat cinq fois.",
+      ctx: ["Camille, intérimaire, occupe depuis 11 mois le poste d'assistante paie, un emploi permanent. L'agence a renouvelé son contrat cinq fois.",
             "Gérard : « Elle ne coûte pas plus cher qu'une salariée, si on regarde bien. » (Il ne regarde pas bien.)"],
       q: "Que fais-tu ?",
       opts: [
         { t: "Lui proposer un CDI et arrêter l'intérim", d: [-3, 6, 4], pts: 45, ok: true,
-          fb: "Le contrat de travail temporaire ne peut pas pourvoir durablement un emploi permanent. Tu régularises, et Lauriane découvre les congés payés sans agence." },
+          fb: "Le contrat de travail temporaire ne peut pas pourvoir durablement un emploi permanent. Tu régularises, et Camille découvre les congés payés sans agence." },
         { t: "Continuer à prolonger : c'est pratique", d: [2, -4, -12], pts: -20, ok: false,
           fb: "L'intérim répond à des tâches ponctuelles. Le risque juridique grossit à chaque renouvellement." },
         { t: "La remplacer par une autre intérimaire", d: [-3, -6, -8], pts: -20, ok: false,
@@ -993,14 +993,14 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 
   /* Fins qui arrêtent la partie */
   var ENDS = {
-    cash: { title: "Faillite : le festival dépose le bilan", text: "La trésorerie est à zéro. Les huissiers jouent le dernier morceau, M. Tambour pose ses baguettes. Mégawatt fait un communiqué plein de compassion." },
+    cash: { title: "Faillite : le festival dépose le bilan", text: "La trésorerie est à zéro. Les huissiers jouent le dernier morceau, M. Valcourt pose ses baguettes. Mégawatt fait un communiqué plein de compassion." },
     mood: { title: "Grève générale : les prises sont débranchées", text: "L'ambiance est au plus bas : saisonniers, techniciens et même Luigi coupent le courant. Le silence est assourdissant, et il dure jusqu'à lundi." },
     law: { title: "Fermeture administrative et prud'hommes", text: "Trop d'entorses au droit : l'inspectrice Bertoli ferme le site, les prud'hommes ouvrent le leur. Le festival devient un cas d'école, dans le mauvais sens." },
     fired: { title: "Remercié par le conseil d'administration", text: "Le conseil estime que tes décisions ne tiennent pas la route. On te remercie chaleureusement et on te rend ton badge." }
   };
 
   var TIERS = [
-    { min: 0.82, title: "Légende du CSE", text: "Tambour te fait un solo de batterie de 12 minutes. Gérard reconnaît qu'il y a peut-être de la valeur dans le café." },
+    { min: 0.82, title: "Légende du CSE", text: "Valcourt te fait un solo de batterie de 12 minutes. Gérard reconnaît qu'il y a peut-être de la valeur dans le café." },
     { min: 0.66, title: "DRH de l'année", text: "Le festival tourne, les équipes sourient, l'inspectrice Bertoli te salue (de loin, par prudence)." },
     { min: 0.5, title: "DRH confirmé", text: "Des erreurs, des beaux coups, et un festival toujours debout. Mégawatt a de bonnes raisons de t'envier." },
     { min: 0.33, title: "Stagiaire reconduit", text: "Tu as tenu trois éditions, avec des cicatrices. Gérard te propose un café. Il sait que c'est ta récompense." },
@@ -1427,7 +1427,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     },
     simon: {
       ctx: ["Michel, en larmes de joie, a refait un jeu : « Quatre notes, une mélodie à retenir. Six notes d'affilée : 10 k€ que tu craques. »",
-            "Il a dit « mélodie ». Tambour, à l'autre bout du couloir, lève la tête."],
+            "Il a dit « mélodie ». Valcourt, à l'autre bout du couloir, lève la tête."],
       rule: "Écoute la mélodie, puis reproduis-la en touchant les touches dans le même ordre. Elle s'allonge d'une note à chaque manche, jusqu'à six."
     }
   };
@@ -1586,7 +1586,7 @@ table.board { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     var fired = !last && pct < LIMITS[ei];
     if (fired) S.over = "fired";
     var msg = fired ? "Le conseil estime que ton bilan est insuffisant. Il ne te reconduit pas."
-      : (pct >= 0.65 ? "Le conseil applaudit. Tambour verse une petite larme dans sa grosse caisse." : (pct >= 0.45 ? "Le conseil te reconduit, avec quelques sourcils levés." : "Le conseil te reconduit de justesse, sous haute surveillance."));
+      : (pct >= 0.65 ? "Le conseil applaudit. Valcourt verse une petite larme dans sa grosse caisse." : (pct >= 0.45 ? "Le conseil te reconduit, avec quelques sourcils levés." : "Le conseil te reconduit de justesse, sous haute surveillance."));
     var sign = bonus >= 0 ? "+" : "−";
     $main.innerHTML = '<section class="card"><span class="tag">' + (last ? "Dernier bilan" : "Conseil d'administration") + "</span><h2>Bilan de l'édition " + (ei + 1) + "</h2>" +
       '<p class="lead">' + esc(ed.title) + "</p>" +
