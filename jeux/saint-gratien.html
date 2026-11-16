@@ -1478,8 +1478,14 @@ const SCENES = {
  arthur_photo: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
   text:"Tu parles de la photo. Arthur se fige. « Cette photo n'existe pas. » Il enchaîne dix burpees de pure gêne, très propres, très rapides.",
   c:[
-   B("Lui dire que le changement est impressionnant, c'est vrai", 'course_a1', {t:10, note:"Arthur, touché, annule les burpees. Il te tape sur l'épaule avec la force d'un homme qui fait du crossfit."}),
+   B("Lui dire que le changement est impressionnant, c'est vrai", 'arthur_photo_ok', {t:10, note:"Arthur, touché, annule les burpees. Il te tape sur l'épaule avec la force d'un homme qui fait du crossfit."}),
    B("Insister : coupe de mouton, lunettes, tout", 'fin_burpees', {t:10})
+  ]},
+ arthur_photo_ok: {p:"Chez Marielle et Fabien · Cormeilles", who:'arthur',
+  text:"Arthur s'arrête, essoufflé, et te regarde un instant sans rien dire. « Merci. Personne ne le dit jamais, ils parlent tous de la coupe. » Il attrape sa gourde, son regard se pose sur sa montre, et son sourire revient, un peu trop large. « Je file à Saint-Gratien en courant, de toute façon. Tu viens avec moi ? C'est le meilleur moyen d'y arriver. » Derrière lui, Marielle écoute, tout sourire.",
+  c:[
+   B("Courir avec lui", 'course_a1', {t:5}),
+   B("Décliner poliment, tu iras autrement", 'marielle', {t:5, note:"« Tant pis ! Je t'attendrai avec un chrono », dit Arthur, déjà en train de s'étirer."})
   ]},
  course_a1: {p:"En route avec Arthur · la première côte", who:'arthur',
   text:"Arthur court comme on respire. Toi, tu respires un peu moins. À la première côte, il t'explique le « rythme cible ». Tu n'as plus assez d'air pour répondre.",
