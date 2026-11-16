@@ -1598,7 +1598,7 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
   text:"Le panneau lumineux affiche « Train supprimé », puis « Train à l'approche », puis « Train supprimé ». ",
   c:[
    B("Aller aux bornes de tickets, pour le train", 'gare_borne', {t:5}),
-   B("Aller à l'arrêt de bus", 'bus_arret', {t:10}),
+   B("Aller à l'arrêt de bus", 'bus_arret', {t:3}),
    B("Rejoindre Quentin et Audrey, sur le parvis", 'chez_quentin', {t:5, who:['audrey','quentinm']}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
@@ -1780,14 +1780,14 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
    : "Le quai est froid. Le panneau affiche « Prochain train : 22h14 », puis « Prochain train : supprimé », puis à nouveau « 22h14 ».",
   c:[
    B("Attendre le train", S=>rnd(0.35)?'quai_supprime':'train_monte', {t:15, need:S=>S.t<180}),
-   B("Prendre le bus à la place", 'bus_arret', {t:10}),
+   B("Prendre le bus à la place", 'bus_arret', {t:3}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
  quai_supprime: {p:"Le quai · Cormeilles",
   text:"« Train supprimé. Nous vous remercions de votre compréhension. » Le panneau, lui, a l'air de s'en moquer.",
   c:[
    B("Attendre le suivant", 'train_monte', {t:40}),
-   B("Prendre le bus à la place", 'bus_arret', {t:10}),
+   B("Prendre le bus à la place", 'bus_arret', {t:3}),
    B("Retourner dans la rue", 'rue', {t:10})
   ]},
  train_monte: {p:"Dans le train",
@@ -1878,28 +1878,34 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
  bus_arret: {p:"L'arrêt de bus · Cormeilles",
   text:"Les horaires affichés sont à moitié arrachés, à moitié optimistes. Une jeune femme attend aussi, un sac de courses à ses pieds. Un livreur passe en klaxonnant. Un bus finit par arriver, ou alors c'est celui d'il y a vingt minutes.",
   c:[
-   B("Attendre le bus", S=>rnd(0.3)?'bus_retard':'bus_monte', {t:15}),
+   B("Attendre le bus", S=>rnd(0.3)?'bus_retard':'bus_monte', {t:5}),
    B("Abandonner et retourner dans la rue", 'rue', {t:10})
   ]},
  bus_retard: {p:"L'arrêt de bus · Cormeilles",
-  text:"Un bus arrive, avec « Hors service » affiché. Il passe sans s'arrêter. Quelqu'un à l'arrêt rit nerveusement. Un autre bus arrive, quinze minutes plus tard, cette fois avec de vraies lumières.",
-  c:[B("Monter dans le suivant", 'bus_monte', {t:20})]},
+  text:"Un bus arrive, avec « Hors service » affiché. Il passe sans s'arrêter. Quelqu'un à l'arrêt rit nerveusement. Un autre bus arrive, dix minutes plus tard, cette fois avec de vraies lumières.",
+  c:[B("Monter dans le suivant", 'bus_monte', {t:10})]},
  bus_monte: {p:"Dans le bus",
   text:"Le chauffeur te regarde d'un air épuisé. « 2 € à bord, pas de monnaie, pas de caprice. »",
   c:[
-   B("Payer 2 €", 'bus_trajet', {t:5, m:-2, lock:pay(2), need:S=>S.ticket!=='full'}),
-   B("Montrer ton ticket", 'bus_trajet', {t:5, need:S=>S.ticket==='full'}),
-   B("Dire que tu as oublié ton portefeuille", 'bus_trajet', {t:5, need:S=>S.ticket!=='full', fx:S=>{ S.pass = rnd(0.4); }, to:S=>S.pass?'bus_trajet':'bus_descente'})
+   B("Payer 2 €", 'bus_trajet', {t:2, m:-2, lock:pay(2), need:S=>S.ticket!=='full', fx:S=>{ S.busfree = false; }}),
+   B("Montrer ton ticket", 'bus_trajet', {t:2, need:S=>S.ticket==='full', fx:S=>{ S.busfree = false; }}),
+   B("Dire que tu as oublié ton portefeuille", 'bus_trajet', {t:2, need:S=>S.ticket!=='full', fx:S=>{ S.pass = rnd(0.4); S.busfree = S.pass; }, to:S=>S.pass?'bus_trajet':'bus_descente'})
   ]},
  bus_descente: {p:"Dans le bus",
   text:"« Dehors. » Le chauffeur n'a même pas élevé la voix. Les portes s'ouvrent avec une lenteur cruelle. Tu descends à l'arrêt suivant, au milieu de nulle part, avec dignité.",
   c:[B("Marcher jusqu'à l'arrêt d'après", 'bus_arret', {t:20})]},
  bus_trajet: {p:"Dans le bus",
   text:"Le bus avance, s'arrête, redémarre. Un fêtard monte, déguisé en flûte à champagne, et s'assoit à côté de toi. « Bonne année avant l'heure ! » Le bus passe devant des maisons illuminées, des gens qui se serrent dans les bras.",
-  c:[B("Continuer jusqu'au terminus", S=>maybe(S,'bus_terminus',0.5), {t:25})]},
+  c:[B("Continuer jusqu'au terminus", S=>S.pass?'bus_controle':maybe(S,'bus_terminus',0.3), {t:7, fx:S=>{ S.pass = !!S.busfree && rnd(0.5); }})]},
+ bus_controle: {p:"Dans le bus · le contrôleur",
+  text:"À l'arrêt suivant, deux contrôleurs montent et bloquent les portes. « Contrôle des titres de transport. » Tu sens le regard du chauffeur dans le rétroviseur. La flûte à champagne cache son ticket sous sa couronne en carton.",
+  c:[
+   B("Payer l'amende (35 €)", 'bus_terminus', {t:3, m:-35, lock:pay(35), fx:S=>{ S.flags.pv = true; S.busfree = false; }, note:"Le contrôleur tamponne le procès-verbal avec un plaisir évident."}),
+   B("Descendre à l'arrêt et finir à pied", 'franconville', {t:20, fx:S=>{ S.busfree = false; }, note:"Tu marches jusqu'à Franconville en évitant le regard des contrôleurs."})
+  ]},
  bus_terminus: {p:"Dans le bus · Franconville",
   text:"« Terminus. Travaux. Tout le monde descend. » Le bus s'arrête à Franconville, devant des immeubles que tu reconnais. La flûte à champagne te souhaite une bonne année.",
-  c:[B("Descendre", 'franconville', {t:10})]},
+  c:[B("Descendre", 'franconville', {t:3})]},
  transport: {p:"Départ pour Saint-Gratien",
   text:"Il est {time}. La soirée est trop loin pour y aller à pied sans y laisser de l'énergie. Le train et le bus, ça se prend à la gare. Tu as {m} en poche. Comment tu y vas ?",
   c:[
