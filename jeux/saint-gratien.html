@@ -958,7 +958,7 @@ const pay = n => S => S.m + 0.001 < n ? "Pas assez d'argent" : null;
 const B = (l,to,o) => Object.assign({l:l,to:to}, o || {});
 const rnd = p => Math.random() < p;
 const buy = (key,n) => S => (S.stock && S.stock[key] === false) ? 'En rupture' : pay(n)(S);
-const AVAIL = {epi_blanc:0.1, epi_cuvee:0.1, epi_mys:0.1, epi_sauc:0.1, epi_chev:0.1, epi_nature:0.1, epi_miel:0.1, epi_bonb:0.1, cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
+const AVAIL = {epi_blanc:0.1, epi_cuvee:0.1, epi_mys:0.5, epi_sauc:0.1, epi_chev:0.1, epi_nature:0.1, epi_miel:0.1, epi_bonb:0.1, cremant:0.1, rouge:0.1, rose:0.1, bieres:0.1, chips:0.1, bacon:0.1, nature:1, cacahuetes:0.1, sushis:0.1, cotillons:0.1, boule:0.1, fleurs:0.1};
 const lab = (t,k) => t + (AVAIL[k] < 0.2 ? " · presque toujours en rupture" : AVAIL[k] < 0.7 ? " · souvent en rupture" : "");
 function newStock(){ const o = {}; Object.keys(AVAIL).forEach(k=>{ o[k] = rnd(AVAIL[k]); }); return o; }
 
