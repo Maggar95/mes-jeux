@@ -1900,9 +1900,12 @@ chez_quentin: {p:"Parvis de la gare · Cormeilles", who:['audrey','quentinm'],
  bus_controle: {p:"Dans le bus · le contrôleur",
   text:"À l'arrêt suivant, deux contrôleurs montent et bloquent les portes. « Contrôle des titres de transport. » Tu sens le regard du chauffeur dans le rétroviseur. La flûte à champagne cache son ticket sous sa couronne en carton.",
   c:[
-   B("Payer l'amende (35 €)", 'bus_terminus', {t:3, m:-35, lock:pay(35), fx:S=>{ S.flags.pv = true; S.busfree = false; }, note:"Le contrôleur tamponne le procès-verbal avec un plaisir évident."}),
-   B("Descendre à l'arrêt et finir à pied", 'franconville', {t:20, fx:S=>{ S.busfree = false; }, note:"Tu marches jusqu'à Franconville en évitant le regard des contrôleurs."})
+   B("Payer l'amende (35 €)", 'bus_terminus', {t:3, m:-35, need:S=>S.m>=35, fx:S=>{ S.flags.pv = true; S.busfree = false; }, note:"Le contrôleur tamponne le procès-verbal avec un plaisir évident."}),
+   B("Descendre à l'arrêt et finir à pied", 'franconville', {t:20, need:S=>S.m>=35, fx:S=>{ S.busfree = false; }, note:"Tu marches jusqu'à Franconville en évitant le regard des contrôleurs."}),
+   B("Fouiller tes poches : tu n'as pas de quoi payer", 'fin_bus_pv', {t:5, need:S=>S.m<35})
   ]},
+ fin_bus_pv: {end:'lose', h:"Le procès-verbal de trop",
+  text:"Tu retournes tes poches devant les deux contrôleurs : un mouchoir, un ticket de carte de fidélité, quelques pièces. « Trente-cinq euros, monsieur. » Tu n'as pas trente-cinq euros. Le bus s'arrête, les portes s'ouvrent. Ils notent ton identité sous les regards de la flûte à champagne, qui murmure « bonne année » avec compassion. À minuit, tu es dans un commissariat de quartier, à remplir un formulaire, pendant que la soirée de Yann commence sans toi."},
  bus_terminus: {p:"Dans le bus · Franconville",
   text:"« Terminus. Travaux. Tout le monde descend. » Le bus s'arrête à Franconville, devant des immeubles que tu reconnais. La flûte à champagne te souhaite une bonne année.",
   c:[B("Descendre", 'franconville', {t:3})]},
@@ -2849,6 +2852,7 @@ const IMG = (function(){
   const END={
     fin_riche:()=>R(0,0,400,200,'#15402f')+[...Array(18)].map((_,i)=>Ci(40+((i*61)%320),30+((i*37)%140),12,C.li)+Ci(40+((i*61)%320),30+((i*37)%140),7,C.am)).join('')+R(130,50,140,100,C.cr,'rx="6"')+Ci(200,100,26,C.gn)+L('M200 84v32M192 92h16M192 108h16',C.dk,4)+L('M320 40l30 30M350 40l-30 30',C.rd,6),
     fin_eva_nuit:()=>R(0,0,400,200,'#3a2b60')+Ci(70,60,34,C.li,'opacity=".9"')+R(0,150,400,50,C.gr)+R(120,100,190,50,C.pu,'rx="14"')+R(104,112,34,48,C.pu2,'rx="10"')+boardgame().replace(/^/,'<g transform="translate(220 122) scale(.7)">')+'</g>'+Ci(340,50,20,C.cr)+L('M340 50v-12M340 50l10 6',C.dk,3)+P('M0 0h400v10h-400z',C.am,'opacity=".3"')+[0,1,2].map(i=>sparkle(40+i*28,150+i*4,.4,C.pk)).join(''),
+    fin_bus_pv:()=>sky({nm:1})+roadN(140)+R(70,92,250,66,C.am,'rx="12"')+R(86,104,44,28,C.li)+R(140,104,44,28,C.li)+R(194,104,44,28,C.li)+R(248,104,44,28,C.li)+Ci(115,160,16,C.dk)+Ci(275,160,16,C.dk)+L('M330 80l24-14M336 100l30-4',C.rd,3)+R(60,40,18,10,C.rd),
     fin_arnaque:()=>sky({nm:1})+roadN(140)+car(110,160,C.dk,1.9)+R(176,142,60,12,C.bl,'opacity="0"')+L('M10 40q190-60 380 0',C.lv,3,'opacity=".3"')+Ci(150,110,0,C.li)+P('M300 150l70-20l4 12z',C.li,'opacity=".15"')+L('M96 156l70 0',C.rd,0)+R(100,152,26,10,C.dk,'opacity="0"')+L('M335 70l20-12M350 90l24-4',C.mo,3),
     fin_carottes:()=>R(0,0,400,200,C.bg2)+glow(200,100,150,C.am,.12)+`<ellipse cx="200" cy="106" rx="90" ry="64" fill="${C.am}"/>`+`<ellipse cx="200" cy="106" rx="76" ry="52" fill="${C.pk}" opacity=".9"/>`+[...Array(26)].map((_,i)=>L(`M${150+((i*29)%100)} ${80+((i*17)%50)}l${10} ${6}`,C.or,5)).join('')+garland(0,400,16,10,5),
     fin_festival:()=>R(0,0,400,200,'#ffb347')+Ci(310,50,34,C.li)+P('M0 150L90 80L180 150Z',C.pk)+P('M120 150L220 70L320 150Z',C.pu)+R(0,150,400,50,'#3b8f5b')+R(120,110,60,40,C.cr,'rx="3"','transform="rotate(-8 150 130)"')+R(200,112,60,40,C.cr,'rx="3"','transform="rotate(6 230 132)"')+L('M130 124h40M130 136h30M210 126h40M210 138h30',C.pk,3)+[0,1,2,3].map(i=>sparkle(40+i*100,40+(i%2)*20,.8,C.cr)).join(''),
@@ -2908,7 +2912,7 @@ const CLS = (function(){
     ['À manger gagnant', ['win_epicier','win_carrefour','win_effort','win_fromage_mt','win_quiche','win_pasteis','win_tarte','win_plat_eva','win_gateau_pdf','win_buche','win_biscuits_cindy']],
     ['Cadeaux et surprises', ['win_jeu_societe','win_lego','win_vintage','win_lorient','win_poesie','win_livre_mael','win_confettis','win_gants_louis','win_objets_trouves','win_enveloppe','win_chien','win_souvenir_cindy','fin_mystere','win_parfait']],
     ['Mauvais cadeaux', ['lose_mains','lose_vin_epicerie','lose_chips_nature','lose_biscuits_perimes','lose_durian','lose_recu','lose_buche_moreau']],
-    ['En chemin', ['fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
+    ['En chemin', ['fin_bus_pv','fin_arnaque','fin_moto_solo','fin_heli_toit','fin_egout_rave','fin_riche','coffre_police']],
     ['Les tentations de la nuit', ['fin_eva_nuit','fin_katia','fin_casino','fin_festival','fin_carottes','fin_chien','fin_burpees','fin_salle','fin_minuit']]
   ];
   const who = n => String(n || '').trim().toLowerCase();
