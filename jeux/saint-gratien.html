@@ -2907,7 +2907,7 @@ const CLS = (function(){
   ];
   const who = n => String(n || '').trim().toLowerCase();
   const key = n => 'dsg-classeur:' + who(n);
-  const LEG = {win_chips_bacon:'win_effort',win_rose_brique:'win_effort',win_boule_neige:'win_effort',win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',win_cremant_cf:'win_carrefour',win_rouge_cf:'win_carrefour',win_bieres:'win_carrefour',win_chips:'win_carrefour',win_cacahuetes:'win_carrefour',win_sushis:'win_carrefour',win_cotillons:'win_carrefour',win_fleurs:'win_carrefour',win_mystere:'fin_mystere',lose_mystere:'fin_mystere'};
+  const LEG = {win_chips_bacon:'win_effort',win_rose_brique:'win_effort',win_boule_neige:'win_effort',win_blanc_epi:'win_epicier',win_saucisson:'win_epicier',win_chevre:'win_epicier',win_miel:'win_epicier',win_bonbons:'win_epicier',win_cremant_cf:'win_carrefour',win_rouge_cf:'win_carrefour',win_bieres:'win_carrefour',win_chips:'win_carrefour',win_cacahuetes:'win_carrefour',win_sushis:'win_carrefour',win_cotillons:'win_carrefour',win_fleurs:'win_carrefour',win_mystere:'fin_mystere',lose_mystere:'fin_mystere',lose_chips_bacon:'win_effort',lose_rose_brique:'win_effort',lose_epicier:'lose_vin_epicerie',fin_eva:'fin_eva_nuit'};
   function get(n){ return new Set([...rawGet(n)].map(i => LEG[i] || i)); }
   function rawGet(n){
     const out = new Set();

@@ -6,15 +6,26 @@
   "use strict";
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function key(p) { return "dsg-found:" + String(p || "").trim().toLowerCase(); }
+  /* Fins regroupées ou renommées au fil des versions : l'ancien identifiant compte pour le nouveau */
+  var LEG = { win_chips_bacon: "win_effort", win_rose_brique: "win_effort", win_boule_neige: "win_effort", lose_chips_bacon: "win_effort", lose_rose_brique: "win_effort",
+    win_blanc_epi: "win_epicier", win_saucisson: "win_epicier", win_chevre: "win_epicier", win_miel: "win_epicier", win_bonbons: "win_epicier", lose_epicier: "lose_vin_epicerie",
+    win_cremant_cf: "win_carrefour", win_rouge_cf: "win_carrefour", win_bieres: "win_carrefour", win_chips: "win_carrefour", win_cacahuetes: "win_carrefour", win_sushis: "win_carrefour", win_cotillons: "win_carrefour", win_fleurs: "win_carrefour",
+    win_mystere: "fin_mystere", lose_mystere: "fin_mystere", fin_eva: "fin_eva_nuit" };
+  function norm(id) { return LEG.hasOwnProperty(id) ? LEG[id] : id; }
   function found(p) {
-    try { var m = JSON.parse(localStorage.getItem(key(p)) || "null"); return m && typeof m === "object" ? m : null; } catch (e) { return null; }
+    try {
+      var m = JSON.parse(localStorage.getItem(key(p)) || "null");
+      if (!m || typeof m !== "object") return null;
+      var out = {}; Object.keys(m).forEach(function (k) { out[norm(k)] = m[k]; });
+      return out;
+    } catch (e) { return null; }
   }
 
   /* Joueurs triés par nombre de fins différentes ; à égalité, celui qui a atteint ce nombre le premier */
   function rank(rows) {
     var by = {};
     rows.slice().sort(function (a, b) { return a.created_at < b.created_at ? -1 : 1; }).forEach(function (r) {
-      var id = r.details && r.details.ending; if (!id) return;
+      var id = r.details && r.details.ending; if (!id) return; id = norm(id);
       var k = String(r.player).toLowerCase();
       var o = by[k] || (by[k] = { player: r.player, set: {}, count: 0, last: r.created_at });
       if (!o.set[id]) { o.set[id] = 1; o.count++; o.last = r.created_at; }
@@ -84,5 +95,5 @@
     box.appendChild(n);
   }
 
-  window.Endings = { rank: rank, found: found, key: key, renderBoard: renderBoard };
+  window.Endings = { rank: rank, found: found, key: key, norm: norm, renderBoard: renderBoard };
 })();

@@ -87,5 +87,5 @@ Le joueur saisit d'abord **son prénom** (il apparaît dans le classement et ser
 
 - **Anonymat** : tant qu'on n'a pas fini une partie chez l'hôte, le jeu masque son nom (« l'hôte ») et le lieu (« ??? ») partout (textes, carte, fins, page d'accueil du site). Le filtre est dans `MASK` (affichage seulement, les scènes gardent les vrais noms). Une fois une fin gagnante ou perdue atteinte chez l'hôte, les vrais noms apparaissent pour ce prénom, sur tous les appareils (la fin est retrouvée dans la table `scores`).
 - **Images** : un dessin par scène et par fin, généré dans le code (`IMG`, SVG) ; une photo peut remplacer n'importe lequel.
-- **Classeur** : une carte par fin (71), grisée tant que la fin n'est pas trouvée, rangée en 7 catégories, par prénom. Paliers de titres à 10, 25, 50 et 71 fins (diplôme à 71).
+- **Classeur** : une carte par fin (57), grisée tant que la fin n'est pas trouvée, rangée en 7 catégories, par prénom. Paliers de titres à 10, 25, 45 et 57 fins (diplôme à 57). Les fins regroupées (épicier, Carrefour City, « Tu aurais pu ramener mieux ») comptent pour une seule ; `js/endings.js` (`LEG`) et le classeur convertissent les anciens identifiants pour que les parties déjà jouées ne gonflent pas le décompte. Le total affiché au classement vient de la partie la plus récente.
 
