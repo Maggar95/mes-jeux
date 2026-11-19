@@ -44,7 +44,7 @@ Chaque partie envoie son score à la table `scores` de Supabase (colonnes `game`
 
 | Jeu | Score sur 100 |
 | --- | --- |
-| Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale |
+| Le Franchisé | 70 % de bonnes réponses + 30 % de trésorerie finale. **Faillite** : si la trésorerie tombe à zéro (ou en dessous) à la fin d'une étape, la partie s'arrête (un écran « Faillite » puis le résultat, avec le titre « Dépôt de bilan » ou « Faillite honorable »). Pas d'arrêt si le zéro arrive pendant la dernière année : le bilan s'affiche normalement. Le champ `bankrupt` des détails du score donne l'année d'arrêt (0 = partie jouée en entier) |
 | Le DRH du Festival | score en points (jusqu'à environ 2 000) : bonnes décisions et gestion des trois jauges (trésorerie, ambiance, conformité) ; une jauge à zéro, ou le renvoi par le conseil d'administration, arrête la partie et fige le score |
 | Le Greffier (Première, 1STMG1) | **note sur 10** : 8 points d'exactitude (tri des phrases d'un litige 2,5 ; guichet 3,5 ; vrai ou faux 2) + 2 points de rapidité (références : 30 s par réponse, 20 s par affirmation). La note affichée évolue en direct, arrondie à la fin. Dans la base, le score est stocké en **dixièmes de point** (0 à 100) ; le champ `fmt` de `js/games.js` le réaffiche en note sur 10 |
 | Direction Saint-Gratien | pas de points : classement au nombre de **fins différentes découvertes** (à égalité, le premier arrivé). Un clic sur son prénom affiche ses fins, uniquement depuis l'appareil où il a joué (liste gardée dans son navigateur) |

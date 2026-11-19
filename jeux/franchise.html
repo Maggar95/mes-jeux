@@ -689,7 +689,22 @@ var P5 = [
     if (dc) out += '<span class="chip ' + (dc > 0 ? "up" : "down") + '">Trésorerie ' + (dc > 0 ? "+" : "−") + Math.abs(dc) + " k€</span>";
     return out ? '<div class="chips">' + out + "</div>" : "";
   }
-  function next() { S.i++; render(); }
+  /* Faillite : si la trésorerie est à zéro ou en dessous, la partie s'arrête (sauf tout à la fin, où le bilan s'affiche normalement) */
+  function next() {
+    var cur = steps[S.i];
+    S.i++;
+    if (S.cash <= 0 && !S.over && steps[S.i].kind !== "end") { S.over = { yi: cur.yi }; S.i = steps.length - 1; }
+    render();
+  }
+  function renderBankrupt() {
+    var yi = S.over.yi;
+    renderHeader(yi, "Faillite");
+    $main.innerHTML = '<section class="card"><span class="tab">Année ' + (yi + 1) + ' sur 5</span><h2>Faillite</h2>' +
+      '<p class="lead">Votre trésorerie est à zéro : vous ne pouvez plus payer vos fournisseurs ni les redevances de l\'enseigne. Le tribunal de commerce ouvre une procédure et votre restaurant ferme avant la fin du contrat.</p>' +
+      '<p class="hint">La partie s\'arrête ici. Votre note tient compte des réponses déjà données, et la fiche à revoir vous dit ce qui a coûté cher.</p>' +
+      '<button class="btn" id="seeEnd">Voir le résultat</button></section>';
+    document.getElementById("seeEnd").onclick = function () { S.overSeen = true; render(); };
+  }
 
   function render() {
     scrollTop();
@@ -699,6 +714,7 @@ var P5 = [
     if (st.kind === "choice") return renderChoice(st);
     if (st.kind === "sort") return renderSort(st);
     if (st.kind === "event") return renderEvent(st);
+    if (S.over && !S.overSeen) return renderBankrupt();
     return renderEnd();
   }
 
@@ -706,7 +722,7 @@ var P5 = [
   function renderStart() {
     renderHeader(-1, "Dossier de candidature");
     var html = '<section class="card"><span class="tab">Dossier de franchise</span><h1>Le Franchisé</h1>' +
-      '<p class="lead">Vous ouvrez un restaurant sous franchise et vous le gérez pendant cinq ans. À chaque étape, des décisions juridiques font bouger votre trésorerie et votre sécurité juridique. Les situations sont tirées au hasard : une partie ne ressemble pas à la précédente.</p>' +
+      '<p class="lead">Vous ouvrez un restaurant sous franchise et vous le gérez pendant cinq ans. À chaque étape, des décisions juridiques font bouger votre trésorerie et votre sécurité juridique. Si votre trésorerie tombe à zéro, c\'est la faillite et la partie s\'arrête. Les situations sont tirées au hasard : une partie ne ressemble pas à la précédente.</p>' +
       '<form class="form" id="startForm" novalidate>' +
       '<div class="field"><label for="nm">Prénom et initiale du nom</label><input id="nm" name="nm" maxlength="24" autocomplete="given-name" placeholder="Camille D."></div>' +
       '<div class="field"><label for="cl">Classe</label><select id="cl" name="cl">' + (CLASSES.length === 1 ? "" : '<option value="">Choisir votre classe</option>') + CLASSES.map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("") + '</select></div>' +
@@ -862,10 +878,10 @@ var P5 = [
   }
 
   function renderEnd() {
-    renderHeader(5, "Dossier clôturé");
+    renderHeader(S.over ? S.over.yi : 5, "Dossier clôturé");
     var end = endingFor(), pct = pctScore(), final = finalScore();
     var code = "FRANCHISE | " + S.name + (S.cls ? " | " + S.cls : "") + " | " + S.good + "/" + S.total + " | " + Math.round(S.cash) + " k€ | note " + finalScore() + " | " + new Date().toLocaleDateString("fr-FR");
-    var html = '<section class="card"><span class="tab">Fin du dossier</span><h2>' + esc(end.title) + '</h2><div class="score">' + final + ' / 100</div>' + end.text.map(function (t) { return '<p class="lead">' + esc(t) + "</p>"; }).join("") +
+    var html = '<section class="card"><span class="tab">' + (S.over ? "Faillite en année " + (S.over.yi + 1) + " sur 5" : "Fin du dossier") + '</span><h2>' + esc(end.title) + '</h2><div class="score">' + final + ' / 100</div>' + end.text.map(function (t) { return '<p class="lead">' + esc(t) + "</p>"; }).join("") +
       '<p class="hint" style="margin-top:12px">' + esc(S.name) + " · " + pct + " % de bonnes réponses (70 % de la note) · trésorerie finale <b>" + Math.round(S.cash) + " k€</b> (30 % de la note, plafonnée à 80 k€)</p>" +
       '<div class="row"><button class="btn" id="again">Rejouer</button></div></section>';
     html += bilanHTML(pct);
@@ -892,7 +908,7 @@ var P5 = [
     };
     saveAndShowBoard({
       name: S.name, cls: S.cls, score: pct, final: final, good: S.good, total: S.total, cash: Math.round(S.cash), sec: Math.round(S.sec),
-      ending: end.title, ts: Date.now(), secs: Math.round((Date.now() - S.t0) / 1000),
+      ending: end.title, bankrupt: S.over ? S.over.yi + 1 : 0, ts: Date.now(), secs: Math.round((Date.now() - S.t0) / 1000),
       tags: S.misses.map(function (m) { return m.tag; })
     });
   }
